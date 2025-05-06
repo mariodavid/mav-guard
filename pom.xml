@@ -18,6 +18,7 @@
     <modules>
         <module>mav-guard-cli</module>
         <module>mav-guard-xml-parser</module>
+        <module>mav-guard-model</module>
     </modules>
     <url/>
     <licenses>

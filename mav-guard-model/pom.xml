@@ -8,28 +8,16 @@
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>mav-guard-xml-parser</artifactId>
-    <name>mav-guard-xml-parser</name>
-    <description>XML Parsing module for mav-guard</description>
+    <artifactId>mav-guard-model</artifactId>
+    <name>mav-guard-model</name>
+    <description>Model classes for mav-guard</description>
 
     <dependencies>
-        <!-- Module dependencies -->
-        <dependency>
-            <groupId>de.diedavids</groupId>
-            <artifactId>mav-guard-model</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <!-- XML parsing dependencies -->
+        <!-- XML binding dependencies -->
         <dependency>
             <groupId>javax.xml.bind</groupId>
             <artifactId>jaxb-api</artifactId>
             <version>2.3.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.glassfish.jaxb</groupId>
-            <artifactId>jaxb-runtime</artifactId>
-            <version>2.3.5</version>
         </dependency>
 
         <!-- Testing dependencies -->

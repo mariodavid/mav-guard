@@ -13,10 +13,14 @@
     <description>Command Line Interface for mav-guard</description>
 
     <dependencies>
-        <!-- Internal dependencies -->
         <dependency>
             <groupId>de.diedavids</groupId>
             <artifactId>mav-guard-xml-parser</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>de.diedavids</groupId>
+            <artifactId>mav-guard-model</artifactId>
             <version>${project.version}</version>
         </dependency>
 

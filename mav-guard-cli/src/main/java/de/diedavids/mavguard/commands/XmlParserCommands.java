@@ -1,5 +1,8 @@
 package de.diedavids.mavguard.commands;
 
+import de.diedavids.mavguard.model.Dependency;
+import de.diedavids.mavguard.model.Project;
+import de.diedavids.mavguard.xml.PomParser;
 import de.diedavids.mavguard.xml.XmlParser;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
@@ -13,6 +16,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.util.List;
 
 /**
  * Shell commands for XML parsing operations.
@@ -21,9 +25,11 @@ import java.io.FileNotFoundException;
 public class XmlParserCommands {
 
     private final XmlParser xmlParser;
+    private final PomParser pomParser;
 
     public XmlParserCommands() {
         this.xmlParser = new XmlParser();
+        this.pomParser = new PomParser();
     }
 
     @ShellMethod(key = "parse-xml", value = "Parse an XML file")
@@ -56,6 +62,46 @@ public class XmlParserCommands {
             return "Successfully parsed XML stream. Content: " + data.toString();
         } catch (JAXBException | FileNotFoundException e) {
             return "Error parsing XML: " + e.getMessage();
+        }
+    }
+
+    @ShellMethod(key = "parse-pom", value = "Parse a Maven POM file")
+    public String parsePom(@ShellOption(help = "Path to the POM file") String filePath) {
+        try {
+            File file = new File(filePath);
+            if (!file.exists()) {
+                return "File not found: " + filePath;
+            }
+
+            Project project = pomParser.parsePomFile(file);
+            return String.format("Successfully parsed POM file: %s:%s:%s", 
+                    project.getGroupId(), project.getArtifactId(), project.getVersion());
+        } catch (JAXBException e) {
+            return "Error parsing POM: " + e.getMessage();
+        }
+    }
+
+    @ShellMethod(key = "extract-dependencies", value = "Extract dependencies from a Maven POM file")
+    public String extractDependencies(@ShellOption(help = "Path to the POM file") String filePath) {
+        try {
+            File file = new File(filePath);
+            if (!file.exists()) {
+                return "File not found: " + filePath;
+            }
+
+                Project project = pomParser.parsePomFile(file);
+                List<Dependency> dependencies = project.getAllDependencies();
+            if (dependencies.isEmpty()) {
+                return "No dependencies found in POM file.";
+            }
+
+            StringBuilder result = new StringBuilder("Dependencies found in POM file:\n");
+            for (Dependency dependency : dependencies) {
+                result.append("- ").append(dependency.toString()).append("\n");
+            }
+            return result.toString();
+        } catch (JAXBException e) {
+            return "Error extracting dependencies: " + e.getMessage();
         }
     }
 
