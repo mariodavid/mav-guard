@@ -34,14 +34,18 @@ import java.util.concurrent.Callable;
 )
 public class XmlParserCommands {
 
-    private static final PomParser pomParser = new PomParser();
+    private final PomParser pomParser;
+
+    public XmlParserCommands(PomParser pomParser) {
+        this.pomParser = pomParser;
+    }
 
     /**
      * Command to parse a Maven POM file.
      */
     @Component
     @Command(name = "parse-pom", description = "Parse a Maven POM file", mixinStandardHelpOptions = true)
-    public static class ParsePomCommand implements Callable<Integer> {
+    public class ParsePomCommand implements Callable<Integer> {
 
         @Parameters(index = "0", description = "Path to the POM file")
         private String filePath;
@@ -71,7 +75,7 @@ public class XmlParserCommands {
      */
     @Component
     @Command(name = "extract-dependencies", description = "Extract dependencies from a Maven POM file", mixinStandardHelpOptions = true)
-    public static class ExtractDependenciesCommand implements Callable<Integer> {
+    public class ExtractDependenciesCommand implements Callable<Integer> {
 
         @Parameters(index = "0", description = "Path to the POM file")
         private String filePath;
