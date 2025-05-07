@@ -1,0 +1,45 @@
+name: CI Pipeline
+
+permissions:
+  contents: read
+  checks: write
+  id-token: write
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up JDK 21
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+        cache: maven
+
+    - name: Compile
+      run: mvn -B clean compile
+
+    - name: Test
+      run: mvn -B test
+
+    - name: Upload Test Results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: junit-test-results
+        path: '**/target/surefire-reports/TEST-*.xml'
+        retention-days: 5
+
+    - name: Publish Test Report
+      uses: mikepenz/action-junit-report@v5
+      if: always()
+      with:
+        report_paths: '**/target/surefire-reports/TEST-*.xml'
