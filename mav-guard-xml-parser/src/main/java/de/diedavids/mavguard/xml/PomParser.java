@@ -1,6 +1,7 @@
 package de.diedavids.mavguard.xml;
 
 import de.diedavids.mavguard.model.Project;
+import de.diedavids.mavguard.xml.model.XmlProject;
 
 import javax.xml.bind.JAXBException;
 import java.io.File;
@@ -33,7 +34,8 @@ public class PomParser implements PomFileProcessor {
     @Override
     public Project parsePomFile(File pomFile) throws JAXBException {
         validateFile(pomFile);
-        return xmlParser.parseXmlFile(pomFile, Project.class);
+        XmlProject xmlProject = xmlParser.parseXmlFile(pomFile, XmlProject.class);
+        return xmlProject.toDomainModel();
     }
 
     /**
@@ -47,7 +49,8 @@ public class PomParser implements PomFileProcessor {
     @Override
     public Project parsePomStream(InputStream inputStream) throws JAXBException {
         validateInputStream(inputStream);
-        return xmlParser.parseXmlStream(inputStream, Project.class);
+        XmlProject xmlProject = xmlParser.parseXmlStream(inputStream, XmlProject.class);
+        return xmlProject.toDomainModel();
     }
 
     private void validateFile(File file) {

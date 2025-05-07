@@ -1,22 +1,12 @@
 package de.diedavids.mavguard.model;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-
 /**
  * Represents a Maven plugin dependency with groupId, artifactId, and version.
  */
-@XmlAccessorType(XmlAccessType.FIELD)
 public class PluginDependency {
 
-    @XmlElement(name = "groupId", namespace = "http://maven.apache.org/POM/4.0.0")
     private String groupId;
-
-    @XmlElement(name = "artifactId", namespace = "http://maven.apache.org/POM/4.0.0")
     private String artifactId;
-
-    @XmlElement(name = "version", namespace = "http://maven.apache.org/POM/4.0.0")
     private String version;
 
     /**
@@ -42,7 +32,7 @@ public class PluginDependency {
     public String getGroupId() {
         return groupId;
     }
-    
+
     /**
      * Gets the artifact ID.
      * 
@@ -51,7 +41,7 @@ public class PluginDependency {
     public String getArtifactId() {
         return artifactId;
     }
-    
+
     /**
      * Gets the version.
      * 

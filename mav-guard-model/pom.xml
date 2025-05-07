@@ -13,13 +13,6 @@
     <description>Model classes for mav-guard</description>
 
     <dependencies>
-        <!-- XML binding dependencies -->
-        <dependency>
-            <groupId>javax.xml.bind</groupId>
-            <artifactId>jaxb-api</artifactId>
-            <version>2.3.1</version>
-        </dependency>
-
         <!-- Testing dependencies -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>

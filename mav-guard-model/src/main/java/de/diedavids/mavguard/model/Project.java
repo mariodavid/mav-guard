@@ -1,46 +1,20 @@
 package de.diedavids.mavguard.model;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlSchema;
-import javax.xml.bind.annotation.XmlNs;
-import javax.xml.bind.annotation.XmlNsForm;
 import java.util.Collections;
 import java.util.List;
 
 /**
  * Represents a Maven project (POM) with its dependencies.
  */
-@XmlRootElement(name = "project", namespace = "http://maven.apache.org/POM/4.0.0")
-@XmlAccessorType(XmlAccessType.FIELD)
 public class Project {
 
-    @XmlElement(name = "groupId", namespace = "http://maven.apache.org/POM/4.0.0")
     private String groupId;
-
-    @XmlElement(name = "artifactId", namespace = "http://maven.apache.org/POM/4.0.0")
     private String artifactId;
-
-    @XmlElement(name = "version", namespace = "http://maven.apache.org/POM/4.0.0")
     private String version;
-
-    @XmlElement(name = "packaging", namespace = "http://maven.apache.org/POM/4.0.0")
     private String packaging;
-
-    @XmlElement(name = "name", namespace = "http://maven.apache.org/POM/4.0.0")
     private String name;
-
-    @XmlElementWrapper(name = "dependencies", namespace = "http://maven.apache.org/POM/4.0.0")
-    @XmlElement(name = "dependency", namespace = "http://maven.apache.org/POM/4.0.0")
     private List<Dependency> dependencies;
-
-    @XmlElement(name = "dependencyManagement", namespace = "http://maven.apache.org/POM/4.0.0")
     private DependencyManagement dependencyManagement;
-
-    @XmlElement(name = "build", namespace = "http://maven.apache.org/POM/4.0.0")
     private Build build;
 
     /**
@@ -140,11 +114,8 @@ public class Project {
     /**
      * Represents the dependencyManagement section of a POM.
      */
-    @XmlAccessorType(XmlAccessType.FIELD)
     public static class DependencyManagement {
 
-        @XmlElementWrapper(name = "dependencies", namespace = "http://maven.apache.org/POM/4.0.0")
-        @XmlElement(name = "dependency", namespace = "http://maven.apache.org/POM/4.0.0")
         private List<Dependency> dependencies;
 
         /**
@@ -160,11 +131,8 @@ public class Project {
     /**
      * Represents the build section of a POM.
      */
-    @XmlAccessorType(XmlAccessType.FIELD)
     public static class Build {
 
-        @XmlElementWrapper(name = "plugins", namespace = "http://maven.apache.org/POM/4.0.0")
-        @XmlElement(name = "plugin", namespace = "http://maven.apache.org/POM/4.0.0")
         private List<PluginDependency> plugins;
 
         /**
