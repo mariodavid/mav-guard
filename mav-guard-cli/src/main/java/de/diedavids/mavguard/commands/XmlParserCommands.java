@@ -4,9 +4,9 @@ import de.diedavids.mavguard.model.Dependency;
 import de.diedavids.mavguard.model.Project;
 import de.diedavids.mavguard.xml.PomParser;
 import de.diedavids.mavguard.xml.XmlParser;
-import org.springframework.shell.standard.ShellComponent;
-import org.springframework.shell.standard.ShellMethod;
-import org.springframework.shell.standard.ShellOption;
+import org.springframework.stereotype.Component;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Parameters;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -17,109 +17,91 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 /**
- * Shell commands for XML parsing operations.
+ * Command line interface for XML parsing operations.
  */
-@ShellComponent
+@Component
+@Command(
+    name = "xml", 
+    description = "XML parsing operations", 
+    mixinStandardHelpOptions = true,
+    subcommands = {
+        XmlParserCommands.ParsePomCommand.class,
+        XmlParserCommands.ExtractDependenciesCommand.class
+    }
+)
 public class XmlParserCommands {
 
-    private final XmlParser xmlParser;
-    private final PomParser pomParser;
+    private static final PomParser pomParser = new PomParser();
 
-    public XmlParserCommands() {
-        this.xmlParser = new XmlParser();
-        this.pomParser = new PomParser();
-    }
+    /**
+     * Command to parse a Maven POM file.
+     */
+    @Component
+    @Command(name = "parse-pom", description = "Parse a Maven POM file", mixinStandardHelpOptions = true)
+    public static class ParsePomCommand implements Callable<Integer> {
 
-    @ShellMethod(key = "parse-xml", value = "Parse an XML file")
-    public String parseXml(@ShellOption(help = "Path to the XML file") String filePath) {
-        try {
-            File file = new File(filePath);
-            if (!file.exists()) {
-                return "File not found: " + filePath;
-            }
+        @Parameters(index = "0", description = "Path to the POM file")
+        private String filePath;
 
-            // For demonstration purposes, we'll try to parse as SimpleXmlData
-            // In a real application, you might want to determine the type dynamically
-            SimpleXmlData data = xmlParser.parseXmlFile(file, SimpleXmlData.class);
-            return "Successfully parsed XML file. Content: " + data.toString();
-        } catch (JAXBException e) {
-            return "Error parsing XML: " + e.getMessage();
-        }
-    }
-
-    @ShellMethod(key = "parse-xml-stream", value = "Parse an XML file using stream")
-    public String parseXmlStream(@ShellOption(help = "Path to the XML file") String filePath) {
-        try {
-            File file = new File(filePath);
-            if (!file.exists()) {
-                return "File not found: " + filePath;
-            }
-
-            FileInputStream inputStream = new FileInputStream(file);
-            SimpleXmlData data = xmlParser.parseXmlStream(inputStream, SimpleXmlData.class);
-            return "Successfully parsed XML stream. Content: " + data.toString();
-        } catch (JAXBException | FileNotFoundException e) {
-            return "Error parsing XML: " + e.getMessage();
-        }
-    }
-
-    @ShellMethod(key = "parse-pom", value = "Parse a Maven POM file")
-    public String parsePom(@ShellOption(help = "Path to the POM file") String filePath) {
-        try {
-            File file = new File(filePath);
-            if (!file.exists()) {
-                return "File not found: " + filePath;
-            }
-
-            Project project = pomParser.parsePomFile(file);
-            return String.format("Successfully parsed POM file: %s:%s:%s", 
-                    project.getGroupId(), project.getArtifactId(), project.getVersion());
-        } catch (JAXBException e) {
-            return "Error parsing POM: " + e.getMessage();
-        }
-    }
-
-    @ShellMethod(key = "extract-dependencies", value = "Extract dependencies from a Maven POM file")
-    public String extractDependencies(@ShellOption(help = "Path to the POM file") String filePath) {
-        try {
-            File file = new File(filePath);
-            if (!file.exists()) {
-                return "File not found: " + filePath;
-            }
+        @Override
+        public Integer call() {
+            try {
+                File file = new File(filePath);
+                if (!file.exists()) {
+                    System.out.println("File not found: " + filePath);
+                    return 1;
+                }
 
                 Project project = pomParser.parsePomFile(file);
-                List<Dependency> dependencies = project.getAllDependencies();
-            if (dependencies.isEmpty()) {
-                return "No dependencies found in POM file.";
+                System.out.printf("Successfully parsed POM file: %s:%s:%s%n", 
+                        project.getGroupId(), project.getArtifactId(), project.getVersion());
+                return 0;
+            } catch (JAXBException e) {
+                System.err.println("Error parsing POM: " + e.getMessage());
+                return 1;
             }
-
-            StringBuilder result = new StringBuilder("Dependencies found in POM file:\n");
-            for (Dependency dependency : dependencies) {
-                result.append("- ").append(dependency.toString()).append("\n");
-            }
-            return result.toString();
-        } catch (JAXBException e) {
-            return "Error extracting dependencies: " + e.getMessage();
         }
     }
 
     /**
-     * Simple data class for XML parsing demonstration.
+     * Command to extract dependencies from a Maven POM file.
      */
-    @XmlRootElement(name = "data")
-    @XmlAccessorType(XmlAccessType.FIELD)
-    public static class SimpleXmlData {
-        @XmlElement
-        private String name;
+    @Component
+    @Command(name = "extract-dependencies", description = "Extract dependencies from a Maven POM file", mixinStandardHelpOptions = true)
+    public static class ExtractDependenciesCommand implements Callable<Integer> {
 
-        @XmlElement
-        private String value;
+        @Parameters(index = "0", description = "Path to the POM file")
+        private String filePath;
 
         @Override
-        public String toString() {
-            return "SimpleXmlData{name='" + name + "', value='" + value + "'}";
+        public Integer call() {
+            try {
+                File file = new File(filePath);
+                if (!file.exists()) {
+                    System.out.println("File not found: " + filePath);
+                    return 1;
+                }
+
+                Project project = pomParser.parsePomFile(file);
+                List<Dependency> dependencies = project.getAllDependencies();
+                if (dependencies.isEmpty()) {
+                    System.out.println("No dependencies found in POM file.");
+                    return 0;
+                }
+
+                System.out.println("Dependencies found in POM file:");
+                for (Dependency dependency : dependencies) {
+                    System.out.println("- " + dependency);
+                }
+                return 0;
+            } catch (JAXBException e) {
+                System.err.println("Error extracting dependencies: " + e.getMessage());
+                return 1;
+            }
         }
     }
+
 }

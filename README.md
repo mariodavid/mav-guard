@@ -47,3 +47,39 @@ This modular design allows for:
 - Independent development and testing of modules
 - Flexibility to add new modules (e.g., a future web interface)
 - Reuse of core functionality across different interfaces
+
+## 🚀 Building and Running
+
+### Building the Application
+
+To build the application as an executable JAR:
+
+```bash
+# From the project root directory
+mvn clean package
+```
+
+This will compile the code, run the tests, and package the application into an executable JAR file located in the `mav-guard-cli/target` directory.
+
+### Running the Application
+
+After building, you can run the application using:
+
+```bash
+java -jar mav-guard-cli/target/mav-guard-cli-0.0.1-SNAPSHOT.jar
+```
+
+#### Available Commands
+
+You can pass command-line arguments to execute specific commands:
+
+```bash
+# Show help
+java -jar mav-guard-cli/target/mav-guard-cli-0.0.1-SNAPSHOT.jar --help
+
+# Parse a POM file
+java -jar mav-guard-cli/target/mav-guard-cli-0.0.1-SNAPSHOT.jar xml parse-pom path/to/pom.xml
+
+# Extract dependencies from a POM file
+java -jar mav-guard-cli/target/mav-guard-cli-0.0.1-SNAPSHOT.jar xml extract-dependencies path/to/pom.xml
+```
