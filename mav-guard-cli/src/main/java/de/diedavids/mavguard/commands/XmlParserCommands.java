@@ -61,7 +61,7 @@ public class XmlParserCommands {
 
                 Project project = pomParser.parsePomFile(file);
                 System.out.printf("Successfully parsed POM file: %s:%s:%s%n", 
-                        project.getGroupId(), project.getArtifactId(), project.getVersion());
+                        project.groupId(), project.artifactId(), project.version());
                 return 0;
             } catch (JAXBException e) {
                 System.err.println("Error parsing POM: " + e.getMessage());

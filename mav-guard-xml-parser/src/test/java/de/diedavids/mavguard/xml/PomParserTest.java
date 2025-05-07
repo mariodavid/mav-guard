@@ -31,10 +31,10 @@ class PomParserTest {
 
         // Then
         assertThat(project).isNotNull();
-        assertThat(project.getGroupId()).isEqualTo("com.example");
-        assertThat(project.getArtifactId()).isEqualTo("test-project");
-        assertThat(project.getVersion()).isEqualTo("1.0.0");
-        assertThat(project.getName()).isEqualTo("Test Project");
+        assertThat(project.groupId()).isEqualTo("com.example");
+        assertThat(project.artifactId()).isEqualTo("test-project");
+        assertThat(project.version()).isEqualTo("1.0.0");
+        assertThat(project.name()).isEqualTo("Test Project");
     }
 
     @Test
@@ -50,9 +50,9 @@ class PomParserTest {
 
         // Then
         assertThat(project).isNotNull();
-        assertThat(project.getGroupId()).isEqualTo("com.example");
-        assertThat(project.getArtifactId()).isEqualTo("test-project");
-        assertThat(project.getVersion()).isEqualTo("1.0.0");
+        assertThat(project.groupId()).isEqualTo("com.example");
+        assertThat(project.artifactId()).isEqualTo("test-project");
+        assertThat(project.version()).isEqualTo("1.0.0");
     }
 
     @Test
@@ -73,24 +73,24 @@ class PomParserTest {
 
         // Check first dependency
         Dependency firstDependency = dependencies.get(0);
-        assertThat(firstDependency.getGroupId()).isEqualTo("org.springframework.boot");
-        assertThat(firstDependency.getArtifactId()).isEqualTo("spring-boot-starter");
-        assertThat(firstDependency.getVersion()).isEqualTo("2.7.0");
+        assertThat(firstDependency.groupId()).isEqualTo("org.springframework.boot");
+        assertThat(firstDependency.artifactId()).isEqualTo("spring-boot-starter");
+        assertThat(firstDependency.version()).isEqualTo("2.7.0");
 
         // Check second dependency
         Dependency secondDependency = dependencies.get(1);
-        assertThat(secondDependency.getGroupId()).isEqualTo("org.junit.jupiter");
-        assertThat(secondDependency.getArtifactId()).isEqualTo("junit-jupiter");
-        assertThat(secondDependency.getVersion()).isEqualTo("5.8.2");
-        assertThat(secondDependency.getScope()).isEqualTo("test");
+        assertThat(secondDependency.groupId()).isEqualTo("org.junit.jupiter");
+        assertThat(secondDependency.artifactId()).isEqualTo("junit-jupiter");
+        assertThat(secondDependency.version()).isEqualTo("5.8.2");
+        assertThat(secondDependency.scope()).isEqualTo("test");
 
         // Check third dependency
         Dependency thirdDependency = dependencies.get(2);
-        assertThat(thirdDependency.getGroupId()).isEqualTo("org.springframework.boot");
-        assertThat(thirdDependency.getArtifactId()).isEqualTo("spring-boot-dependencies");
-        assertThat(thirdDependency.getVersion()).isEqualTo("2.7.0");
-        assertThat(thirdDependency.getType()).isEqualTo("pom");
-        assertThat(thirdDependency.getScope()).isEqualTo("import");
+        assertThat(thirdDependency.groupId()).isEqualTo("org.springframework.boot");
+        assertThat(thirdDependency.artifactId()).isEqualTo("spring-boot-dependencies");
+        assertThat(thirdDependency.version()).isEqualTo("2.7.0");
+        assertThat(thirdDependency.type()).isEqualTo("pom");
+        assertThat(thirdDependency.scope()).isEqualTo("import");
     }
 
     private String getTestPomXml() {
