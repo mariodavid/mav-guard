@@ -1,8 +1,8 @@
 package de.diedavids.mavguard.xml;
 
 import de.diedavids.mavguard.model.Project;
+import jakarta.xml.bind.JAXBException;
 
-import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.InputStream;
 

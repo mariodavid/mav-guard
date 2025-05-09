@@ -3,19 +3,12 @@ package de.diedavids.mavguard.commands;
 import de.diedavids.mavguard.model.Dependency;
 import de.diedavids.mavguard.model.Project;
 import de.diedavids.mavguard.xml.PomParser;
-import de.diedavids.mavguard.xml.XmlParser;
 import org.springframework.stereotype.Component;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Parameters;
 
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.JAXBException;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.concurrent.Callable;
 

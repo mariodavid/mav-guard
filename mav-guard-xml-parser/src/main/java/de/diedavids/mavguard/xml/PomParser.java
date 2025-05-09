@@ -2,8 +2,8 @@ package de.diedavids.mavguard.xml;
 
 import de.diedavids.mavguard.model.Project;
 import de.diedavids.mavguard.xml.model.XmlProject;
+import jakarta.xml.bind.JAXBException;
 
-import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.InputStream;
 
@@ -14,13 +14,8 @@ public class PomParser implements PomFileProcessor {
 
     private final XmlParser xmlParser;
 
-    /**
-     * Creates a new POM parser.
-     * 
-     * @param xmlParser the XML parser to use
-     */
-    public PomParser(XmlParser xmlParser) {
-        this.xmlParser = xmlParser;
+    public PomParser() {
+        this.xmlParser = new XmlParser();
     }
 
     /**

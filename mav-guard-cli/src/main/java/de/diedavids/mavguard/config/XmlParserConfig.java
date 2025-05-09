@@ -29,6 +29,6 @@ public class XmlParserConfig {
      */
     @Bean
     public PomParser pomParser(XmlParser xmlParser) {
-        return new PomParser(xmlParser);
+        return new PomParser();
     }
 }

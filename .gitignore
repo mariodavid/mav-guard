@@ -31,3 +31,8 @@ build/
 
 ### VS Code ###
 .vscode/
+
+**/.claude/settings.local.json
+
+# Local properties
+**/application-secrets.properties

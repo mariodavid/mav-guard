@@ -1,5 +1,6 @@
 package de.diedavids.mavguard;
 
+import de.diedavids.mavguard.commands.DependencyCommands;
 import de.diedavids.mavguard.commands.XmlParserCommands;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -11,7 +12,7 @@ import picocli.CommandLine.IFactory;
 @SpringBootApplication
 @CommandLine.Command(
     name = "mav-guard",
-    subcommands = {XmlParserCommands.class},
+    subcommands = {XmlParserCommands.class, DependencyCommands.class},
     mixinStandardHelpOptions = true,
     version = "1.0",
     description = "Maven Guard CLI tool"

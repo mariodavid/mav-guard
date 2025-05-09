@@ -2,12 +2,11 @@ package de.diedavids.mavguard.xml;
 
 import de.diedavids.mavguard.model.Dependency;
 import de.diedavids.mavguard.model.Project;
+import jakarta.xml.bind.JAXBException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import javax.xml.bind.JAXBException;
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -23,8 +22,7 @@ class PomParserTest {
     void shouldParsePomStream_withValidPom() throws JAXBException {
         // Given
         InputStream inputStream = new ByteArrayInputStream(getTestPomXml().getBytes(StandardCharsets.UTF_8));
-        XmlParser xmlParser = new XmlParser();
-        PomParser pomParser = new PomParser(xmlParser);
+        PomParser pomParser = new PomParser();
 
         // When
         Project project = pomParser.parsePomStream(inputStream);
@@ -42,8 +40,7 @@ class PomParserTest {
         // Given
         Path pomFile = tempDir.resolve("pom.xml");
         Files.writeString(pomFile, getTestPomXml());
-        XmlParser xmlParser = new XmlParser();
-        PomParser pomParser = new PomParser(xmlParser);
+        PomParser pomParser = new PomParser();
 
         // When
         Project project = pomParser.parsePomFile(pomFile.toFile());
@@ -60,8 +57,7 @@ class PomParserTest {
         // Given
         Path pomFile = tempDir.resolve("pom.xml");
         Files.writeString(pomFile, getTestPomXml());
-        XmlParser xmlParser = new XmlParser();
-        PomParser pomParser = new PomParser(xmlParser);
+        PomParser pomParser = new PomParser();
 
         // When
         Project project = pomParser.parsePomFile(pomFile.toFile());
