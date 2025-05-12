@@ -99,6 +99,10 @@ class PomParserTest {
                     <artifactId>test-project</artifactId>
                     <version>1.0.0</version>
                     <name>Test Project</name>
+                    <properties>
+                        <java.version>17</java.version>
+                        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+                    </properties>
                     <dependencies>
                         <dependency>
                             <groupId>org.springframework.boot</groupId>

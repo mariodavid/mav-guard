@@ -10,7 +10,9 @@ import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlElementWrapper;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @XmlRootElement(name = "project", namespace = "http://maven.apache.org/POM/4.0.0")
@@ -31,6 +33,9 @@ public class XmlProject {
 
     @XmlElement(name = "name", namespace = "http://maven.apache.org/POM/4.0.0")
     private String name;
+
+    @XmlElement(name = "properties", namespace = "http://maven.apache.org/POM/4.0.0")
+    private XmlProperties properties;
 
     @XmlElementWrapper(name = "dependencies", namespace = "http://maven.apache.org/POM/4.0.0")
     @XmlElement(name = "dependency", namespace = "http://maven.apache.org/POM/4.0.0")
@@ -63,6 +68,15 @@ public class XmlProject {
 
     public String getName() {
         return name;
+    }
+
+    /**
+     * Gets all properties defined in the project.
+     *
+     * @return a map of property names to property values
+     */
+    public Map<String, String> getProperties() {
+        return properties != null ? properties.getPropertyMap() : Collections.emptyMap();
     }
 
     public List<XmlDependency> getDependencies() {
@@ -98,7 +112,10 @@ public class XmlProject {
             domainBuild = new Project.Build(plugins);
         }
 
-        return new Project(groupId, artifactId, version, packaging, name, domainDependencies, domainDependencyManagement, domainBuild);
+        // Convert properties to a map for the domain model
+        Map<String, String> propertiesMap = getProperties();
+
+        return new Project(groupId, artifactId, version, packaging, name, domainDependencies, domainDependencyManagement, domainBuild, propertiesMap);
     }
 
     @XmlAccessorType(XmlAccessType.FIELD)

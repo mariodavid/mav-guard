@@ -2,6 +2,7 @@ package de.diedavids.mavguard.model;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Represents a Maven project (POM) with its dependencies.
@@ -14,7 +15,8 @@ public record Project(
         String name,
         List<Dependency> dependencies,
         DependencyManagement dependencyManagement,
-        Build build
+        Build build,
+        Map<String, String> properties
 ) {
 
     /**
