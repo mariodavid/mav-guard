@@ -34,6 +34,9 @@ public class XmlProject {
     @XmlElement(name = "name", namespace = "http://maven.apache.org/POM/4.0.0")
     private String name;
 
+    @XmlElement(name = "parent", namespace = "http://maven.apache.org/POM/4.0.0")
+    private XmlParent parent;
+
     @XmlElement(name = "properties", namespace = "http://maven.apache.org/POM/4.0.0")
     private XmlProperties properties;
 
@@ -47,6 +50,14 @@ public class XmlProject {
     @XmlElement(name = "build", namespace = "http://maven.apache.org/POM/4.0.0")
     private XmlBuild build;
 
+    @XmlElementWrapper(name = "modules", namespace = "http://maven.apache.org/POM/4.0.0")
+    @XmlElement(name = "module", namespace = "http://maven.apache.org/POM/4.0.0")
+    private List<String> modules;
+
+    // Fields not mapped from XML, used during processing
+    private transient XmlProject parentProject;
+    private transient String relativePath;
+
     public XmlProject() {
     }
 
@@ -54,20 +65,70 @@ public class XmlProject {
         return groupId;
     }
 
+    public void setGroupId(String groupId) {
+        this.groupId = groupId;
+    }
+
     public String getArtifactId() {
         return artifactId;
+    }
+
+    public void setArtifactId(String artifactId) {
+        this.artifactId = artifactId;
     }
 
     public String getVersion() {
         return version;
     }
 
+    public void setVersion(String version) {
+        this.version = version;
+    }
+
     public String getPackaging() {
         return packaging;
     }
 
+    public void setPackaging(String packaging) {
+        this.packaging = packaging;
+    }
+
     public String getName() {
         return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public XmlParent getParent() {
+        return parent;
+    }
+
+    /**
+     * Get the effective group ID, considering parent inheritance if needed
+     * @return the effective group ID
+     */
+    public String getEffectiveGroupId() {
+        if (groupId != null && !groupId.isEmpty()) {
+            return groupId;
+        } else if (parent != null) {
+            return parent.getGroupId();
+        }
+        return null;
+    }
+
+    /**
+     * Get the effective version, considering parent inheritance if needed
+     * @return the effective version
+     */
+    public String getEffectiveVersion() {
+        if (version != null && !version.isEmpty()) {
+            return version;
+        } else if (parent != null) {
+            return parent.getVersion();
+        }
+        return null;
     }
 
     /**
@@ -77,6 +138,26 @@ public class XmlProject {
      */
     public Map<String, String> getProperties() {
         return properties != null ? properties.getPropertyMap() : Collections.emptyMap();
+    }
+
+    /**
+     * Gets all properties including inherited ones from parent projects.
+     * Child properties override parent properties if they have the same name.
+     *
+     * @return a combined map of property names to property values
+     */
+    public Map<String, String> getAllProperties() {
+        Map<String, String> allProps = new HashMap<>();
+        
+        // Add parent properties first (if parent exists)
+        if (parentProject != null) {
+            allProps.putAll(parentProject.getAllProperties());
+        }
+        
+        // Add/override with this project's properties (higher precedence)
+        allProps.putAll(getProperties());
+        
+        return allProps;
     }
 
     public List<XmlDependency> getDependencies() {
@@ -89,6 +170,26 @@ public class XmlProject {
 
     public XmlBuild getBuild() {
         return build;
+    }
+
+    public List<String> getModules() {
+        return modules != null ? modules : Collections.emptyList();
+    }
+
+    public XmlProject getParentProject() {
+        return parentProject;
+    }
+
+    public void setParentProject(XmlProject parentProject) {
+        this.parentProject = parentProject;
+    }
+
+    public String getRelativePath() {
+        return relativePath;
+    }
+
+    public void setRelativePath(String relativePath) {
+        this.relativePath = relativePath;
     }
 
     public Project toDomainModel() {
@@ -113,9 +214,74 @@ public class XmlProject {
         }
 
         // Convert properties to a map for the domain model
-        Map<String, String> propertiesMap = getProperties();
+        Map<String, String> propertiesMap = getAllProperties();
 
-        return new Project(groupId, artifactId, version, packaging, name, domainDependencies, domainDependencyManagement, domainBuild, propertiesMap);
+        // Create the parent reference if it exists
+        Project.Parent domainParent = null;
+        if (parent != null) {
+            domainParent = new Project.Parent(
+                    parent.getGroupId(),
+                    parent.getArtifactId(),
+                    parent.getVersion(),
+                    parent.getRelativePath()
+            );
+        }
+
+        // Convert module paths to strings
+        List<String> modulesList = getModules();
+
+        // Use effective groupId and version if necessary
+        String effectiveGroupId = getEffectiveGroupId();
+        String effectiveVersion = getEffectiveVersion();
+
+        return new Project(
+                effectiveGroupId, 
+                artifactId, 
+                effectiveVersion, 
+                packaging, 
+                name, 
+                domainDependencies, 
+                domainDependencyManagement, 
+                domainBuild, 
+                propertiesMap,
+                domainParent,
+                modulesList,
+                relativePath
+        );
+    }
+
+    @XmlAccessorType(XmlAccessType.FIELD)
+    public static class XmlParent {
+        @XmlElement(name = "groupId", namespace = "http://maven.apache.org/POM/4.0.0")
+        private String groupId;
+
+        @XmlElement(name = "artifactId", namespace = "http://maven.apache.org/POM/4.0.0")
+        private String artifactId;
+
+        @XmlElement(name = "version", namespace = "http://maven.apache.org/POM/4.0.0")
+        private String version;
+
+        @XmlElement(name = "relativePath", namespace = "http://maven.apache.org/POM/4.0.0")
+        private String relativePath;
+
+        public XmlParent() {
+        }
+
+        public String getGroupId() {
+            return groupId;
+        }
+
+        public String getArtifactId() {
+            return artifactId;
+        }
+
+        public String getVersion() {
+            return version;
+        }
+
+        public String getRelativePath() {
+            return relativePath != null ? relativePath : "../pom.xml";
+        }
     }
 
     @XmlAccessorType(XmlAccessType.FIELD)

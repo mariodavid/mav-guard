@@ -18,6 +18,8 @@
     <module>mav-guard-xml-parser</module>
     <module>mav-guard-model</module>
     <module>mav-guard-nexus</module>
+    <module>sample/simple-project</module>
+    <module>sample/multi-module-project</module>
   </modules>
   <url/>
   <licenses>

@@ -9,6 +9,7 @@ The Command Line Interface (CLI) module provides a user-friendly interface for i
 The module is organized around a set of shell commands that expose the functionality of the underlying modules:
 
 - **XML Parsing Commands**: Commands for parsing XML files and extracting information
+- **Multi-Module Support**: Commands for analyzing Maven multi-module projects
 - **Future Command Groups**: As the application grows, additional command groups will be added for dependency analysis, version checking, and security scanning
 
 ### Spring Shell Integration
@@ -24,6 +25,8 @@ The module leverages Spring Shell to provide a rich command-line experience:
 - Comprehensive error reporting
 - Human-readable output formatting
 - Support for processing multiple POM files
+- Multi-module Maven project processing
+- Detection of dependency version conflicts
 - Extensible command structure for future enhancements
 
 ## Relationship to Other Modules
@@ -40,15 +43,59 @@ This module serves as the primary entry point for users interacting with the Mav
 
 ## Usage Examples
 
+### Basic Commands
+
 ```bash
+# Launch the interactive shell
+java -jar mav-guard-cli/target/mav-guard-cli-0.0.1-SNAPSHOT.jar
+
+# Show available commands
+java -jar mav-guard-cli/target/mav-guard-cli-0.0.1-SNAPSHOT.jar --help
+
 # Parse a POM file and display basic information
-parse-pom /path/to/pom.xml
+java -jar mav-guard-cli/target/mav-guard-cli-0.0.1-SNAPSHOT.jar xml parse-pom /path/to/pom.xml
 
 # Extract and list all dependencies from a POM file
-extract-dependencies /path/to/pom.xml
-
-# Parse a generic XML file (for testing/debugging)
-parse-xml /path/to/file.xml
+java -jar mav-guard-cli/target/mav-guard-cli-0.0.1-SNAPSHOT.jar xml extract-dependencies /path/to/pom.xml
 ```
 
-These commands demonstrate the basic functionality currently available. As the application evolves, additional commands will be added to support more advanced use cases.
+### Multi-Module Project Commands
+
+```bash
+# Extract dependencies from a multi-module project
+java -jar mav-guard-cli/target/mav-guard-cli-0.0.1-SNAPSHOT.jar xml extract-dependencies /path/to/root-pom.xml --multi-module
+
+# Analyze a multi-module Maven project
+java -jar mav-guard-cli/target/mav-guard-cli-0.0.1-SNAPSHOT.jar xml analyze-multi-module /path/to/root-pom.xml
+
+# Get detailed dependency usage per module
+java -jar mav-guard-cli/target/mav-guard-cli-0.0.1-SNAPSHOT.jar xml analyze-multi-module /path/to/root-pom.xml --detailed-usage
+
+# Check for version inconsistencies with non-zero exit code on detection
+java -jar mav-guard-cli/target/mav-guard-cli-0.0.1-SNAPSHOT.jar xml analyze-multi-module /path/to/root-pom.xml --check-inconsistencies
+```
+
+## Multi-Module Support
+
+MavGuard now fully supports Maven multi-module projects with the following features:
+
+### Hierarchical Processing
+- Automatic detection and recursive processing of all modules
+- Full support for Maven inheritance hierarchy (Parent -> Child modules)
+- Processing of nested modules (e.g., root → moduleA → submoduleB)
+
+### Dependency Resolution
+- Support for dependency version inheritance from parent POMs
+- Property placeholder resolution across module boundaries
+- Implementation of Maven's "nearest-wins" conflict resolution for versions
+
+### Dependency Analysis
+- Detection of version inconsistencies across modules
+- Consolidated dependency reports across all modules
+- Module-specific dependency usage analysis
+
+### Integration Support
+- Exit code support for CI/CD integration
+- Detailed conflict reporting for easier troubleshooting
+
+These capabilities allow for comprehensive dependency management across complex Maven project structures, helping to maintain consistency and identify potential issues before they cause runtime problems.
