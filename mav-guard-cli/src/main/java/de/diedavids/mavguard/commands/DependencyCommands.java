@@ -84,8 +84,8 @@ public class DependencyCommands {
             Project project = pomParser.parsePomFile(file);
             List<Dependency> dependencies = project.getAllDependencies();
             
-            if (dependencies.isEmpty()) {
-                System.out.println("No dependencies found in POM file.");
+            if (dependencies.isEmpty() && !project.hasParent()) {
+                System.out.println("No dependencies or parent found in POM file.");
                 return 0;
             }
 
@@ -94,6 +94,7 @@ public class DependencyCommands {
             
             boolean updatesAvailable = false;
             
+            // Check for dependency updates
             for (Dependency dependency : dependencies) {
                 Optional<String> latestVersion = versionService.getLatestVersion(dependency);
                 
@@ -106,8 +107,32 @@ public class DependencyCommands {
                 }
             }
             
-            if (!updatesAvailable) {
+            if (!updatesAvailable && dependencies.size() > 0) {
                 System.out.println("All dependencies are up to date.");
+            }
+            
+            // Check for parent updates if parent exists
+            if (project.hasParent()) {
+                Project.Parent parent = project.parent();
+                
+                System.out.println("\nChecking for parent updates:");
+                System.out.println("-----------------------------------------------------");
+                
+                boolean parentUpdateAvailable = false;
+                
+                if (versionService.hasNewerParentVersion(parent)) {
+                    parentUpdateAvailable = true;
+                    Optional<String> latestParentVersion = versionService.getLatestParentVersion(parent);
+                    
+                    System.out.printf("%-40s %10s -> %10s%n", 
+                        "Parent: " + parent.groupId() + ":" + parent.artifactId(),
+                        parent.version(),
+                        latestParentVersion.orElse("Unknown"));
+                }
+                
+                if (!parentUpdateAvailable) {
+                    System.out.println("Parent is up to date.");
+                }
             }
             
             return 0;
@@ -130,11 +155,6 @@ public class DependencyCommands {
             MultiModuleDependencyCollector.DependencyReport report = dependencyCollector.collectDependencies(projects);
             List<Dependency> consolidatedDependencies = report.getConsolidatedDependencies();
             
-            if (consolidatedDependencies.isEmpty()) {
-                System.out.println("No dependencies found in multi-module project.");
-                return 0;
-            }
-            
             // Print project summary
             Project rootProject = projects.stream()
                 .filter(p -> !p.hasParent())
@@ -146,38 +166,82 @@ public class DependencyCommands {
             System.out.println("Contains " + projects.size() + " modules with " + consolidatedDependencies.size() + " unique dependencies");
             System.out.println("-----------------------------------------------------");
             
+            boolean anyUpdatesFound = false;
+            
             // Check for updates for all consolidated dependencies
-            boolean updatesAvailable = false;
-            
-            for (Dependency dependency : consolidatedDependencies) {
-                Optional<String> latestVersion = versionService.getLatestVersion(dependency);
+            if (!consolidatedDependencies.isEmpty()) {
+                boolean updatesAvailable = false;
                 
-                if (latestVersion.isPresent() && !latestVersion.get().equals(dependency.version())) {
-                    updatesAvailable = true;
+                for (Dependency dependency : consolidatedDependencies) {
+                    Optional<String> latestVersion = versionService.getLatestVersion(dependency);
                     
-                    // Get modules using this dependency
-                    String depCoord = dependency.groupId() + ":" + dependency.artifactId();
-                    List<String> usingModules = report.getDependencyUsageByModule().get(depCoord);
-                    String modulesList = usingModules != null ? String.join(", ", usingModules) : "unknown";
+                    if (latestVersion.isPresent() && !latestVersion.get().equals(dependency.version())) {
+                        updatesAvailable = true;
+                        anyUpdatesFound = true;
+                        
+                        // Get modules using this dependency
+                        String depCoord = dependency.groupId() + ":" + dependency.artifactId();
+                        List<String> usingModules = report.getDependencyUsageByModule().get(depCoord);
+                        String modulesList = usingModules != null ? String.join(", ", usingModules) : "unknown";
+                        
+                        System.out.printf("%-40s %10s -> %10s %s%n", 
+                            depCoord,
+                            dependency.version(),
+                            latestVersion.get(),
+                            "[" + modulesList + "]");
+                    }
+                }
+                
+                if (!updatesAvailable) {
+                    System.out.println("All dependencies are up to date.");
+                }
+                
+                // Print version inconsistency warnings if any exist
+                if (report.hasVersionInconsistencies()) {
+                    System.out.println("\nWARNING: Found inconsistent dependency versions:");
+                    for (MultiModuleDependencyCollector.VersionInconsistency inconsistency : report.getVersionInconsistencies()) {
+                        System.out.println(inconsistency.toString());
+                    }
+                }
+            } else {
+                System.out.println("No dependencies found in multi-module project.");
+            }
+            
+            // Check for parent updates
+            boolean anyParentWithUpdates = false;
+            
+            System.out.println("\nChecking for parent updates:");
+            System.out.println("-----------------------------------------------------");
+            
+            // Collect unique parents from all modules
+            for (Project project : projects) {
+                if (project.hasParent()) {
+                    Project.Parent parent = project.parent();
                     
-                    System.out.printf("%-40s %10s -> %10s %s%n", 
-                        depCoord,
-                        dependency.version(),
-                        latestVersion.get(),
-                        "[" + modulesList + "]");
+                    // Check for parent updates
+                    if (versionService.hasNewerParentVersion(parent)) {
+                        anyParentWithUpdates = true;
+                        anyUpdatesFound = true;
+                        Optional<String> latestParentVersion = versionService.getLatestParentVersion(parent);
+                        
+                        // Get the module name for context
+                        String moduleName = project.artifactId();
+                        
+                        System.out.printf("%-40s %10s -> %10s %s%n", 
+                            "Parent: " + parent.groupId() + ":" + parent.artifactId(),
+                            parent.version(),
+                            latestParentVersion.orElse("Unknown"),
+                            "[" + moduleName + "]");
+                    }
                 }
             }
             
-            if (!updatesAvailable) {
-                System.out.println("All dependencies are up to date.");
+            if (!anyParentWithUpdates) {
+                System.out.println("All parent references are up to date.");
             }
             
-            // Print version inconsistency warnings if any exist
-            if (report.hasVersionInconsistencies()) {
-                System.out.println("\nWARNING: Found inconsistent dependency versions:");
-                for (MultiModuleDependencyCollector.VersionInconsistency inconsistency : report.getVersionInconsistencies()) {
-                    System.out.println(inconsistency.toString());
-                }
+            if (!anyUpdatesFound) {
+                System.out.println("\nAll dependencies and parent references are up to date.");
             }
             
             return 0;

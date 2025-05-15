@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,7 +21,7 @@ import picocli.CommandLine;
 @LocalOnlyTest
 @SpringBootTest(classes = MavGuardApplication.class, webEnvironment = WebEnvironment.NONE)
 @ExtendWith(OutputCaptureExtension.class)
-class DependencyCommandsIntegrationTest {
+class DependencyCommandsParentTest {
 
     @Autowired
     private DependencyCommands dependencyCommands;
@@ -34,10 +33,10 @@ class DependencyCommandsIntegrationTest {
     Path tempDir;
 
     @Test
-    void testCheckUpdatesCommand(CapturedOutput output) throws IOException {
+    void testCheckUpdatesCommandWithParent(CapturedOutput output) throws IOException {
         // Given
         Path pomFile = tempDir.resolve("pom.xml");
-        Files.writeString(pomFile, getTestPomXml());
+        Files.writeString(pomFile, getTestPomWithParentXml());
 
         // When
         CommandLine.ParseResult parseResult = new CommandLine(dependencyCommands, factory)
@@ -53,17 +52,15 @@ class DependencyCommandsIntegrationTest {
 
         // Verify the result
         assertThat(result).isEqualTo(0);
-        assertThat(output).contains("test-project:1.0.0");
-        assertThat(output).contains("org.springframework.boot:spring-boot-starter");
-        assertThat(output).contains("2.7.0 ->");
-        // The output may or may not contain parent update section 
-        // depending on the test POM structure, we'll leave this assertion out
+        assertThat(output).contains("Checking for updates for dependencies in com.example:test-project:1.0.0");
+        assertThat(output).contains("Checking for parent updates:");
+        assertThat(output).contains("Parent: org.springframework.boot:spring-boot-starter-parent");
     }
 
     @Test
-    void testCheckUpdatesMultiModuleCommand(CapturedOutput output) throws IOException {
+    void testCheckUpdatesMultiModuleCommandWithParent(CapturedOutput output) throws IOException {
         // Given
-        createMultiModuleProject();
+        createMultiModuleProjectWithParents();
 
         // When
         CommandLine.ParseResult parseResult = new CommandLine(dependencyCommands, factory)
@@ -79,19 +76,16 @@ class DependencyCommandsIntegrationTest {
 
         // Verify the result
         assertThat(result).isEqualTo(0);
-        assertThat(output).contains("com.example:multi-module-test:1.0.0");
-        assertThat(output).contains("org.springframework:spring-core");
-        assertThat(output).contains("org.springframework:spring-context");
-        assertThat(output).contains("org.slf4j:slf4j-api");
-        
-        // The output may or may not contain parent update section 
-        // depending on the test POM structure, we'll leave this assertion out
+        assertThat(output).contains("Checking for updates for dependencies in multi-module project");
+        assertThat(output).contains("Checking for parent updates:");
+        // The parent is org.springframework.boot:spring-boot-starter-parent based on our test POM
+        assertThat(output).contains("Parent: org.springframework.boot:spring-boot-starter-parent");
     }
     
-    private void createMultiModuleProject() throws IOException {
+    private void createMultiModuleProjectWithParents() throws IOException {
         // Create parent POM
         Path parentPomFile = tempDir.resolve("pom.xml");
-        Files.writeString(parentPomFile, getMultiModuleParentPomXml());
+        Files.writeString(parentPomFile, getMultiModuleParentWithParentPomXml());
         
         // Create module directories
         Path moduleADir = tempDir.resolve("module-a");
@@ -102,42 +96,58 @@ class DependencyCommandsIntegrationTest {
         // Create module POMs
         Path moduleAPomFile = moduleADir.resolve("pom.xml");
         Path moduleBPomFile = moduleBDir.resolve("pom.xml");
-        Files.writeString(moduleAPomFile, getModuleAPomXml());
-        Files.writeString(moduleBPomFile, getModuleBPomXml());
+        Files.writeString(moduleAPomFile, getModuleAPomWithParentXml());
+        Files.writeString(moduleBPomFile, getModuleBPomWithParentXml());
     }
 
-    private String getTestPomXml() {
+    private String getTestPomWithParentXml() {
         return """
                 <?xml version="1.0" encoding="UTF-8"?>
                 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
                     <modelVersion>4.0.0</modelVersion>
+                    
+                    <parent>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-starter-parent</artifactId>
+                        <version>2.7.0</version>
+                        <relativePath/>
+                    </parent>
+                    
                     <groupId>com.example</groupId>
                     <artifactId>test-project</artifactId>
                     <version>1.0.0</version>
-                    <n>Test Project</n>
+                    <name>Test Project</name>
+                    
                     <dependencies>
                         <dependency>
                             <groupId>org.springframework.boot</groupId>
                             <artifactId>spring-boot-starter</artifactId>
-                            <version>2.7.0</version>
                         </dependency>
                     </dependencies>
                 </project>
                 """;
     }
     
-    private String getMultiModuleParentPomXml() {
+    private String getMultiModuleParentWithParentPomXml() {
         return """
                 <?xml version="1.0" encoding="UTF-8"?>
                 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
                     <modelVersion>4.0.0</modelVersion>
+                    
+                    <parent>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-starter-parent</artifactId>
+                        <version>2.7.0</version>
+                        <relativePath/>
+                    </parent>
+                    
                     <groupId>com.example</groupId>
-                    <artifactId>multi-module-test</artifactId>
+                    <artifactId>multi-module-parent</artifactId>
                     <version>1.0.0</version>
                     <packaging>pom</packaging>
-                    <n>Multi Module Test Project</n>
+                    <name>Multi Module Parent</name>
                     
                     <modules>
                         <module>module-a</module>
@@ -172,7 +182,7 @@ class DependencyCommandsIntegrationTest {
                 """;
     }
     
-    private String getModuleAPomXml() {
+    private String getModuleAPomWithParentXml() {
         return """
                 <?xml version="1.0" encoding="UTF-8"?>
                 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -180,14 +190,14 @@ class DependencyCommandsIntegrationTest {
                     <modelVersion>4.0.0</modelVersion>
                     <parent>
                         <groupId>com.example</groupId>
-                        <artifactId>multi-module-test</artifactId>
+                        <artifactId>multi-module-parent</artifactId>
                         <version>1.0.0</version>
                     </parent>
                     
                     <artifactId>module-a</artifactId>
                     <version>1.0.0</version>
                     <packaging>jar</packaging>
-                    <n>Module A</n>
+                    <name>Module A</name>
                     
                     <dependencies>
                         <dependency>
@@ -203,7 +213,7 @@ class DependencyCommandsIntegrationTest {
                 """;
     }
     
-    private String getModuleBPomXml() {
+    private String getModuleBPomWithParentXml() {
         return """
                 <?xml version="1.0" encoding="UTF-8"?>
                 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -211,14 +221,14 @@ class DependencyCommandsIntegrationTest {
                     <modelVersion>4.0.0</modelVersion>
                     <parent>
                         <groupId>com.example</groupId>
-                        <artifactId>multi-module-test</artifactId>
+                        <artifactId>multi-module-parent</artifactId>
                         <version>1.0.0</version>
                     </parent>
                     
                     <artifactId>module-b</artifactId>
                     <version>1.0.0</version>
                     <packaging>jar</packaging>
-                    <n>Module B</n>
+                    <name>Module B</name>
                     
                     <dependencies>
                         <dependency>
