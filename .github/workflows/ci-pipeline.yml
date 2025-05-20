@@ -26,9 +26,13 @@ jobs:
 
     - name: Compile
       run: mvn -B clean compile
+      env:
+        MAVGUARD_NEXUS_PASSWORD: dummy-password
 
     - name: Test
       run: mvn -B test
+      env:
+        MAVGUARD_NEXUS_PASSWORD: dummy-password
 
     - name: Upload Test Results
       uses: actions/upload-artifact@v4
