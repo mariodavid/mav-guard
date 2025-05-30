@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * Einfache Demo-Anwendung für das MavGuard-Beispielprojekt.
  */
 @Configuration
-public class DemoApplication {
+public class SimpleDemoApplication {
 
     @Bean
     public ObjectMapper objectMapper() {
@@ -23,7 +23,7 @@ public class DemoApplication {
     }
 
     public static void main(String[] args) {
-        AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(DemoApplication.class);
+        AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(SimpleDemoApplication.class);
         
         MessageService messageService = context.getBean(MessageService.class);
         String message = messageService.getMessage();
