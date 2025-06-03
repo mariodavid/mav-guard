@@ -17,7 +17,7 @@ public interface NexusClient {
      * This method uses the Nexus repository layout with repository groups.
      *
      * @param repository the repository name (e.g., "private")
-     * @param groupId the artifact group ID with slashes instead of dots (e.g., "de/faktorzehn/flow")
+     * @param groupId the artifact group ID with slashes instead of dots (e.g., "com/company")
      * @param artifactId the artifact ID (e.g., "flow-extapi")
      * @return Maven metadata containing version information
      */

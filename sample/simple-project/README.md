@@ -28,17 +28,17 @@ mvn clean install
 cd sample/simple-project
 
 # Abhängigkeiten extrahieren und anzeigen
-java -jar ../../mav-guard-cli/target/mav-guard-cli-0.0.1-SNAPSHOT.jar xml extract-dependencies pom.xml
+java -jar mav-guard-cli.jar xml extract-dependencies pom.xml
 
 # POM parsen und grundlegende Informationen anzeigen
-java -jar ../../mav-guard-cli/target/mav-guard-cli-0.0.1-SNAPSHOT.jar xml parse-pom pom.xml
+java -jar mav-guard-cli.jar xml parse-pom pom.xml
 ```
 
 ### Schritt 3: Abhängigkeiten auf Updates prüfen
 
 ```bash
 # Prüfen, ob es neuere Versionen der Abhängigkeiten gibt
-java -jar ../../mav-guard-cli/target/mav-guard-cli-0.0.1-SNAPSHOT.jar dependencies check-updates pom.xml
+java -jar mav-guard-cli.jar dependencies check-updates pom.xml
 ```
 
 ### Beispielausgabe

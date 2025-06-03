@@ -49,16 +49,16 @@ mvn -pl mav-guard-xml-parser test -Dtest=PomParserTest
 
 ```bash
 # Run the CLI application
-java -jar mav-guard-cli/target/mav-guard-cli-0.0.1-SNAPSHOT.jar
+java -jar mav-guard-cli.jar
 
 # Show available commands
-java -jar mav-guard-cli/target/mav-guard-cli-0.0.1-SNAPSHOT.jar --help
+java -jar mav-guard-cli.jar --help
 
 # Parse a POM file
-java -jar mav-guard-cli/target/mav-guard-cli-0.0.1-SNAPSHOT.jar xml parse-pom path/to/pom.xml
+java -jar mav-guard-cli.jar xml parse-pom path/to/pom.xml
 
 # Extract dependencies from a POM file
-java -jar mav-guard-cli/target/mav-guard-cli-0.0.1-SNAPSHOT.jar xml extract-dependencies path/to/pom.xml
+java -jar mav-guard-cli.jar xml extract-dependencies path/to/pom.xml
 ```
 
 ## Key Technical Components

@@ -26,7 +26,7 @@ Du kannst die Parent-Updates mit dem folgenden Befehl überprüfen:
 
 ```bash
 # Im Verzeichnis des MavGuard-Hauptprojekts
-java -jar mav-guard-cli/target/mav-guard-cli-0.0.1-SNAPSHOT.jar dependencies check-updates sample/spring-boot-parent-example/pom.xml
+java -jar mav-guard-cli.jar dependencies check-updates sample/spring-boot-parent-example/pom.xml
 ```
 
 ### Erwartete Ausgabe
@@ -79,7 +79,7 @@ Wobei X.Y.Z die neueste verfügbare Version zum Zeitpunkt der Ausführung ist.
 Um Parent-Updates in einem Multi-Modul-Projekt zu überprüfen, verwende den `--multi-module` Parameter:
 
 ```bash
-java -jar mav-guard-cli/target/mav-guard-cli-0.0.1-SNAPSHOT.jar dependencies check-updates sample/multi-module-project/pom.xml --multi-module
+java -jar mav-guard-cli.jar dependencies check-updates sample/multi-module-project/pom.xml --multi-module
 ```
 
 Bei Multi-Modul-Projekten zeigt MavGuard Parent-Updates für jedes Modul an, das eine andere Parent-Definition als das Hauptprojekt hat.

@@ -48,7 +48,7 @@ Dies ist der wichtigste Befehl für die Analyse von Multi-Module-Projekten:
 
 ```bash
 # Grundlegende Analyse des Multi-Module-Projekts
-java -jar ../../mav-guard-cli/target/mav-guard-cli-0.0.1-SNAPSHOT.jar xml analyze-multi-module pom.xml
+java -jar mav-guard-cli.jar xml analyze-multi-module pom.xml
 ```
 
 Die Ausgabe zeigt eine Zusammenfassung der erkannten Module und Abhängigkeiten sowie mögliche Versionsinkonsistenzen.
@@ -59,7 +59,7 @@ Für mehr Details zu den Abhängigkeiten in allen Modulen:
 
 ```bash
 # Detaillierte Abhängigkeitsanalyse mit Modulnutzung
-java -jar ../../mav-guard-cli/target/mav-guard-cli-0.0.1-SNAPSHOT.jar xml analyze-multi-module pom.xml --detailed-usage
+java -jar mav-guard-cli.jar xml analyze-multi-module pom.xml --detailed-usage
 ```
 
 ### Schritt 4: Überprüfung auf Versionsinkonsistenzen
@@ -68,7 +68,7 @@ Dieser Befehl gibt einen Fehlercode zurück, wenn Versionsinkonsistenzen gefunde
 
 ```bash
 # Überprüfung auf Versionsinkonsistenzen (gibt Fehlercode zurück wenn gefunden)
-java -jar ../../mav-guard-cli/target/mav-guard-cli-0.0.1-SNAPSHOT.jar xml analyze-multi-module pom.xml --check-inconsistencies
+java -jar mav-guard-cli.jar xml analyze-multi-module pom.xml --check-inconsistencies
 ```
 
 Dieses Sample-Projekt enthält absichtlich Versionsinkonsistenzen zur Demonstration:
@@ -82,7 +82,7 @@ Wenn Sie nur ein einzelnes Modul analysieren möchten:
 
 ```bash
 # Abhängigkeiten aus moduleB extrahieren
-java -jar ../../mav-guard-cli/target/mav-guard-cli-0.0.1-SNAPSHOT.jar xml extract-dependencies moduleB/pom.xml
+java -jar mav-guard-cli.jar xml extract-dependencies moduleB/pom.xml
 ```
 
 ### Beispielausgabe

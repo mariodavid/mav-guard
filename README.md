@@ -96,7 +96,7 @@ This will compile the code, run the tests, and package the application into an e
 After building, you can run the application using:
 
 ```bash
-java -jar mav-guard-cli/target/mav-guard-cli-0.0.1-SNAPSHOT.jar
+java -jar mav-guard-cli.jar
 ```
 
 #### 🎯 Available Commands
@@ -108,13 +108,13 @@ Provides a comprehensive overview of your Maven project structure and dependenci
 
 ```bash
 # Analyze a single module project
-java -jar mav-guard-cli/target/mav-guard-cli-0.0.1-SNAPSHOT.jar analyze pom.xml
+java -jar mav-guard-cli.jar analyze pom.xml
 
 # Analyze a multi-module project
-java -jar mav-guard-cli/target/mav-guard-cli-0.0.1-SNAPSHOT.jar analyze /path/to/root/pom.xml
+java -jar mav-guard-cli.jar analyze /path/to/root/pom.xml
 
 # Show detailed dependency usage by module
-java -jar mav-guard-cli/target/mav-guard-cli-0.0.1-SNAPSHOT.jar analyze pom.xml --detailed-usage
+java -jar mav-guard-cli.jar analyze pom.xml --detailed-usage
 ```
 
 **Features:**
@@ -128,10 +128,10 @@ Performs all analysis features plus checks for available updates.
 
 ```bash
 # Check for updates in current project
-java -jar mav-guard-cli/target/mav-guard-cli-0.0.1-SNAPSHOT.jar check-updates pom.xml
+java -jar mav-guard-cli.jar check-updates pom.xml
 
 # Force multi-module analysis
-java -jar mav-guard-cli/target/mav-guard-cli-0.0.1-SNAPSHOT.jar check-updates pom.xml --force-multi-module
+java -jar mav-guard-cli.jar check-updates pom.xml --force-multi-module
 ```
 
 **Features:**
@@ -216,7 +216,7 @@ java -Dmavguard.repository.type=NEXUS \
      -Dmavguard.repository.username=user \
      -Dmavguard.repository.password=pass \
      -Dmavguard.repository.repository=maven-public \
-     -jar mav-guard-cli/target/mav-guard-cli-0.0.1-SNAPSHOT.jar check-updates pom.xml
+     -jar mav-guard-cli.jar check-updates pom.xml
 ```
 
 **Option 3: Environment Variables**
@@ -227,7 +227,7 @@ export MAVGUARD_REPOSITORY_USERNAME=user
 export MAVGUARD_REPOSITORY_PASSWORD=pass
 export MAVGUARD_REPOSITORY_REPOSITORY=maven-public
 
-java -jar mav-guard-cli/target/mav-guard-cli-0.0.1-SNAPSHOT.jar check-updates pom.xml
+java -jar mav-guard-cli.jar check-updates pom.xml
 ```
 
 ## 🎮 Try It Out
@@ -241,23 +241,23 @@ The repository includes sample projects for testing:
 mvn clean package
 
 # Try the simple project (single module)
-java -jar mav-guard-cli/target/mav-guard-cli-0.0.1-SNAPSHOT.jar analyze sample/simple-project/pom.xml
+java -jar mav-guard-cli.jar analyze sample/simple-project/pom.xml
 
 # Try the multi-module project
-java -jar mav-guard-cli/target/mav-guard-cli-0.0.1-SNAPSHOT.jar analyze sample/multi-module-project/pom.xml --detailed-usage
+java -jar mav-guard-cli.jar analyze sample/multi-module-project/pom.xml --detailed-usage
 
 # Check for updates using Maven Central
-java -jar mav-guard-cli/target/mav-guard-cli-0.0.1-SNAPSHOT.jar check-updates sample/simple-project/pom.xml
+java -jar mav-guard-cli.jar check-updates sample/simple-project/pom.xml
 ```
 
 ### Test with Your Own Project
 
 ```bash
 # Analyze your project
-java -jar mav-guard-cli/target/mav-guard-cli-0.0.1-SNAPSHOT.jar analyze /path/to/your/project/pom.xml
+java -jar mav-guard-cli.jar analyze /path/to/your/project/pom.xml
 
 # Check for updates (uses Maven Central by default)
-java -jar mav-guard-cli/target/mav-guard-cli-0.0.1-SNAPSHOT.jar check-updates /path/to/your/project/pom.xml
+java -jar mav-guard-cli.jar check-updates /path/to/your/project/pom.xml
 ```
 
 ### Expected Output
