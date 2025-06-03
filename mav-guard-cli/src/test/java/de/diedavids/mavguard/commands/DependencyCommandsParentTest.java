@@ -73,8 +73,11 @@ class DependencyCommandsParentTest {
         assertThat(output).contains("--- Project Analysis (Multi-Module): com.example:multi-module-parent:1.0.0 ---");
         assertThat(output).contains("Root Parent: org.springframework.boot:spring-boot-starter-parent:2.6.0");
         assertThat(output).contains("--- Update Check Results ---");
-        // Check for parent updates - Spring Boot 2.6.0 should have updates available
+        // Check for specific Spring Boot parent updates from 2.6.0 to 3.2.0
         assertThat(output).contains("Parent Project Updates");
+        assertThat(output).contains("spring-boot-starter-parent");
+        assertThat(output).contains("2.6.0");
+        assertThat(output).contains("3.2.0");
     }
     
     private void createMultiModuleProjectWithParents() throws IOException {
