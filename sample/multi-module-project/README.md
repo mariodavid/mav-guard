@@ -1,40 +1,40 @@
-# Multi-Module Maven-Projekt
+# Multi-Module Maven Project
 
-Dieses Projekt ist ein Beispiel für ein Maven Multi-Module-Projekt für MavGuard.
+This project is an example of a Maven multi-module project for MavGuard.
 
-## Struktur
+## Structure
 
 ```
 multi-module-project/
 ├── pom.xml                  (Root POM)
-├── moduleA/                 (Modul A)
+├── moduleA/                 (Module A)
 │   ├── pom.xml
 │   └── src/
-├── moduleB/                 (Modul B)
+├── moduleB/                 (Module B)
 │   ├── pom.xml
 │   └── src/
-└── moduleC/                 (Modul C mit Untermodul)
+└── moduleC/                 (Module C with submodule)
     ├── pom.xml
     ├── src/
-    └── submoduleD/          (Untermodul D)
+    └── submoduleD/          (Submodule D)
         ├── pom.xml
         └── src/
 ```
 
-## Besonderheiten
+## Special Features
 
-- Hierarchische Modulstruktur mit verschachtelten Modulen
-- Unterschiedliche Eigenschaftswerte (Properties) auf verschiedenen Ebenen:
-  - `moduleB` verwendet eine andere Jackson-Version als die Parent-POM
-  - `moduleC` verwendet eine andere JUnit-Version als die Parent-POM
-  - `submoduleD` verwendet eine andere Mockito-Version als die Parent-POM
-- Abhängigkeiten zwischen Modulen (`moduleB` hängt von `moduleA` ab usw.)
+- Hierarchical module structure with nested modules
+- Different property values at various levels:
+  - `moduleB` uses a different Jackson version than the parent POM
+  - `moduleC` uses a different JUnit version than the parent POM
+  - `submoduleD` uses a different Mockito version than the parent POM
+- Dependencies between modules (`moduleB` depends on `moduleA`, etc.)
 
-## Dependency-Checks mit MavGuard
+## Dependency Checks with MavGuard
 
-So führen Sie Dependency-Checks für ein Multi-Module-Projekt durch:
+Here's how to perform dependency checks for a multi-module project:
 
-### Schritt 1: MavGuard bauen (falls noch nicht geschehen)
+### Step 1: Build MavGuard (if not already done)
 
 ```bash
 cd ../../
@@ -42,52 +42,52 @@ mvn clean install
 cd sample/multi-module-project
 ```
 
-### Schritt 2: Multi-Module-Analyse ausführen
+### Step 2: Execute Multi-Module Analysis
 
-Dies ist der wichtigste Befehl für die Analyse von Multi-Module-Projekten:
+This is the most important command for analyzing multi-module projects:
 
 ```bash
-# Grundlegende Analyse des Multi-Module-Projekts
+# Basic analysis of the multi-module project
 java -jar mav-guard-cli.jar xml analyze-multi-module pom.xml
 ```
 
-Die Ausgabe zeigt eine Zusammenfassung der erkannten Module und Abhängigkeiten sowie mögliche Versionsinkonsistenzen.
+The output shows a summary of detected modules and dependencies, as well as possible version inconsistencies.
 
-### Schritt 3: Detaillierte Abhängigkeitsanalyse
+### Step 3: Detailed Dependency Analysis
 
-Für mehr Details zu den Abhängigkeiten in allen Modulen:
+For more details about the dependencies in all modules:
 
 ```bash
-# Detaillierte Abhängigkeitsanalyse mit Modulnutzung
+# Detailed dependency analysis with module usage
 java -jar mav-guard-cli.jar xml analyze-multi-module pom.xml --detailed-usage
 ```
 
-### Schritt 4: Überprüfung auf Versionsinkonsistenzen
+### Step 4: Check for Version Inconsistencies
 
-Dieser Befehl gibt einen Fehlercode zurück, wenn Versionsinkonsistenzen gefunden werden:
+This command returns an error code if version inconsistencies are found:
 
 ```bash
-# Überprüfung auf Versionsinkonsistenzen (gibt Fehlercode zurück wenn gefunden)
+# Check for version inconsistencies (returns error code if found)
 java -jar mav-guard-cli.jar xml analyze-multi-module pom.xml --check-inconsistencies
 ```
 
-Dieses Sample-Projekt enthält absichtlich Versionsinkonsistenzen zur Demonstration:
+This sample project intentionally contains version inconsistencies for demonstration:
 - Jackson: 2.13.4 (Root) vs. 2.14.0 (moduleB)
 - JUnit: 5.8.2 (Root) vs. 5.9.1 (moduleC)
 - Mockito: 4.8.0 (Root) vs. 5.2.0 (submoduleD)
 
-### Schritt 5: Extraktion von Abhängigkeiten aus einem einzelnen Modul
+### Step 5: Extract Dependencies from a Single Module
 
-Wenn Sie nur ein einzelnes Modul analysieren möchten:
+If you want to analyze only a single module:
 
 ```bash
-# Abhängigkeiten aus moduleB extrahieren
+# Extract dependencies from moduleB
 java -jar mav-guard-cli.jar xml extract-dependencies moduleB/pom.xml
 ```
 
-### Beispielausgabe
+### Example Output
 
-Bei der Ausführung des Befehls `analyze-multi-module` sollten Sie etwa folgende Ausgabe sehen:
+When executing the `analyze-multi-module` command, you should see output similar to the following:
 
 ```
 Multi-module project with X modules:
