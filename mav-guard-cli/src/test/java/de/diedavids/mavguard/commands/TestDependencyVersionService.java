@@ -15,7 +15,7 @@ import java.util.*;
  */
 @Service
 @Primary
-@Profile("test")
+@Profile("mock-test")
 public class TestDependencyVersionService implements DependencyVersionService {
     
     private final Map<String, List<String>> versionDatabase = new HashMap<>();

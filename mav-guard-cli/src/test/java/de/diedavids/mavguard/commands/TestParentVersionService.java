@@ -15,7 +15,7 @@ import java.util.*;
  */
 @Service
 @Primary
-@Profile("parent-test")
+@Profile("mock-parent-test")
 public class TestParentVersionService extends TestDependencyVersionService {
     
     private final Map<String, List<String>> parentVersionDatabase = new HashMap<>();
