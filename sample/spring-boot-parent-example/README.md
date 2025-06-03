@@ -1,37 +1,37 @@
 # Spring Boot Parent Example
 
-Dieses Beispielprojekt demonstriert die Verwendung einer Spring Boot Parent POM und wie man mit MavGuard überprüfen kann, ob Updates für die Parent-Version verfügbar sind.
+This sample project demonstrates the use of a Spring Boot parent POM and how to check for available updates to the parent version using MavGuard.
 
-## Projekt-Details
+## Project Details
 
-- **Parent-POM**: org.springframework.boot:spring-boot-starter-parent:2.7.0
-- **Java-Version**: 17
-- **Abhängigkeiten**:
+- **Parent POM**: org.springframework.boot:spring-boot-starter-parent:2.7.0
+- **Java Version**: 17
+- **Dependencies**:
   - spring-boot-starter-web
-  - spring-boot-starter-test (Test-Scope)
+  - spring-boot-starter-test (test scope)
 
-## Überprüfung von Parent-Updates mit MavGuard
+## Checking Parent Updates with MavGuard
 
-### Voraussetzung
+### Prerequisite
 
-MavGuard muss gebaut und installiert sein. Führe im Hauptverzeichnis des MavGuard-Projekts aus:
+MavGuard must be built and installed. Run in the main directory of the MavGuard project:
 
 ```bash
 mvn clean package
 ```
 
-### Ausführung
+### Execution
 
-Du kannst die Parent-Updates mit dem folgenden Befehl überprüfen:
+You can check for parent updates with the following command:
 
 ```bash
-# Im Verzeichnis des MavGuard-Hauptprojekts
-java -jar mav-guard-cli.jar dependencies check-updates sample/spring-boot-parent-example/pom.xml
+# In the MavGuard main project directory
+java -jar mav-guard-cli.jar check-updates sample/spring-boot-parent-example/pom.xml
 ```
 
-### Erwartete Ausgabe
+### Expected Output
 
-Die Ausgabe sollte in etwa so aussehen:
+The output should look something like:
 
 ```
 Checking for updates for dependencies in com.example:spring-boot-parent-example:0.0.1-SNAPSHOT
@@ -44,12 +44,12 @@ Checking for parent updates:
 Parent: org.springframework.boot:spring-boot-starter-parent      2.7.0 ->      3.X.Y
 ```
 
-Wobei X.Y.Z die neueste verfügbare Version zum Zeitpunkt der Ausführung ist.
+Where X.Y.Z is the latest available version at the time of execution.
 
-## Manuelles Testen von verschiedenen Parent-Versionen
+## Manual Testing of Different Parent Versions
 
-1. **Wechsle zu einer älteren Version**:
-   Ändere die Parent-Version in der pom.xml zu einer älteren Version, z.B. `2.5.0`:
+1. **Switch to an older version**:
+   Change the parent version in pom.xml to an older version, e.g. `2.5.0`:
 
    ```xml
    <parent>
@@ -60,8 +60,8 @@ Wobei X.Y.Z die neueste verfügbare Version zum Zeitpunkt der Ausführung ist.
    </parent>
    ```
 
-2. **Wechsle zu einer neueren Version**:
-   Ändere die Parent-Version in der pom.xml auf eine neuere Version, z.B. `3.1.0`:
+2. **Switch to a newer version**:
+   Change the parent version in pom.xml to a newer version, e.g. `3.1.0`:
 
    ```xml
    <parent>
@@ -72,14 +72,14 @@ Wobei X.Y.Z die neueste verfügbare Version zum Zeitpunkt der Ausführung ist.
    </parent>
    ```
 
-3. **Führe MavGuard aus und beobachte die Unterschiede in der Ausgabe**.
+3. **Run MavGuard and observe the differences in output**.
 
-## Multi-Modul-Projekt mit Parent-Überprüfung
+## Multi-Module Project with Parent Check
 
-Um Parent-Updates in einem Multi-Modul-Projekt zu überprüfen, verwende den `--multi-module` Parameter:
+To check parent updates in a multi-module project:
 
 ```bash
-java -jar mav-guard-cli.jar dependencies check-updates sample/multi-module-project/pom.xml --multi-module
+java -jar mav-guard-cli.jar check-updates sample/multi-module-project/pom.xml
 ```
 
-Bei Multi-Modul-Projekten zeigt MavGuard Parent-Updates für jedes Modul an, das eine andere Parent-Definition als das Hauptprojekt hat.
+For multi-module projects, MavGuard shows parent updates for each module that has a different parent definition than the main project.

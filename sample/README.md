@@ -1,30 +1,30 @@
-# MavGuard Beispielprojekte
+# MavGuard Sample Projects
 
-In diesem Verzeichnis finden Sie Beispielprojekte zur Demonstration der MavGuard-Funktionalitäten.
+This directory contains sample projects demonstrating MavGuard's functionality.
 
-## Verfügbare Beispiele
+## Available Examples
 
 ### Simple-Project
 
-Ein einfaches Maven-Projekt mit einer einzelnen POM-Datei. Dieses Projekt eignet sich gut für:
-- Testen der grundlegenden Dependency-Extraktion
-- Demonstration der Property-Auflösung
+A simple Maven project with a single POM file. This project is well-suited for:
+- Testing basic dependency extraction
+- Demonstrating property resolution
 
 ### Multi-Module-Project
 
-Ein umfangreicheres Maven-Projekt mit mehreren verschachtelten Modulen. Dieses Projekt zeigt:
-- Wie MavGuard mit Multi-Module-Projekten umgeht
-- Verschiedene Abhängigkeitsversionen in unterschiedlichen Modulen
-- Verschachtelte Module (bis zu zwei Ebenen)
-- Abhängigkeiten zwischen Modulen
+A more comprehensive Maven project with multiple nested modules. This project shows:
+- How MavGuard handles multi-module projects
+- Different dependency versions in different modules
+- Nested modules (up to two levels)
+- Dependencies between modules
 
 ### Spring-Boot-Parent-Example
 
-Ein Beispielprojekt mit Spring Boot als Parent-POM, das speziell für das Testen der Parent-Version-Prüfung konzipiert ist:
-- Demonstriert die Prüfung auf verfügbare Updates für die Parent-POM
-- Zeigt, wie MavGuard ältere Spring Boot Versionen identifiziert
-- Enthält eine ausführliche README mit Testanweisungen
+A sample project with Spring Boot as the parent POM, specifically designed for testing parent version checking:
+- Demonstrates checking for available updates to the parent POM
+- Shows how MavGuard identifies older Spring Boot versions
+- Contains detailed README with testing instructions
 
-## Verwendung
+## Usage
 
-Um die Beispiele mit MavGuard zu analysieren, navigieren Sie zunächst in das entsprechende Projektverzeichnis. Anschließend können Sie die MavGuard-Befehle ausführen, wie in den jeweiligen README-Dateien beschrieben.
+To analyze the examples with MavGuard, first navigate to the appropriate project directory. Then you can execute the MavGuard commands as described in the respective README files.
