@@ -179,12 +179,12 @@ public class PomParser implements PomFileProcessor {
                             projectDir = projectFile.getParentFile();
                         }
                         String relativePath = parent.getRelativePath();
+                        File parentPomFile = null; // Declare parentPomFile here to be in scope for catch block
                         
                         // Better handling of parent relative path resolution
-                        File parentPomFile;
-                        if (relativePath.equals("../..")
+                        if (relativePath != null && (relativePath.equals("../..")
                                 || relativePath.equals("../..\\")
-                                || relativePath.equals("..\\..")) {
+                                || relativePath.equals("..\\.."))) { // ensure relativePath is not null before .equals
                             // Special case for parent reference to root project
                             String parentGroupId = parent.getGroupId();
                             String parentArtifactId = parent.getArtifactId();
@@ -204,24 +204,41 @@ public class PomParser implements PomFileProcessor {
                             // Skip further processing for this parent
                             continue;
                         } else {
-                            parentPomFile = new File(projectDir, relativePath);
-                            if (!parentPomFile.exists() && !relativePath.endsWith("pom.xml")) {
-                                parentPomFile = new File(projectDir, relativePath + "/pom.xml");
+                            if (relativePath == null || relativePath.isEmpty()) {
+                                parentPomFile = null; // Indicates not found via relative path or not specified
+                            } else {
+                                parentPomFile = new File(projectDir, relativePath);
+                                if (!parentPomFile.exists() && !relativePath.endsWith("pom.xml")) {
+                                    parentPomFile = new File(projectDir, relativePath + "/pom.xml");
+                                }
                             }
                         }
-                        
-                        if (parentPomFile.exists()) {
+
+                        if (parentPomFile != null && parentPomFile.exists() && parentPomFile.isFile()) {
                             XmlProject loadedParent = xmlParser.parseXmlFile(parentPomFile, XmlProject.class);
                             loadedParent.setRelativePath(parentPomFile.getAbsolutePath());
                             
                             String loadedParentKey = getProjectKey(loadedParent);
-                            projectMap.put(loadedParentKey, loadedParent);
+                            // Avoid overwriting an already processed project (e.g. root loaded via modules)
+                            if (!projectMap.containsKey(loadedParentKey)) {
+                                projectMap.put(loadedParentKey, loadedParent);
+                            } else {
+                                loadedParent = projectMap.get(loadedParentKey); // use existing one
+                            }
                             
                             // Set the parent-child relationship
                             project.setParentProject(loadedParent);
+                        } else if (relativePath != null && !relativePath.isEmpty() && (parentPomFile == null || !parentPomFile.exists())) {
+                            // Only log error if relativePath was specified but not found
+                            System.err.println("Parent POM specified by relativePath '" + relativePath + "' not found for " + getProjectKey(project));
                         }
-                    } catch (Exception e) {
-                        System.err.println("Error loading parent POM for " + getProjectKey(project) + ": " + e.getMessage());
+                        // If parentPomFile is null (empty relativePath) or not a file, silently skip loading.
+                        // It's assumed to be an external parent or handled by other means (e.g. already in projectMap).
+                    } catch (JAXBException e) { // Catch specific parsing errors
+                        // Temporarily removed reference to parentPomFile to isolate compilation error
+                        System.err.println("Error parsing parent POM for " + getProjectKey(project) + ": " + e.getMessage());
+                    } catch (Exception e) { // Catch other unexpected errors during parent loading
+                        System.err.println("Unexpected error loading parent POM for " + getProjectKey(project) + ": " + e.getMessage());
                     }
                 }
             }

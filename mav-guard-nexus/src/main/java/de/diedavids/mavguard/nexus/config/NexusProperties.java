@@ -10,20 +10,21 @@ import org.springframework.validation.annotation.Validated;
 /**
  * Configuration properties for Nexus repository connection.
  */
-@ConfigurationProperties(prefix = "mavguard.nexus")
+@ConfigurationProperties(prefix = "mavguard.repository")
 @Validated
+@ValidNexusProperties
 public record NexusProperties(
+    @NotNull(message = "Repository type must not be null")
+    RepositoryType type,
+    
     @NotBlank(message = "Base URL must not be empty")
     @Pattern(regexp = "^(http|https)://.*", message = "Base URL must start with http:// or https://")
     String baseUrl,
     
-    @NotBlank(message = "Username must not be empty")
     String username,
     
-    @NotBlank(message = "Password must not be empty")
     String password,
     
-    @NotBlank(message = "Repository must not be empty")
     String repository,
     
     @NotNull(message = "Connection timeout must not be null")
@@ -44,5 +45,19 @@ public record NexusProperties(
         if (readTimeout == null) {
             readTimeout = 10000;
         }
+    }
+    
+    /**
+     * Checks if this configuration is for Maven Central.
+     */
+    public boolean isMavenCentral() {
+        return type == RepositoryType.MAVEN_CENTRAL;
+    }
+    
+    /**
+     * Checks if this configuration is for Nexus.
+     */
+    public boolean isNexus() {
+        return type == RepositoryType.NEXUS;
     }
 }

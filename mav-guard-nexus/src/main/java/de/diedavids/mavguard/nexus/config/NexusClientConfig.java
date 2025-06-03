@@ -32,11 +32,13 @@ public class NexusClientConfig {
         // Create rest client with base URL and timeouts
         RestClient.Builder builder = RestClient.builder()
                 .baseUrl(properties.baseUrl())
-                .defaultHeaders(headers -> headers.add("Accept", "application/json"))
+                .defaultHeaders(headers -> headers.add("Accept", "application/xml"))
                 .requestFactory(requestFactory);
         
-        // Add basic auth if credentials are provided
-        if (properties.username() != null && properties.password() != null) {
+        // Add basic auth only for Nexus type and if credentials are provided
+        if (properties.isNexus() && 
+            properties.username() != null && 
+            properties.password() != null) {
             builder.defaultHeaders(headers -> 
                 headers.setBasicAuth(properties.username(), properties.password()));
         }

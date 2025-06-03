@@ -20,6 +20,13 @@
             <version>${project.version}</version>
         </dependency>
 
+        <!-- Spring Context for @Component -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <!-- Version will be managed by the parent Spring Boot POM -->
+        </dependency>
+
         <!-- XML parsing dependencies -->
         <dependency>
             <groupId>jakarta.xml.bind</groupId>

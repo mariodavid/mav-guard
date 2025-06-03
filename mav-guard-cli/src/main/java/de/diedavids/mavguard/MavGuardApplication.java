@@ -1,7 +1,7 @@
 package de.diedavids.mavguard;
 
-import de.diedavids.mavguard.commands.DependencyCommands;
-import de.diedavids.mavguard.commands.XmlParserCommands;
+import de.diedavids.mavguard.commands.AnalyzeCommand;
+import de.diedavids.mavguard.commands.CheckUpdatesCommand;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -12,7 +12,7 @@ import picocli.CommandLine.IFactory;
 @SpringBootApplication
 @CommandLine.Command(
     name = "mav-guard",
-    subcommands = {XmlParserCommands.class, DependencyCommands.class},
+    subcommands = {AnalyzeCommand.class, CheckUpdatesCommand.class},
     mixinStandardHelpOptions = true,
     version = "1.0",
     description = "Maven Guard CLI tool"
@@ -34,11 +34,24 @@ public class MavGuardApplication implements Runnable {
         };
     }
 
+    // Used by Picocli when the command is run without subcommands
+    private CommandLine commandLine;
+
+    // Store the factory for use in run()
+    private final IFactory factory;
+
+    public MavGuardApplication(IFactory factory) {
+        this.factory = factory;
+    }
+
     @Override
     public void run() {
-        // This method is called when no subcommand is specified
-        // We can show help or a welcome message here
-        System.out.println("Welcome to Maven Guard CLI!");
-        System.out.println("Use --help to see available commands.");
+        // This method is called when no subcommand is specified.
+        // Display the help message for the main command.
+        if (commandLine == null) {
+            // Initialize CommandLine here if not already, using the factory
+            commandLine = new CommandLine(this, factory);
+        }
+        commandLine.usage(System.out);
     }
 }

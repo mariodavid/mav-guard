@@ -1,0 +1,92 @@
+# CLI Refactoring Proposals for MavGuard
+
+This document outlines proposals for refactoring the MavGuard command-line interface (CLI)
+to improve usability, reduce redundancy, and create a more intuitive command structure.
+The analysis is based on `XmlParserCommands.java` and `DependencyCommands.java`.
+
+## Current Structure Issues:
+
+1.  **Redundant `xml` subcommand**: The `xml` subcommand creates an artificial separation. Dependency analysis inherently involves XML (POM) parsing.
+2.  **Overlapping Functionality**:
+    *   `xml extract-dependencies --multi-module`, `xml analyze-multi-module`, and `dependencies check-updates --multi-module` all parse multi-module projects and use `MultiModuleDependencyCollector`.
+    *   Information like dependency lists and version inconsistencies are reported by multiple commands.
+3.  **`parse-pom` Utility**: While `parse-pom` is simple, its utility as a prominent, separate command is questionable. Basic POM information can be part of other commands' outputs.
+4.  **`extract-dependencies` as a separate command**: Listing dependencies is often a preliminary step for other operations like checking updates or deeper analysis, rather than an end goal itself for many users.
+
+## Proposed Changes:
+
+**1. Eliminate the `xml` Subcommand:**
+   - The distinction between "XML parsing" and "dependency operations" is not beneficial for the end-user.
+   - Functionalities currently under `xml` should be merged into more task-oriented commands or become options.
+
+**2. Deprecate/Remove `parse-pom`:**
+   - The simple act of parsing a POM and printing its coordinates is a low-level operation.
+   - This information should be a standard part of the output of more comprehensive commands like `analyze`.
+   - If specific scripting use cases exist, it could be a hidden or advanced option, but not a primary command.
+
+**3. Merge `extract-dependencies` Functionality:**
+   - Listing dependencies and identifying inconsistencies are core parts of project analysis and update checking.
+   - This functionality should be integrated into the proposed `analyze` command and, by extension, `check-updates`. It should not be a standalone command.
+
+**4. Refactor `analyze-multi-module` and `check-updates` into Core Commands:**
+
+   *   **New `analyze` Command:**
+      - **Invocation**: `mavguard analyze <pom-path>`
+      - **Behavior**:
+         - Automatically detects if the project is single-module or multi-module (e.g., by checking for `<modules>` element or analyzing parent-child relationships). The `--multi-module` flag could be retained if auto-detection is unreliable or for overriding.
+         - **Default Output (Single Module)**:
+            - Project coordinates (groupId, artifactId, version).
+            - List of all dependencies (direct and transitive).
+            - Parent project coordinates, if any.
+         - **Default Output (Multi-Module)**:
+            - Root project coordinates.
+            - Summary of modules included.
+            - Consolidated list of unique dependencies across all modules.
+            - Report of any version inconsistencies found between modules for the same dependency.
+         - **Options**:
+            - `--detailed-usage` (or similar, from `analyze-multi-module`'s current option): Shows a breakdown of which module uses which dependency and its version.
+      - **Purpose**: This command provides a comprehensive, read-only view of the project's structure and dependencies.
+
+   *   **Revised `check-updates` Command:**
+      - **Invocation**: `mavguard check-updates <pom-path>`
+      - **Behavior**:
+         - Also auto-detects single/multi-module structure (similar to `analyze`).
+         - **Functionality**:
+            - Internally performs the same analysis as the `analyze` command.
+            - Additionally, checks for newer versions of:
+               - All dependencies (for single module).
+               - Consolidated dependencies (for multi-module).
+               - Parent POM(s).
+         - **Output**:
+            - Includes all information that `analyze` would show (project info, dependencies, inconsistencies).
+            - Clearly lists available updates for dependencies, showing current version vs. latest version.
+            - For multi-module projects, when an update is available for a consolidated dependency, it should list the modules that declare/use that dependency.
+            - Clearly lists available updates for parent POMs, indicating which module's parent has an update.
+      - **Purpose**: This command helps users identify actionable updates for their project.
+
+**5. Consolidate Backend Logic:**
+   - Ensure that POM parsing (both single and multi-module), dependency collection (`MultiModuleDependencyCollector`), and inconsistency detection logic are centralized and reused by both `analyze` and `check-updates` commands to avoid code duplication.
+
+## Proposed CLI Structure Summary:
+
+```
+mavguard analyze <pom-path> [--detailed-usage]
+    # Analyzes POM(s), shows project structure, dependencies, and inconsistencies.
+    # --detailed-usage for module-specific dependency information in multi-module projects.
+
+mavguard check-updates <pom-path>
+    # Provides all information from 'analyze'.
+    # Additionally checks for and displays available updates for dependencies and parent POMs.
+    # Lists modules affected by updates in multi-module projects.
+```
+
+## Benefits of Proposed Changes:
+
+*   **Simplicity**: Fewer commands, making the CLI easier to learn and use.
+*   **Intuitive Naming**: `analyze` for understanding, `check-updates` for finding new versions.
+*   **Reduced Redundancy**: Common operations (POM parsing, dependency gathering) are logically grouped.
+*   **Task-Oriented**: Commands are aligned with user tasks rather than underlying implementation details (like "XML parsing").
+*   **Consistency**: Consistent behavior and output for single and multi-module projects, with auto-detection preferred.
+
+This refactoring aims to make MavGuard's CLI more powerful and user-friendly.
+Further review of `PomFileProcessor` and `PomParser` interfaces/classes would be needed to ensure optimal backend consolidation.

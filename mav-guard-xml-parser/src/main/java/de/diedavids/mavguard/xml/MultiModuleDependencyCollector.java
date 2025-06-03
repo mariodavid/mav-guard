@@ -1,5 +1,6 @@
 package de.diedavids.mavguard.xml;
 
+import org.springframework.stereotype.Component; // Added import
 import de.diedavids.mavguard.model.Dependency;
 import de.diedavids.mavguard.model.Project;
 
@@ -12,6 +13,7 @@ import java.util.TreeMap;
 /**
  * Collects and consolidates dependencies across a multi-module project.
  */
+@Component // Added annotation
 public class MultiModuleDependencyCollector {
 
     private final DependencyConflictResolver conflictResolver;
