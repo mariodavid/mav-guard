@@ -12,9 +12,9 @@ This sample project demonstrates the use of a Spring Boot parent POM and how to 
 
 ## Checking Parent Updates with MavGuard
 
-### Prerequisites
+### Prerequisite
 
-MavGuard must be built and installed. Execute in the main directory of the MavGuard project:
+MavGuard must be built and installed. Run in the main directory of the MavGuard project:
 
 ```bash
 mvn clean package
@@ -25,13 +25,13 @@ mvn clean package
 You can check for parent updates with the following command:
 
 ```bash
-# In the directory of the main MavGuard project
-java -jar mav-guard-cli.jar dependencies check-updates sample/spring-boot-parent-example/pom.xml
+# In the MavGuard main project directory
+java -jar mav-guard-cli.jar check-updates sample/spring-boot-parent-example/pom.xml
 ```
 
 ### Expected Output
 
-The output should look something like this:
+The output should look something like:
 
 ```
 Checking for updates for dependencies in com.example:spring-boot-parent-example:0.0.1-SNAPSHOT
@@ -49,7 +49,7 @@ Where X.Y.Z is the latest available version at the time of execution.
 ## Manual Testing of Different Parent Versions
 
 1. **Switch to an older version**:
-   Change the parent version in the pom.xml to an older version, e.g., `2.5.0`:
+   Change the parent version in pom.xml to an older version, e.g. `2.5.0`:
 
    ```xml
    <parent>
@@ -61,7 +61,7 @@ Where X.Y.Z is the latest available version at the time of execution.
    ```
 
 2. **Switch to a newer version**:
-   Change the parent version in the pom.xml to a newer version, e.g., `3.1.0`:
+   Change the parent version in pom.xml to a newer version, e.g. `3.1.0`:
 
    ```xml
    <parent>
@@ -72,14 +72,14 @@ Where X.Y.Z is the latest available version at the time of execution.
    </parent>
    ```
 
-3. **Run MavGuard and observe the differences in the output**.
+3. **Run MavGuard and observe the differences in output**.
 
-## Multi-Module Project with Parent Checking
+## Multi-Module Project with Parent Check
 
-To check for parent updates in a multi-module project, use the `--multi-module` parameter:
+To check parent updates in a multi-module project:
 
 ```bash
-java -jar mav-guard-cli.jar dependencies check-updates sample/multi-module-project/pom.xml --multi-module
+java -jar mav-guard-cli.jar check-updates sample/multi-module-project/pom.xml
 ```
 
 For multi-module projects, MavGuard shows parent updates for each module that has a different parent definition than the main project.

@@ -12,40 +12,40 @@ This project is a simple Maven example for MavGuard.
 
 Here's how to perform a dependency check with MavGuard:
 
-### Step 1: Ensure MavGuard is built
+### Step 1: Make sure MavGuard is built
 
 Navigate to the root directory of the MavGuard project and run the Maven build:
 
 ```bash
 cd ../../
-mvn clean install
+mvn clean package
 ```
 
-### Step 2: Basic Dependency Checks
+### Step 2: Basic Analysis
 
 ```bash
-# Navigate back to the simple-project
+# Navigate back to simple-project
 cd sample/simple-project
 
-# Extract and display dependencies
-java -jar mav-guard-cli.jar xml extract-dependencies pom.xml
-
-# Parse POM and display basic information
-java -jar mav-guard-cli.jar xml parse-pom pom.xml
+# Analyze the project
+java -jar mav-guard-cli.jar analyze pom.xml
 ```
 
-### Step 3: Check Dependencies for Updates
+### Step 3: Check dependencies for updates
 
 ```bash
-# Check if there are newer versions of the dependencies
-java -jar mav-guard-cli.jar dependencies check-updates pom.xml
+# Check if there are newer versions of dependencies
+java -jar mav-guard-cli.jar check-updates pom.xml
 ```
 
 ### Example Output
 
-When executing the `xml extract-dependencies` command, you should see output similar to the following:
+When running the `analyze` command, you should see output similar to:
 
 ```
+Project: com.example:simple-project:1.0.0
+Parent: None
+
 Dependencies found in POM file:
 - org.springframework:spring-core:5.3.27
 - org.springframework:spring-context:5.3.27
@@ -55,7 +55,7 @@ Dependencies found in POM file:
 - org.mockito:mockito-core:5.3.1 (scope: test)
 ```
 
-When running `dependencies check-updates`, you should see output similar to the following:
+With `check-updates` you should see output similar to:
 
 ```
 Checking for updates for dependencies in com.example:simple-project:1.0.0

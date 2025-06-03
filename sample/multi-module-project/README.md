@@ -21,7 +21,7 @@ multi-module-project/
         └── src/
 ```
 
-## Special Features
+## Features
 
 - Hierarchical module structure with nested modules
 - Different property values at various levels:
@@ -38,37 +38,37 @@ Here's how to perform dependency checks for a multi-module project:
 
 ```bash
 cd ../../
-mvn clean install
+mvn clean package
 cd sample/multi-module-project
 ```
 
-### Step 2: Execute Multi-Module Analysis
+### Step 2: Run Multi-Module Analysis
 
-This is the most important command for analyzing multi-module projects:
+This is the main command for analyzing multi-module projects:
 
 ```bash
 # Basic analysis of the multi-module project
-java -jar mav-guard-cli.jar xml analyze-multi-module pom.xml
+java -jar mav-guard-cli.jar analyze pom.xml
 ```
 
 The output shows a summary of detected modules and dependencies, as well as possible version inconsistencies.
 
 ### Step 3: Detailed Dependency Analysis
 
-For more details about the dependencies in all modules:
+For more details about dependencies across all modules:
 
 ```bash
 # Detailed dependency analysis with module usage
-java -jar mav-guard-cli.jar xml analyze-multi-module pom.xml --detailed-usage
+java -jar mav-guard-cli.jar analyze pom.xml --detailed-usage
 ```
 
-### Step 4: Check for Version Inconsistencies
+### Step 4: Check for Updates
 
-This command returns an error code if version inconsistencies are found:
+Check for available updates across all modules:
 
 ```bash
-# Check for version inconsistencies (returns error code if found)
-java -jar mav-guard-cli.jar xml analyze-multi-module pom.xml --check-inconsistencies
+# Check for updates in the multi-module project
+java -jar mav-guard-cli.jar check-updates pom.xml
 ```
 
 This sample project intentionally contains version inconsistencies for demonstration:
@@ -78,19 +78,19 @@ This sample project intentionally contains version inconsistencies for demonstra
 
 ### Step 5: Extract Dependencies from a Single Module
 
-If you want to analyze only a single module:
+If you only want to analyze a single module:
 
 ```bash
-# Extract dependencies from moduleB
-java -jar mav-guard-cli.jar xml extract-dependencies moduleB/pom.xml
+# Analyze moduleB separately
+java -jar mav-guard-cli.jar analyze moduleB/pom.xml
 ```
 
 ### Example Output
 
-When executing the `analyze-multi-module` command, you should see output similar to the following:
+When running the `analyze` command, you should see output similar to:
 
 ```
-Multi-module project with X modules:
+Multi-module project with 5 modules:
 - com.example:multi-module-project:1.0.0-SNAPSHOT
 - com.example:moduleA:1.0.0-SNAPSHOT
 - com.example:moduleB:1.0.0-SNAPSHOT
