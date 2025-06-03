@@ -1,0 +1,428 @@
+= Building MavGuard
+
+This guide covers building MavGuard from source, including development setup and build automation.
+
+== Prerequisites
+
+=== Required Software
+
+* **Java 17 or later** - MavGuard is built with Java 17 but works with newer versions
+* **Maven 3.6+** - For building and dependency management
+* **Git** - For source control
+
+=== Verify Prerequisites
+
+[source,bash]
+----
+# Check Java version
+java -version
+
+# Check Maven version  
+mvn -version
+
+# Check Git
+git --version
+----
+
+== Quick Build
+
+=== Standard Build
+
+[source,bash]
+----
+# Clone the repository
+git clone https://github.com/mariodavid/mav-guard.git
+cd mav-guard
+
+# Build with tests
+mvn clean package
+
+# Build without tests (faster)
+mvn clean package -DskipTests
+----
+
+The executable JAR will be located at:
+[source,console]
+----
+mav-guard-cli/target/mav-guard-cli.jar
+----
+
+=== Verify the Build
+
+[source,bash]
+----
+# Test the built JAR
+java -jar mav-guard-cli/target/mav-guard-cli.jar --version
+
+# Test with sample project
+java -jar mav-guard-cli/target/mav-guard-cli.jar analyze sample/simple-project/pom.xml
+----
+
+== Development Build
+
+=== Setting Up Development Environment
+
+[source,bash]
+----
+# Clone and setup
+git clone https://github.com/mariodavid/mav-guard.git
+cd mav-guard
+
+# Import into IDE
+# - IntelliJ IDEA: Open pom.xml as project
+# - Eclipse: Import Maven project  
+# - VS Code: Open folder with Java extensions
+
+# Initial build
+mvn clean compile
+----
+
+=== IDE Configuration
+
+**IntelliJ IDEA:**
+* File → Open → Select root `pom.xml`
+* Wait for Maven import to complete
+* Set Project SDK to Java 17+
+* Enable annotation processing
+
+**Eclipse:**
+* File → Import → Existing Maven Projects
+* Browse to cloned directory
+* Select all modules
+* Finish import
+
+**VS Code:**
+* Install Extension Pack for Java
+* Open the mav-guard folder
+* Configure Java path if needed
+
+== Build Lifecycle
+
+=== Maven Phases
+
+[cols="2,3,2", options="header"]
+|===
+|Phase |Description |Command
+
+|`compile`
+|Compiles source code
+|`mvn compile`
+
+|`test`
+|Runs unit tests
+|`mvn test`
+
+|`package`
+|Creates JAR files
+|`mvn package`
+
+|`verify`
+|Runs integration tests
+|`mvn verify`
+
+|`install`
+|Installs to local repository
+|`mvn install`
+|===
+
+=== Common Build Commands
+
+[source,bash]
+----
+# Clean build with all tests
+mvn clean verify
+
+# Quick development build
+mvn clean compile
+
+# Build specific module
+mvn -pl mav-guard-xml-parser clean package
+
+# Run tests for specific module
+mvn -pl mav-guard-cli test
+
+# Build and skip tests
+mvn clean package -DskipTests
+
+# Install to local Maven repository
+mvn clean install
+----
+
+== Module-Specific Building
+
+=== Building Individual Modules
+
+[source,bash]
+----
+# Build just the model module
+mvn -pl mav-guard-model clean package
+
+# Build xml-parser and its dependencies
+mvn -pl mav-guard-xml-parser -am clean package
+
+# Build CLI and all dependencies
+mvn -pl mav-guard-cli -am clean package
+----
+
+=== Module Dependencies
+
+```
+mav-guard-cli
+├── mav-guard-xml-parser
+│   └── mav-guard-model
+├── mav-guard-nexus
+│   └── mav-guard-model
+└── mav-guard-model
+```
+
+Build order is handled automatically by Maven.
+
+== Testing During Development
+
+=== Running Tests
+
+[source,bash]
+----
+# All tests
+mvn test
+
+# Specific module tests
+mvn -pl mav-guard-xml-parser test
+
+# Specific test class
+mvn -pl mav-guard-xml-parser test -Dtest=PomParserTest
+
+# Integration tests
+mvn verify
+
+# Skip unit tests, run integration tests only
+mvn verify -DskipUnitTests
+----
+
+=== Test Categories
+
+**Unit Tests**: Fast, isolated tests for individual components
+**Integration Tests**: Test module interactions and file I/O
+**Sample Project Tests**: Validate against sample Maven projects
+
+=== Debug Tests
+
+[source,bash]
+----
+# Run tests with debug output
+mvn test -Dtest=XmlParserCommandsTest -Dmaven.surefire.debug
+
+# Run with specific logging
+mvn test -Dlogging.level.de.diedavids.mavguard=DEBUG
+----
+
+== Build Profiles
+
+=== Available Profiles
+
+[source,bash]
+----
+# Development profile (faster, fewer checks)
+mvn clean package -Pdev
+
+# Production profile (all checks, optimizations)
+mvn clean package -Pprod
+
+# Documentation generation
+mvn clean package -Pdocs
+----
+
+=== Profile Configuration
+
+Profiles are configured in the parent `pom.xml`:
+
+* **dev**: Skips some checks for faster builds
+* **prod**: Includes all quality checks and optimizations
+* **docs**: Generates documentation as part of build
+
+== Build Optimization
+
+=== Parallel Builds
+
+[source,bash]
+----
+# Use multiple threads (auto-detect cores)
+mvn clean package -T 1C
+
+# Use specific number of threads
+mvn clean package -T 4
+
+# Parallel within modules
+mvn clean package -T 1C -Dmaven.test.parallel=classes
+----
+
+=== Offline Builds
+
+[source,bash]
+----
+# Build without checking for updates
+mvn clean package -o
+
+# Update dependencies first, then offline build
+mvn dependency:go-offline
+mvn clean package -o
+----
+
+=== Build Cache
+
+[source,bash]
+----
+# Use Maven daemon for faster builds
+mvnd clean package
+
+# Or with regular Maven but shared cache
+mvn clean package -Dmaven.artifact.threads=10
+----
+
+== Documentation Building
+
+=== Generate Documentation
+
+[source,bash]
+----
+# Build documentation module
+mvn -pl mav-guard-docs clean package
+
+# Generate only HTML
+mvn -pl mav-guard-docs asciidoctor:process-asciidoc
+
+# View generated docs
+open mav-guard-docs/target/docs/index.html
+----
+
+=== Documentation Development
+
+[source,bash]
+----
+# Watch for changes and rebuild (if using Maven daemon)
+mvnd -pl mav-guard-docs asciidoctor:process-asciidoc -Dwatch=true
+
+# Manual rebuild during development
+mvn -pl mav-guard-docs asciidoctor:process-asciidoc
+----
+
+== Troubleshooting Builds
+
+=== Common Issues
+
+**"OutOfMemoryError during build"**:
+[source,bash]
+----
+export MAVEN_OPTS="-Xmx2g -XX:MaxMetaspaceSize=512m"
+mvn clean package
+----
+
+**"Tests failing on different OS"**:
+[source,bash]
+----
+# Use profile for OS-specific tests
+mvn test -Pos-specific
+----
+
+**"Dependency resolution issues"**:
+[source,bash]
+----
+# Clear local repository
+rm -rf ~/.m2/repository/de/diedavids/
+mvn clean package
+----
+
+=== Debug Builds
+
+[source,bash]
+----
+# Debug Maven execution
+mvn -X clean package
+
+# Debug dependency resolution
+mvn dependency:tree -Dverbose
+
+# Debug test execution
+mvn test -Dmaven.surefire.debug -Dtest=YourTest
+----
+
+=== Performance Analysis
+
+[source,bash]
+----
+# Profile build performance
+mvn clean package -Dtime
+
+# Analyze dependency download time
+mvn dependency:resolve-sources -Dtime
+
+# Check for unused dependencies
+mvn dependency:analyze
+----
+
+== Continuous Integration
+
+=== GitHub Actions Integration
+
+The project includes GitHub Actions workflows:
+
+[source,yaml]
+----
+# .github/workflows/ci.yml
+name: CI
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+      - run: mvn clean verify
+----
+
+=== Local CI Simulation
+
+[source,bash]
+----
+# Simulate CI build locally
+mvn clean verify -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn
+
+# With specific profiles as CI
+mvn clean verify -Pci
+----
+
+== Release Building
+
+=== Prepare Release Build
+
+[source,bash]
+----
+# Clean workspace
+mvn clean
+
+# Full verification build
+mvn clean verify
+
+# Check for SNAPSHOT dependencies
+mvn versions:display-dependency-updates
+
+# Prepare release artifacts
+mvn clean package -Prelease
+----
+
+=== Release Artifacts
+
+The release build creates:
+* Executable JAR: `mav-guard-cli/target/mav-guard-cli.jar`
+* Documentation: `mav-guard-docs/target/docs/`
+* Source JARs for all modules
+* API documentation (Javadoc)
+
+== Next Steps
+
+* Learn about <<development-setup.adoc#,IDE setup and debugging>>
+* Understand the <<testing.adoc#,testing strategy and best practices>>
+* Review <<contributing.adoc#,contribution guidelines>>
+* Explore <<../architecture/modules.adoc#,module architecture>>

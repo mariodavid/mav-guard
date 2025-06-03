@@ -1,0 +1,73 @@
+= Configuration
+
+This guide covers all configuration options available in MavGuard for repository settings, authentication, and application behavior.
+
+== Configuration Overview
+
+MavGuard supports flexible configuration through multiple sources with the following precedence order:
+
+1. Command-line arguments (highest priority)
+2. System properties (`-D` flags)
+3. Environment variables
+4. `application.properties` files
+5. Default values (lowest priority)
+
+== Repository Configuration
+
+=== Maven Central (Default)
+
+By default, MavGuard uses Maven Central for dependency version checking:
+
+[source,properties]
+----
+# Default configuration (no setup required)
+mavguard.repository.type=maven-central
+mavguard.repository.url=https://repo1.maven.org/maven2/
+mavguard.repository.timeout=30s
+----
+
+=== Private Nexus Repository
+
+For enterprise environments with private Nexus repositories:
+
+[source,properties]
+----
+# Nexus configuration
+mavguard.repository.type=nexus
+mavguard.repository.url=https://nexus.company.com/repository/maven-public/
+mavguard.repository.username=${NEXUS_USERNAME}
+mavguard.repository.password=${NEXUS_PASSWORD}
+mavguard.repository.timeout=60s
+----
+
+== Authentication
+
+=== Environment Variables
+
+[source,bash]
+----
+export NEXUS_USERNAME=your-username
+export NEXUS_PASSWORD=your-password
+java -jar mav-guard-cli.jar check-updates pom.xml
+----
+
+=== System Properties
+
+[source,bash]
+----
+java -Dmavguard.repository.username=user \
+     -Dmavguard.repository.password=pass \
+     -jar mav-guard-cli.jar check-updates pom.xml
+----
+
+== Configuration File Locations
+
+MavGuard looks for `application.properties` in these locations:
+
+1. Current working directory: `./application.properties`
+2. User home directory: `~/.mavguard/application.properties`
+3. System config directory: `/etc/mavguard/application.properties`
+
+== Complete Configuration Reference
+
+See <<../reference/configuration-reference.adoc#,Configuration Reference>> for all available options.

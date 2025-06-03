@@ -1,0 +1,396 @@
+= Architecture Overview
+
+MavGuard is designed as a modular, extensible system for Maven dependency analysis and monitoring. This document provides a comprehensive overview of the system architecture, design principles, and module interactions.
+
+== High-Level Architecture
+
+MavGuard follows a layered architecture pattern with clear separation of concerns:
+
+----
+Presentation Layer
+├── CLI Interface
+├── Spring Shell  
+└── PicoCLI
+
+Service Layer
+├── XML Parser
+├── Dependency Collector
+├── Version Service
+└── Multi-Module Processor
+
+Model Layer
+├── Project Records
+├── Dependency Records
+└── Domain Objects
+
+External Systems
+├── Maven Central
+├── Nexus Repository
+└── File System
+----
+
+=== Core Principles
+
+**Modularity**::
+Each module has a single, well-defined responsibility and can be developed and tested independently.
+
+**Dependency Inversion**::  
+High-level modules depend on abstractions (interfaces) rather than concrete implementations.
+
+**Separation of Concerns**::
+Business logic is separated from presentation logic and infrastructure concerns.
+
+**Extensibility**::
+New functionality can be added through well-defined extension points without modifying existing code.
+
+== Module Architecture
+
+=== Module Dependency Graph
+
+----
+mav-guard-cli
+├── Command Classes
+└── Spring Boot App
+    ├── depends on mav-guard-xml-parser
+    ├── depends on mav-guard-nexus  
+    └── depends on mav-guard-model
+
+mav-guard-xml-parser
+├── POM Parser
+└── Multi-Module Collector
+    └── depends on mav-guard-model
+
+mav-guard-nexus
+├── Version Service
+└── Repository Client
+    └── depends on mav-guard-model
+
+mav-guard-model
+├── Domain Records
+└── Value Objects
+    └── no dependencies on other MavGuard modules
+----
+
+=== Layer Responsibilities
+
+==== Model Layer (`mav-guard-model`)
+
+**Purpose**: Defines the core domain model using Java Records
+
+**Key Components**:
+- `Project`: Represents a Maven project with coordinates, dependencies, and metadata
+- `Dependency`: Immutable representation of a Maven dependency
+- `PluginDependency`: Represents Maven plugin dependencies
+- Value objects for GAV coordinates, versions, and scopes
+
+**Design Decisions**:
+- Uses Java Records for immutability and reduced boilerplate
+- No dependencies on other MavGuard modules
+- Pure domain objects without business logic
+
+==== Service Layer (`mav-guard-xml-parser`)
+
+**Purpose**: Handles POM file parsing and dependency analysis
+
+**Key Components**:
+- `PomParser`: JAXB-based XML parsing of Maven POM files
+- `MultiModuleDependencyCollector`: Aggregates dependencies across modules
+- `DependencyConflictResolver`: Implements Maven's version resolution rules
+- `PropertyResolver`: Handles Maven property placeholder resolution
+
+**Design Decisions**:
+- JAXB for type-safe XML binding
+- Comprehensive property resolution including inheritance
+- Support for complex multi-module hierarchies
+- Clean separation between parsing and business logic
+
+==== Repository Layer (`mav-guard-nexus`)
+
+**Purpose**: Integrates with external repositories for version information
+
+**Key Components**:
+- `DependencyVersionService`: Checks for available updates
+- Repository-specific clients (Maven Central, Nexus)
+- Authentication and configuration management
+- Caching and rate limiting
+
+**Design Decisions**:
+- Spring WebClient for reactive HTTP communication
+- Pluggable repository implementations
+- Configurable authentication methods
+- Graceful handling of network failures
+
+==== Presentation Layer (`mav-guard-cli`)
+
+**Purpose**: Provides command-line interface and user interaction
+
+**Key Components**:
+- Spring Boot application framework
+- PicoCLI for command parsing and validation
+- Command classes for each major operation
+- Output formatting and user feedback
+
+**Design Decisions**:
+- Spring Boot for dependency injection and configuration
+- PicoCLI for powerful command-line parsing
+- Separation of command logic from business logic
+- Structured output for both human and machine consumption
+
+== Data Flow Architecture
+
+=== Analysis Flow
+
+----
+User Request
+    ↓
+CLI Command Parser
+    ↓
+POM Parser (reads XML file)
+    ↓
+Model Creation (Project objects)
+    ↓
+Multi-Module Collector (if applicable)
+    ↓
+Formatted Output to User
+----
+
+=== Update Checking Flow
+
+----
+CLI Request
+    ↓
+POM Parser (creates Project with dependencies)
+    ↓
+Version Service (checks each dependency)
+    ↓
+Repository API calls (parallel requests)
+    ↓
+Update Information Collection
+    ↓
+Comparison Results & Formatted Output
+----
+
+== Configuration Architecture
+
+=== Configuration Hierarchy
+
+MavGuard uses a flexible configuration system:
+
+[source,yaml]
+----
+Configuration Sources (Priority Order):
+1. Command-line arguments
+2. System properties (-D flags)
+3. Environment variables
+4. application.properties files
+5. Default values
+----
+
+=== Repository Configuration
+
+----
+RepositoryConfiguration (interface)
+├── getBaseUrl(): String
+├── getUsername(): Optional<String>  
+├── getPassword(): Optional<String>
+└── getTimeout(): Duration
+
+Implementations:
+├── MavenCentralConfig
+└── NexusConfig
+
+ConfigurationManager
+├── loadConfiguration(): Configuration
+└── getRepositoryConfig(): RepositoryConfiguration
+----
+
+== Extension Points
+
+=== Adding New Commands
+
+[source,java]
+----
+@Component
+@Command(name = "my-command", description = "Custom analysis command")
+public class MyCustomCommand implements Runnable {
+    
+    @Autowired
+    private PomParser pomParser;
+    
+    @Parameters(description = "POM file to analyze")
+    private File pomFile;
+    
+    @Override
+    public void run() {
+        // Command implementation
+    }
+}
+----
+
+=== Custom Repository Support
+
+[source,java]
+----
+@Component
+public class MyRepositoryService implements DependencyVersionService {
+    
+    @Override
+    public Optional<String> getLatestVersion(String groupId, String artifactId) {
+        // Custom repository logic
+    }
+    
+    @Override
+    public boolean supports(String repositoryType) {
+        return "my-repo".equals(repositoryType);
+    }
+}
+----
+
+=== Custom Output Formats
+
+[source,java]
+----
+@Component
+public class JsonOutputFormatter implements OutputFormatter {
+    
+    @Override
+    public void formatAnalysisResult(AnalysisResult result, PrintWriter writer) {
+        // JSON formatting logic
+    }
+    
+    @Override
+    public String getFormatName() {
+        return "json";
+    }
+}
+----
+
+== Threading and Concurrency
+
+=== Parallel Processing
+
+MavGuard uses parallel processing for performance:
+
+- **Multi-module parsing**: Modules are processed concurrently
+- **Version checking**: Dependency updates are checked in parallel
+- **Network requests**: Repository calls use reactive streams
+
+=== Thread Safety
+
+- **Immutable objects**: Domain model uses Records for thread safety
+- **Stateless services**: Business logic services maintain no mutable state
+- **Proper synchronization**: Shared resources use appropriate synchronization
+
+== Error Handling Strategy
+
+=== Exception Hierarchy
+
+----
+Exception
+└── RuntimeException
+    └── MavGuardException
+        ├── ParseException
+        │   ├── PomParseException
+        │   └── PropertyResolutionException
+        ├── NetworkException
+        │   └── RepositoryAccessException
+        └── ConfigurationException
+----
+
+=== Error Recovery
+
+- **Graceful degradation**: Continue analysis when non-critical operations fail
+- **Retry logic**: Network operations include intelligent retry mechanisms
+- **User feedback**: Clear error messages with actionable suggestions
+- **Partial results**: Return partial analysis when possible
+
+== Performance Characteristics
+
+=== Scalability Considerations
+
+**Project Size**::
+- Single module: Linear with dependency count
+- Multi-module: Linear with module count × average dependencies
+
+**Network Operations**::
+- Update checking: Parallel requests with connection pooling
+- Rate limiting: Respects repository rate limits
+- Caching: Intelligent caching of version information
+
+**Memory Usage**::
+- Streaming XML parsing for large POM files
+- Lazy loading of optional information
+- Garbage collection friendly object creation
+
+=== Optimization Strategies
+
+- **Dependency resolution caching**: Avoid redundant network calls
+- **Parallel processing**: Leverage multiple CPU cores
+- **Incremental parsing**: Parse only necessary POM sections
+- **Connection reuse**: HTTP/2 and connection pooling
+
+== Security Considerations
+
+=== Input Validation
+
+- **XML parsing**: Protection against XXE attacks and malformed input
+- **File access**: Validation of file paths and permissions
+- **Command injection**: Proper escaping of user-provided parameters
+
+=== Credential Handling
+
+- **No storage**: Credentials are never persisted to disk
+- **Environment variables**: Secure credential injection
+- **Token-based auth**: Support for modern authentication methods
+
+=== Network Security
+
+- **HTTPS only**: All repository communication uses TLS
+- **Certificate validation**: Proper SSL/TLS certificate verification
+- **Proxy support**: Corporate proxy and authentication support
+
+== Monitoring and Observability
+
+=== Logging Strategy
+
+- **Structured logging**: JSON-formatted logs for machine processing
+- **Log levels**: Appropriate use of DEBUG, INFO, WARN, ERROR
+- **Context preservation**: Request correlation and tracing
+
+=== Metrics Collection
+
+- **Performance metrics**: Command execution times and resource usage
+- **Business metrics**: Dependency counts, update frequencies
+- **Error metrics**: Failure rates and error categorization
+
+== Future Architecture Evolution
+
+=== Planned Enhancements
+
+**Web Interface**::
+Addition of a web-based UI while maintaining the same service layer
+
+**Plugin Architecture**::
+Formal plugin system for third-party extensions
+
+**Distributed Analysis**::
+Support for analyzing large project sets across multiple machines
+
+**Real-time Monitoring**::
+Continuous monitoring and alerting for dependency changes
+
+=== Architectural Principles for Growth
+
+- **API-first design**: RESTful APIs for programmatic access
+- **Microservice ready**: Services designed for potential decomposition
+- **Event-driven**: Eventual migration to event-based communication
+- **Cloud native**: Container and Kubernetes deployment support
+
+== Next Steps
+
+For detailed information about specific architectural aspects:
+
+* <<modules.adoc#,Module Deep Dive>>
+* <<design-decisions.adoc#,Design Decisions and Rationale>>
+* <<data-flow.adoc#,Detailed Data Flow Analysis>>
+* <<extension-points.adoc#,Extension and Customization Guide>>

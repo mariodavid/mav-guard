@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>de.diedavids</groupId>
+        <artifactId>mav-guard</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+    </parent>
+    
+    <artifactId>mav-guard-docs</artifactId>
+    <packaging>pom</packaging>
+    <name>mav-guard-docs</name>
+    <description>Comprehensive documentation for MavGuard</description>
+
+    <properties>
+        <asciidoctor.maven.plugin.version>2.2.4</asciidoctor.maven.plugin.version>
+        <asciidoctorj.version>2.5.10</asciidoctorj.version>
+        <asciidoctorj.diagram.version>2.2.13</asciidoctorj.diagram.version>
+    </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.asciidoctor</groupId>
+                <artifactId>asciidoctor-maven-plugin</artifactId>
+                <version>${asciidoctor.maven.plugin.version}</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.asciidoctor</groupId>
+                        <artifactId>asciidoctorj</artifactId>
+                        <version>${asciidoctorj.version}</version>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <sourceDirectory>src/docs/asciidoc</sourceDirectory>
+                    <outputDirectory>target/docs</outputDirectory>
+                    <attributes>
+                        <project-version>${project.version}</project-version>
+                        <project-name>${project.name}</project-name>
+                        <imagesdir>images</imagesdir>
+                        <sourcedir>${project.build.sourceDirectory}</sourcedir>
+                        <toc>left</toc>
+                        <toclevels>3</toclevels>
+                        <icons>font</icons>
+                        <sectanchors>true</sectanchors>
+                        <sectnums>true</sectnums>
+                        <source-highlighter>coderay</source-highlighter>
+                        <experimental>true</experimental>
+                        <appendix-caption>Appendix</appendix-caption>
+                        <caution-caption>⚠ CAUTION</caution-caption>
+                        <important-caption>❗ IMPORTANT</important-caption>
+                        <note-caption>📝 Note</note-caption>
+                        <tip-caption>💡 Tip</tip-caption>
+                        <warning-caption>⚠ WARNING</warning-caption>
+                    </attributes>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>output-html</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>process-asciidoc</goal>
+                        </goals>
+                        <configuration>
+                            <backend>html5</backend>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

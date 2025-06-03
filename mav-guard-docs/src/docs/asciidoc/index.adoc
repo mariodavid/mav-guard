@@ -1,0 +1,86 @@
+= MavGuard Documentation
+:description: Comprehensive documentation for MavGuard - Your Maven Dependency Watchdog
+:keywords: maven, dependencies, java, security, updates, monitoring
+:author: MavGuard Team
+:revnumber: {project-version}
+:revdate: {localdate}
+:revremark: Generated documentation
+
+== Welcome to MavGuard
+
+**MavGuard** is a command-line tool for analyzing and monitoring Maven dependencies in Java projects. It examines `pom.xml` files in your repository and provides comprehensive dependency analysis, update checking, and version consistency verification.
+
+[.lead]
+*Your Maven Dependency Watchdog* 🛡️
+
+=== Quick Navigation
+
+[cols="1,3,1", options="header"]
+|===
+|Section |Description |Link
+
+|User Guide
+|Installation, commands, configuration, and usage examples
+|<<user-guide/getting-started.adoc#,Getting Started>>
+
+|Architecture
+|Technical overview, module design, and system architecture  
+|<<architecture/overview.adoc#,Architecture Overview>>
+
+|Developer Guide
+|Building, testing, contributing, and development setup
+|<<developer-guide/building.adoc#,Building Guide>>
+
+|API Documentation
+|Java API, model classes, and programmatic usage
+|<<api/java-api.adoc#,Java API>>
+
+|Reference
+|Complete command and configuration reference
+|<<reference/command-reference.adoc#,Command Reference>>
+
+|Examples
+|Real-world usage examples and integration patterns
+|<<examples/basic-usage.adoc#,Basic Usage>>
+|===
+
+=== What MavGuard Provides
+
+* **Dependency Analysis**: Comprehensive analysis of single and multi-module Maven projects
+* **Update Checking**: Automatic detection of available updates for dependencies and parent POMs  
+* **Version Inconsistency Detection**: Identifies when different modules use different versions of the same dependency
+* **Multi-Module Support**: Auto-detection and analysis of Maven multi-module projects with consolidated dependency views
+* **Parent POM Updates**: Checks for updates to parent POMs in your project hierarchy
+* **Clear Output**: Well-formatted, tabular output for easy reading
+* **Detailed Usage Reports**: Optional `--detailed-usage` flag shows which modules use which dependencies
+* **Flexible Project Detection**: Automatic detection with optional `--force-multi-module` override
+
+=== Key Use Cases
+
+* **Dependency Auditing**: Quickly analyze all dependencies in your Maven projects
+* **Version Management**: Identify outdated dependencies and available updates  
+* **Multi-Module Consistency**: Ensure consistent dependency versions across modules
+* **CI/CD Integration**: Automate dependency checks in your build pipeline
+* **Security**: Stay informed about updates that might include security fixes
+
+=== Getting Started
+
+New to MavGuard? Start with our <<user-guide/getting-started.adoc#,Getting Started>> guide to quickly get up and running.
+
+Already familiar with MavGuard? Jump to the <<reference/command-reference.adoc#,Command Reference>> for detailed usage information.
+
+Want to contribute? Check out our <<developer-guide/contributing.adoc#,Contributing Guide>>.
+
+=== Documentation Sections
+
+include::user-guide/getting-started.adoc[leveloffset=+1]
+
+include::architecture/overview.adoc[leveloffset=+1]
+
+include::developer-guide/building.adoc[leveloffset=+1]
+
+include::api/java-api.adoc[leveloffset=+1]
+
+include::reference/command-reference.adoc[leveloffset=+1]
+
+include::examples/basic-usage.adoc[leveloffset=+1]
