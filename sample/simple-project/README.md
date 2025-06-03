@@ -1,51 +1,51 @@
-# Einfaches Maven-Projekt
+# Simple Maven Project
 
-Dieses Projekt ist ein einfaches Maven-Beispiel für MavGuard.
+This project is a simple Maven example for MavGuard.
 
-## Struktur
+## Structure
 
-- Einzelnes Modul mit direkter `pom.xml`
-- Mehrere Abhängigkeiten mit unterschiedlichen Versionen
-- Verwendung von Maven-Properties für Versionen
+- Single module with direct `pom.xml`
+- Multiple dependencies with different versions
+- Use of Maven properties for versions
 
-## Dependency-Checks mit MavGuard
+## Dependency Checks with MavGuard
 
-So führen Sie einen Dependency-Check mit MavGuard durch:
+Here's how to perform a dependency check with MavGuard:
 
-### Schritt 1: Stellen Sie sicher, dass MavGuard gebaut wurde
+### Step 1: Make sure MavGuard is built
 
-Navigieren Sie zum Root-Verzeichnis des MavGuard-Projekts und führen Sie den Maven-Build aus:
+Navigate to the root directory of the MavGuard project and run the Maven build:
 
 ```bash
 cd ../../
-mvn clean install
+mvn clean package
 ```
 
-### Schritt 2: Basic Dependency-Checks
+### Step 2: Basic Analysis
 
 ```bash
-# Navigieren Sie zurück zum simple-project
+# Navigate back to simple-project
 cd sample/simple-project
 
-# Abhängigkeiten extrahieren und anzeigen
-java -jar mav-guard-cli.jar xml extract-dependencies pom.xml
-
-# POM parsen und grundlegende Informationen anzeigen
-java -jar mav-guard-cli.jar xml parse-pom pom.xml
+# Analyze the project
+java -jar mav-guard-cli.jar analyze pom.xml
 ```
 
-### Schritt 3: Abhängigkeiten auf Updates prüfen
+### Step 3: Check dependencies for updates
 
 ```bash
-# Prüfen, ob es neuere Versionen der Abhängigkeiten gibt
-java -jar mav-guard-cli.jar dependencies check-updates pom.xml
+# Check if there are newer versions of dependencies
+java -jar mav-guard-cli.jar check-updates pom.xml
 ```
 
-### Beispielausgabe
+### Example Output
 
-Bei der Ausführung des Befehls `xml extract-dependencies` sollten Sie eine Ausgabe ähnlich der folgenden sehen:
+When running the `analyze` command, you should see output similar to:
 
 ```
+Project: com.example:simple-project:1.0.0
+Parent: None
+
 Dependencies found in POM file:
 - org.springframework:spring-core:5.3.27
 - org.springframework:spring-context:5.3.27
@@ -55,7 +55,7 @@ Dependencies found in POM file:
 - org.mockito:mockito-core:5.3.1 (scope: test)
 ```
 
-Bei `dependencies check-updates` sollten Sie eine Ausgabe ähnlich der folgenden sehen:
+With `check-updates` you should see output similar to:
 
 ```
 Checking for updates for dependencies in com.example:simple-project:1.0.0
