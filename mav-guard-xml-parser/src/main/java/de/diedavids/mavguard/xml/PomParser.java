@@ -26,7 +26,11 @@ public class PomParser implements PomFileProcessor {
     private final PropertyResolver propertyResolver;
 
     public PomParser() {
-        this.xmlParser = new XmlParser();
+        this(new XmlParser());
+    }
+
+    public PomParser(XmlParser xmlParser) {
+        this.xmlParser = xmlParser;
         this.propertyResolver = new MavenPropertyResolver();
     }
 
