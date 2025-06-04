@@ -229,9 +229,9 @@ public class CheckUpdatesCommand implements Callable<Integer> {
         int updateCount = 0;
 
         if (!consolidatedDependencies.isEmpty()) {
-            System.out.println("\nConsolidated Dependency Updates Available:");
-            System.out.printf("  %-50s %-20s %-5s %-20s %s%n", "DEPENDENCY", "CURRENT", " ", "LATEST", "AFFECTED MODULES");
-            System.out.println("  " + "-".repeat(120));
+            colorOutput.println("\nConsolidated Dependency Updates Available:", ColorOutputService.ColorType.BLUE);
+            colorOutput.printf("  %-50s %-20s %-5s %-20s %s%n", "DEPENDENCY", "CURRENT", " ", "LATEST", "AFFECTED MODULES");
+            colorOutput.println("  " + "-".repeat(120));
             boolean depHeaderPrinted = false;
             for (Dependency dependency : consolidatedDependencies) {
                 Optional<String> latestVersion = versionService.getLatestVersion(dependency);
@@ -243,20 +243,21 @@ public class CheckUpdatesCommand implements Callable<Integer> {
                     Map<String, List<String>> usageMap = report.getDependencyUsageByModule();
                     List<String> usingModules = usageMap != null ? usageMap.get(depCoord) : null;
                     String modulesList = (usingModules != null && !usingModules.isEmpty()) ? String.join(", ", usingModules) : "root/inherited";
-                    System.out.printf("  %-50s %-20s -> %-20s (Modules: %s)%n",
-                        depCoord, dependency.version(), latestVersion.get(), modulesList);
+                    String arrow = colorOutput.getUpdateArrow(dependency.version(), latestVersion.get());
+                    colorOutput.printf("  %-50s %-20s %s %-20s (Modules: %s)%n",
+                        depCoord, dependency.version(), arrow, latestVersion.get(), modulesList);
                 }
             }
             if (!depHeaderPrinted) {
-                 System.out.println("  All consolidated dependencies are up to date.");
+                 colorOutput.println("  All consolidated dependencies are up to date.", ColorOutputService.ColorType.GREEN);
             }
         } else {
-             System.out.println("\nNo consolidated dependencies to check for updates.");
+             colorOutput.println("\nNo consolidated dependencies to check for updates.");
         }
 
-        System.out.println("\nParent Project Updates (Per Module):");
-        System.out.printf("  %-20s %-50s %-20s %-5s %-20s%n", "MODULE", "PARENT", "CURRENT", " ", "LATEST");
-        System.out.println("  " + "-".repeat(120));
+        colorOutput.println("\nParent Project Updates (Per Module):", ColorOutputService.ColorType.BLUE);
+        colorOutput.printf("  %-20s %-50s %-20s %-5s %-20s%n", "MODULE", "PARENT", "CURRENT", " ", "LATEST");
+        colorOutput.println("  " + "-".repeat(120));
         boolean parentHeaderPrinted = false;
         boolean hasModulesWithParents = false;
         for (Project project : projects) {
@@ -268,32 +269,34 @@ public class CheckUpdatesCommand implements Callable<Integer> {
                     anyUpdatesFound = true;
                     updateCount++;
                     parentHeaderPrinted = true;
-                    System.out.printf("  %-20s %-50s %-20s -> %-20s%n",
+                    String arrow = colorOutput.getUpdateArrow(parent.version(), latestParentVersion.get());
+                    colorOutput.printf("  %-20s %-50s %-20s %s %-20s%n",
                         project.artifactId(), // Module name
                         parent.groupId()+":"+parent.artifactId(), // Parent GAV
                         parent.version(), // Parent current version
+                        arrow, // Colored arrow
                         latestParentVersion.get()); // Parent latest version
                 }
             }
         }
 
         if (!parentHeaderPrinted && hasModulesWithParents) {
-             System.out.println("  All module parents are up to date or no newer versions found.");
+             colorOutput.println("  All module parents are up to date or no newer versions found.", ColorOutputService.ColorType.GREEN);
         } else if (!hasModulesWithParents) {
-            System.out.println("  No parent projects defined in any of the modules.");
+            colorOutput.println("  No parent projects defined in any of the modules.");
         }
 
-        System.out.println("\n--- Summary ---");
+        colorOutput.println("\n--- Summary ---", ColorOutputService.ColorType.BLUE, ColorOutputService.ColorType.BOLD);
         if (!anyUpdatesFound) {
-            System.out.println("Project is up to date. No consolidated dependency or parent updates found.");
+            colorOutput.println("Project is up to date. No consolidated dependency or parent updates found.", ColorOutputService.ColorType.GREEN);
         } else {
-            System.out.println("Found " + updateCount + " potential update(s) across the multi-module project.");
+            colorOutput.println("Found " + updateCount + " potential update(s) across the multi-module project.", ColorOutputService.ColorType.YELLOW);
         }
 
         if (report.hasVersionInconsistencies()) {
-            System.out.println("\nREMINDER: " + report.getVersionInconsistencies().size() +
+            colorOutput.println("\nREMINDER: " + report.getVersionInconsistencies().size() +
                                " inconsistent dependency version(s) identified in the analysis section." +
-                               " Please review them as they might affect update decisions.");
+                               " Please review them as they might affect update decisions.", ColorOutputService.ColorType.ORANGE);
         }
         return 0;
     }
