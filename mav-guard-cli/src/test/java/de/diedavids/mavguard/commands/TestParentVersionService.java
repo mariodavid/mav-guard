@@ -15,7 +15,7 @@ import java.util.*;
  */
 @Service
 @Primary
-@Profile("parent-test")
+@Profile("test")
 public class TestParentVersionService extends TestDependencyVersionService {
     
     private final Map<String, List<String>> parentVersionDatabase = new HashMap<>();
@@ -52,9 +52,14 @@ public class TestParentVersionService extends TestDependencyVersionService {
         
         // For test purposes, return newer versions only for specific cases
         if ("org.springframework.boot".equals(parent.groupId()) && 
-            "spring-boot-starter-parent".equals(parent.artifactId()) &&
-            "2.7.0".equals(parent.version())) {
-            return Optional.of("2.7.8");
+            "spring-boot-starter-parent".equals(parent.artifactId())) {
+            
+            if ("2.6.0".equals(parent.version())) {
+                return Optional.of("3.2.0"); // Update from 2.6.0 to latest 3.x
+            }
+            if ("2.7.0".equals(parent.version())) {
+                return Optional.of("2.7.8");
+            }
         }
         
         // For all other cases, return the current version (no update needed)
