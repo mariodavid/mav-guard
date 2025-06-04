@@ -14,7 +14,6 @@ import java.util.*;
  * This replaces mocking with a real implementation that returns predefined test data.
  */
 @Service
-@Primary
 @Profile("mock-test")
 public class TestDependencyVersionService implements DependencyVersionService {
     
