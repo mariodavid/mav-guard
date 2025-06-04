@@ -228,7 +228,8 @@ class AnalyzeCommandIntegrationTest {
 
     @Test
     void testUsageHelp(CapturedOutput output) {
-        new CommandLine(analyzeCommand, factory).execute("--help");
+        int exitCode = new CommandLine(analyzeCommand, factory).execute("--help");
+        assertThat(exitCode).isEqualTo(0);
         assertThat(output).contains("Usage: analyze [-hV] [--detailed-usage] [--force-multi-module] <filePath>");
         assertThat(output).contains("--force-multi-module", "Force parsing as a multi-module project");
     }
