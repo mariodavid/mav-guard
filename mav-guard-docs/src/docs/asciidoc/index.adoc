@@ -84,3 +84,13 @@ include::api/java-api.adoc[leveloffset=+1]
 include::reference/command-reference.adoc[leveloffset=+1]
 
 include::examples/basic-usage.adoc[leveloffset=+1]
+
+
+[source,java]
+----
+import de.diedavids.mavguard.model.Project;
+
+var project = new Project();
+
+project.setNotExistingFlag(true);
+----

@@ -1,0 +1,65 @@
+name: Validate AsciiDoc Documentation
+
+on:
+  pull_request:
+    paths:
+      - '**.adoc'
+      - '**.asciidoc'
+      - 'scripts/validate-asciidoc-docs.sh'
+      - '.github/workflows/validate-asciidoc.yml'
+  push:
+    branches:
+      - main
+      - develop
+    paths:
+      - '**.adoc'
+      - '**.asciidoc'
+
+jobs:
+  validate-docs:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Need full history for git diff
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+    
+    - name: Install Claude Code CLI
+      run: npm install -g @anthropic-ai/claude-code
+    
+    - name: Make script executable
+      run: chmod +x scripts/validate-asciidoc-docs.sh
+    
+    - name: Validate AsciiDoc documentation
+      env:
+        ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      run: |
+        # Run validation script
+        if scripts/validate-asciidoc-docs.sh --git-diff > patch.diff 2>&1; then
+          echo "✅ All AsciiDoc code listings are up to date"
+          exit 0
+        else
+          echo "❌ Outdated code listings found in AsciiDoc files"
+          echo ""
+          echo "The following changes are needed:"
+          echo "================================="
+          cat patch.diff
+          echo "================================="
+          echo ""
+          echo "Please apply the changes locally and commit them."
+          exit 1
+        fi
+    
+    - name: Upload patch if validation failed
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: asciidoc-validation-patch
+        path: patch.diff
+        retention-days: 7
