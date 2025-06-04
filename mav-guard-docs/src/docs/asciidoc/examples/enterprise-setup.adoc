@@ -451,10 +451,10 @@ MavGuard can be integrated with license compliance tools:
 [source,bash]
 ----
 # Generate dependency report for compliance
-java -jar mav-guard-cli.jar analyze pom.xml --output-format=json > dependencies.json
+java -jar mav-guard-cli.jar analyze pom.xml > dependencies.txt
 
 # Process with license compliance tool
-license-checker analyze dependencies.json
+license-checker analyze dependencies.txt
 ----
 
 === Data Governance

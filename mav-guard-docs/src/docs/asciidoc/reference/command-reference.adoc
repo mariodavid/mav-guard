@@ -518,9 +518,6 @@ Using literal value for analysis
 
 [source,bash]
 ----
-# Test with verbose output (if available)
-java -jar mav-guard-cli.jar analyze pom.xml --verbose
-
 # Test file accessibility
 ls -la pom.xml
 java -jar mav-guard-cli.jar analyze pom.xml

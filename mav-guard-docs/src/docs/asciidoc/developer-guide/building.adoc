@@ -210,7 +210,7 @@ mvn verify -DskipUnitTests
 [source,bash]
 ----
 # Run tests with debug output
-mvn test -Dtest=XmlParserCommandsTest -Dmaven.surefire.debug
+mvn test -Dtest=AnalyzeCommandTest -Dmaven.surefire.debug
 
 # Run with specific logging
 mvn test -Dlogging.level.de.diedavids.mavguard=DEBUG
