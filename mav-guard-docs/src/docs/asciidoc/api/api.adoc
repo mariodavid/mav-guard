@@ -1,0 +1,259 @@
+= API Documentation
+
+This guide covers using MavGuard programmatically from Java applications.
+
+== Overview
+
+MavGuard's core functionality is available as a Java API, allowing integration into:
+
+* IDE plugins and extensions
+* Build tools and Maven plugins
+* CI/CD systems and automation tools
+* Custom analysis applications
+
+== Getting Started
+
+=== Maven Dependencies
+
+[source,xml]
+----
+<dependencies>
+    <dependency>
+        <groupId>de.diedavids</groupId>
+        <artifactId>mav-guard-model</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+        <groupId>de.diedavids</groupId>
+        <artifactId>mav-guard-xml-parser</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+        <groupId>de.diedavids</groupId>
+        <artifactId>mav-guard-nexus</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+    </dependency>
+</dependencies>
+----
+
+=== Basic Usage
+
+[source,java]
+----
+import de.diedavids.mavguard.model.Project;
+import de.diedavids.mavguard.xmlparser.PomParser;
+
+PomParser parser = new PomParser();
+Project project = parser.parsePomFile(new File("pom.xml"));
+
+System.out.println("Project: " + project.coordinates());
+project.dependencies().forEach(dep -> 
+    System.out.println("  " + dep.coordinates() + " (" + dep.scope() + ")")
+);
+----
+
+== Domain Model
+
+MavGuard uses Java Records for immutable domain objects:
+
+=== Project
+Represents a Maven project with coordinates, dependencies, and metadata.
+
+[source,java]
+----
+public record Project(
+    ProjectCoordinates coordinates,
+    List<Dependency> dependencies,
+    List<PluginDependency> pluginDependencies,
+    Optional<ProjectCoordinates> parent,
+    Map<String, String> properties
+) {}
+----
+
+=== Dependency
+Represents a Maven dependency with scope and optional information.
+
+[source,java]
+----
+public record Dependency(
+    ProjectCoordinates coordinates,
+    String scope,
+    boolean optional
+) {}
+----
+
+=== ProjectCoordinates
+Maven GAV coordinates (GroupId:ArtifactId:Version).
+
+[source,java]
+----
+public record ProjectCoordinates(
+    String groupId,
+    String artifactId,
+    String version
+) {}
+----
+
+== POM Parsing
+
+=== Single Module Projects
+
+[source,java]
+----
+PomParser parser = new PomParser();
+
+// From File
+Project project = parser.parsePomFile(new File("pom.xml"));
+
+// From InputStream
+try (InputStream stream = new FileInputStream("pom.xml")) {
+    Project project = parser.parsePomFromStream(stream);
+}
+----
+
+=== Multi-Module Projects
+
+[source,java]
+----
+// Parse all modules
+List<Project> projects = parser.parseMultiModuleProject(new File("pom.xml"));
+
+// Analyze dependencies across modules
+MultiModuleDependencyCollector collector = new MultiModuleDependencyCollector();
+var report = collector.collectDependencies(projects);
+
+// Check for version inconsistencies
+if (report.hasVersionInconsistencies()) {
+    report.getVersionInconsistencies().forEach((coords, versions) -> {
+        System.out.println("Inconsistent versions for " + coords + ": " + versions);
+    });
+}
+----
+
+=== Property Resolution
+
+MavGuard handles Maven property resolution including inheritance:
+
+[source,java]
+----
+ParseConfiguration config = ParseConfiguration.builder()
+    .resolveProperties(true)
+    .followParentChain(true)
+    .includeInheritedDependencies(true)
+    .build();
+    
+Project project = parser.parsePomFile(pomFile, config);
+----
+
+== Version Checking
+
+[source,java]
+----
+@Autowired
+private DependencyVersionService versionService;
+
+// Check for latest version
+Optional<String> latest = versionService.getLatestVersion("org.springframework", "spring-core");
+if (latest.isPresent() && !latest.get().equals(currentVersion)) {
+    System.out.println("Update available: " + currentVersion + " -> " + latest.get());
+}
+----
+
+== Advanced Usage
+
+=== Custom Analysis Pipeline
+
+[source,java]
+----
+public class DependencyAnalyzer {
+    private final PomParser pomParser;
+    private final DependencyVersionService versionService;
+    
+    public AnalysisResult analyze(File pomFile) {
+        List<Project> projects = detectAndParse(pomFile);
+        var dependencyReport = collector.collectDependencies(projects);
+        Map<String, UpdateInfo> updates = checkForUpdates(dependencyReport);
+        
+        return AnalysisResult.builder()
+            .projects(projects)
+            .dependencyReport(dependencyReport)
+            .updates(updates)
+            .build();
+    }
+}
+----
+
+=== Spring Configuration
+
+[source,java]
+----
+@Configuration
+@ComponentScan(basePackages = "de.diedavids.mavguard")
+public class MavGuardConfig {
+    
+    @Bean
+    public PomParser pomParser() {
+        return new PomParser();
+    }
+    
+    @Bean
+    @ConditionalOnProperty(name = "mavguard.repository.type", havingValue = "nexus")
+    public DependencyVersionService nexusVersionService() {
+        return new NexusDependencyVersionService();
+    }
+}
+----
+
+== Error Handling
+
+[source,java]
+----
+try {
+    Project project = parser.parsePomFile(pomFile);
+} catch (PomParseException e) {
+    logger.error("Failed to parse POM file: {}", e.getMessage());
+} catch (PropertyResolutionException e) {
+    logger.warn("Could not resolve all properties: {}", e.getMessage());
+} catch (IOException e) {
+    logger.error("File access error: {}", e.getMessage());
+}
+----
+
+== Performance Considerations
+
+=== Parallel Processing
+
+[source,java]
+----
+List<CompletableFuture<UpdateResult>> futures = dependencies.stream()
+    .map(this::checkSingleDependency)
+    .toList();
+    
+CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))
+    .thenApply(v -> futures.stream()
+        .map(CompletableFuture::join)
+        .collect(Collectors.toList()));
+----
+
+=== Caching
+
+[source,java]
+----
+@Component
+public class CachedVersionService implements DependencyVersionService {
+    private final Cache<String, Optional<String>> versionCache;
+    
+    public CachedVersionService(DependencyVersionService delegate) {
+        this.versionCache = Caffeine.newBuilder()
+            .maximumSize(1000)
+            .expireAfterWrite(Duration.ofHours(1))
+            .build();
+    }
+    
+    @Override
+    public Optional<String> getLatestVersion(String groupId, String artifactId) {
+        String key = groupId + ":" + artifactId;
+        return versionCache.get(key, k -> delegate.getLatestVersion(groupId, artifactId));
+    }
+}
+----

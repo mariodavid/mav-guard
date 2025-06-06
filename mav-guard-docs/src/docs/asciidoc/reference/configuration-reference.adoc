@@ -1,10 +1,10 @@
 = Configuration Reference
 
-Complete reference for all MavGuard configuration options.
+Complete reference for all MavGuard configuration options and setup examples.
 
-== Configuration Sources
+== Configuration Overview
 
-Configuration is loaded in this priority order:
+MavGuard supports flexible configuration through multiple sources with the following precedence order:
 
 1. **Command-line arguments** (highest priority)
 2. **System properties** (`-D` flags)
@@ -143,7 +143,19 @@ Configuration is loaded in this priority order:
 
 == Configuration Examples
 
-=== Basic Maven Central Setup
+=== Maven Central (Default)
+
+By default, MavGuard uses Maven Central with no configuration required:
+
+[source,properties]
+----
+# Default configuration (no setup required)
+mavguard.repository.type=maven-central
+mavguard.repository.url=https://repo1.maven.org/maven2/
+mavguard.repository.timeout=30s
+----
+
+For basic tuning:
 
 [source,properties]
 ----
@@ -153,7 +165,9 @@ mavguard.repository.timeout=60s
 logging.level.de.diedavids.mavguard=INFO
 ----
 
-=== Nexus with Authentication
+=== Private Nexus Repository
+
+For enterprise environments with private Nexus repositories:
 
 [source,properties]
 ----
@@ -162,7 +176,7 @@ mavguard.repository.type=nexus
 mavguard.repository.url=https://nexus.company.com/repository/maven-public/
 mavguard.repository.username=${NEXUS_USERNAME}
 mavguard.repository.password=${NEXUS_PASSWORD}
-mavguard.repository.timeout=120s
+mavguard.repository.timeout=60s
 ----
 
 === Corporate Environment with Proxy
@@ -206,7 +220,9 @@ mavguard.cache.enabled=true
 mavguard.cache.ttl=2h
 ----
 
-== Environment Variables
+== Configuration Methods
+
+=== Environment Variables
 
 All properties can be set via environment variables using uppercase and underscores:
 
@@ -216,9 +232,11 @@ export MAVGUARD_REPOSITORY_TYPE=nexus
 export MAVGUARD_REPOSITORY_URL=https://nexus.company.com/repository/maven-public/
 export MAVGUARD_REPOSITORY_USERNAME=myuser
 export MAVGUARD_REPOSITORY_PASSWORD=mypassword
+
+java -jar mav-guard-cli.jar check-updates pom.xml
 ----
 
-== System Properties
+=== System Properties
 
 Properties can be set via `-D` flags:
 
@@ -226,12 +244,14 @@ Properties can be set via `-D` flags:
 ----
 java -Dmavguard.repository.type=nexus \
      -Dmavguard.repository.url=https://nexus.company.com/repository/maven-public/ \
+     -Dmavguard.repository.username=user \
+     -Dmavguard.repository.password=pass \
      -jar mav-guard-cli.jar check-updates pom.xml
 ----
 
-== Configuration File Locations
+=== Configuration File Locations
 
-MavGuard searches for configuration files in:
+MavGuard searches for `application.properties` in these locations:
 
 1. **Current directory**: `./application.properties`
 2. **User home**: `~/.mavguard/application.properties`
@@ -273,5 +293,3 @@ mavguard.repository.password=${NEXUS_PASSWORD}
 export NEXUS_USERNAME=my-service-account
 export NEXUS_PASSWORD=secure-token-here
 ----
-
-For setup guides, see <<../user-guide/configuration.adoc#,Configuration Guide>>.

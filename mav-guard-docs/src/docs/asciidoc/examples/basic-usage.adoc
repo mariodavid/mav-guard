@@ -1,12 +1,12 @@
-= Basic Usage Examples
+= Usage Examples
 
-This guide provides practical, real-world examples of using MavGuard for common dependency management tasks.
+This guide provides practical examples of using MavGuard for dependency management across basic to enterprise scenarios.
 
-== Quick Start Examples
+== Getting Started
 
 === First Time Usage
 
-Start with a simple project analysis to get familiar with MavGuard:
+Start with a simple project analysis:
 
 [source,bash]
 ----
@@ -35,54 +35,10 @@ Checking for updates...
 No updates available - all dependencies are current.
 ----
 
-=== Understanding Your Project Structure
+== Single-Module Projects
 
-[source,bash]
-----
-# Get detailed information about a complex project
-java -jar mav-guard-cli.jar analyze pom.xml --detailed-usage
-----
+=== Spring Boot Application
 
-This is particularly useful for:
-* Understanding dependency relationships
-* Identifying which modules use which dependencies
-* Spotting version inconsistencies early
-
-== Single-Module Project Examples
-
-=== Simple Spring Boot Application
-
-**Project structure:**
-```
-my-spring-app/
-├── pom.xml
-├── src/main/java/...
-└── src/test/java/...
-```
-
-**Analysis:**
-[source,bash]
-----
-cd my-spring-app
-java -jar mav-guard-cli.jar analyze pom.xml
-----
-
-**Output:**
-[source,console]
-----
-Project: com.mycompany:my-spring-app:1.0.0
-Parent: org.springframework.boot:spring-boot-starter-parent:3.4.5
-
-Dependencies found in POM file:
-- org.springframework.boot:spring-boot-starter-web:3.4.5
-- org.springframework.boot:spring-boot-starter-data-jpa:3.4.5
-- com.h2database:h2:2.2.224 (scope: runtime)
-- org.springframework.boot:spring-boot-starter-test:3.4.5 (scope: test)
-
-Total dependencies: 4 (2 compile, 1 runtime, 1 test)
-----
-
-**Update check:**
 [source,bash]
 ----
 java -jar mav-guard-cli.jar check-updates pom.xml
@@ -110,14 +66,6 @@ Parent POM update available: 3.4.5 -> 3.4.6
 
 === Legacy Java Application
 
-**For older projects with explicit dependency versions:**
-
-[source,bash]
-----
-java -jar mav-guard-cli.jar check-updates pom.xml
-----
-
-**Typical output:**
 [source,console]
 ----
 Project: com.legacy:old-app:2.1.0
@@ -127,7 +75,6 @@ Dependencies found in POM file:
 - org.springframework:spring-context:5.3.27
 - org.springframework:spring-web:5.3.27
 - com.fasterxml.jackson.core:jackson-databind:2.14.2
-- org.apache.commons:commons-lang3:3.12.0
 - junit:junit:4.13.2 (scope: test)
 
 Checking for updates...
@@ -135,34 +82,26 @@ Checking for updates...
 org.springframework:spring-context             5.3.27 -> 6.2.3
 org.springframework:spring-web                 5.3.27 -> 6.2.3
 com.fasterxml.jackson.core:jackson-databind     2.14.2 -> 2.19.0
-org.apache.commons:commons-lang3               3.12.0 -> 3.17.0
-junit:junit                                     4.13.2 -> 4.13.2
 
-4 dependencies have updates available.
+3 dependencies have updates available.
 ----
 
-== Multi-Module Project Examples
+== Multi-Module Projects
 
-=== Typical Enterprise Multi-Module Project
+=== Enterprise Multi-Module Structure
 
 **Project structure:**
 ```
 enterprise-app/
 ├── pom.xml                    # Parent POM
 ├── common/                    # Shared utilities
-│   └── pom.xml
 ├── web-api/                   # REST API module
-│   └── pom.xml
 ├── business-logic/            # Core business logic
-│   └── pom.xml
 └── data-access/              # Database layer
-    └── pom.xml
 ```
 
-**Analysis:**
 [source,bash]
 ----
-cd enterprise-app
 java -jar mav-guard-cli.jar analyze pom.xml
 ----
 
@@ -180,86 +119,19 @@ Modules found:
 Consolidated Dependencies:
 - org.springframework:spring-core:6.2.2 (used in: web-api, business-logic, data-access)
 - org.springframework:spring-web:6.2.2 (used in: web-api)
-- org.springframework:spring-data-jpa:3.4.5 (used in: data-access)
 - org.apache.commons:commons-lang3:3.12.0 (used in: common, business-logic)
 - org.slf4j:slf4j-api:2.0.13 (used in: common, web-api, business-logic, data-access)
-- org.junit.jupiter:junit-jupiter:5.11.4 (scope: test, used in: common, web-api, business-logic, data-access)
 
-Total dependencies: 25 across 4 modules
-Version inconsistencies: 0
-----
-
-**Detailed module analysis:**
-[source,bash]
-----
-java -jar mav-guard-cli.jar analyze pom.xml --detailed-usage
-----
-
-**Output:**
-[source,console]
-----
-Multi-module project: com.enterprise:enterprise-app:1.0.0
-
-=== Module: com.enterprise:common:1.0.0 ===
-Dependencies:
-- org.apache.commons:commons-lang3:3.12.0
-- org.slf4j:slf4j-api:2.0.13
-- org.junit.jupiter:junit-jupiter:5.11.4 (scope: test)
-
-=== Module: com.enterprise:web-api:1.0.0 ===
-Dependencies:
-- com.enterprise:common:1.0.0
-- com.enterprise:business-logic:1.0.0
-- org.springframework:spring-core:6.2.2
-- org.springframework:spring-web:6.2.2
-- org.slf4j:slf4j-api:2.0.13
-- org.junit.jupiter:junit-jupiter:5.11.4 (scope: test)
-
-=== Module: com.enterprise:business-logic:1.0.0 ===
-Dependencies:
-- com.enterprise:common:1.0.0
-- com.enterprise:data-access:1.0.0
-- org.springframework:spring-core:6.2.2
-- org.apache.commons:commons-lang3:3.12.0
-- org.slf4j:slf4j-api:2.0.13
-- org.junit.jupiter:junit-jupiter:5.11.4 (scope: test)
-
-=== Module: com.enterprise:data-access:1.0.0 ===
-Dependencies:
-- com.enterprise:common:1.0.0
-- org.springframework:spring-core:6.2.2
-- org.springframework:spring-data-jpa:3.4.5
-- org.slf4j:slf4j-api:2.0.13
-- org.junit.jupiter:junit-jupiter:5.11.4 (scope: test)
-
-=== Consolidated Summary ===
 Total dependencies: 25 across 4 modules
 Version inconsistencies: 0
 ----
 
 === Detecting Version Inconsistencies
 
-**Scenario: Different modules using different versions**
-
-[source,bash]
-----
-java -jar mav-guard-cli.jar analyze pom.xml
-----
-
 **Output with inconsistencies:**
 [source,console]
 ----
 Multi-module project detected: com.example:inconsistent-project:1.0.0
-
-Modules found:
-- com.example:module-a:1.0.0
-- com.example:module-b:1.0.0
-
-Consolidated Dependencies:
-- org.springframework:spring-core:6.2.2 (used in: module-a)
-- org.springframework:spring-core:6.1.0 (used in: module-b)
-- org.apache.commons:commons-lang3:3.12.0 (used in: module-a)
-- org.apache.commons:commons-lang3:3.11.0 (used in: module-b)
 
 Version Inconsistencies Detected:
 ❌ org.springframework:spring-core
@@ -274,45 +146,59 @@ Total dependencies: 8 across 2 modules
 Version inconsistencies: 2
 ----
 
-**Exit code:** This analysis would return exit code `2` indicating warnings.
+**Exit code:** Returns exit code `2` indicating warnings.
 
-=== Update Checking for Multi-Module Projects
+== Enterprise Configuration
+
+=== Repository Authentication
+
+[source,properties]
+----
+# ~/.mavguard/application.properties
+mavguard.repository.type=nexus
+mavguard.repository.url=https://nexus.company.com/repository/maven-public/
+mavguard.repository.username=${NEXUS_USERNAME}
+mavguard.repository.password=${NEXUS_PASSWORD}
+----
 
 [source,bash]
 ----
+# Environment variables (secure)
+export NEXUS_USERNAME=service-account
+export NEXUS_PASSWORD=secure-token-here
 java -jar mav-guard-cli.jar check-updates pom.xml
 ----
 
-**Output:**
-[source,console]
+=== Proxy Configuration
+
+[source,properties]
 ----
-Multi-module project: com.enterprise:enterprise-app:1.0.0
-
-Modules found:
-- com.enterprise:common:1.0.0
-- com.enterprise:web-api:1.0.0
-- com.enterprise:business-logic:1.0.0
-- com.enterprise:data-access:1.0.0
-
-Consolidated Dependencies:
-- org.springframework:spring-core:6.2.2 (used in: web-api, business-logic, data-access)
-- org.springframework:spring-web:6.2.2 (used in: web-api)
-- org.apache.commons:commons-lang3:3.12.0 (used in: common, business-logic)
-
-Checking for updates...
------------------------------------------------------
-org.springframework:spring-core   6.2.2 -> 6.2.3 (affects: web-api, business-logic, data-access)
-org.springframework:spring-web    6.2.2 -> 6.2.3 (affects: web-api)
-org.apache.commons:commons-lang3  3.12.0 -> 3.17.0 (affects: common, business-logic)
-
-3 consolidated dependencies have updates available.
+# Corporate proxy setup
+mavguard.proxy.host=proxy.company.com
+mavguard.proxy.port=8080
+mavguard.proxy.username=${PROXY_USERNAME}
+mavguard.proxy.password=${PROXY_PASSWORD}
+mavguard.proxy.nonproxyhosts=localhost,127.0.0.1,*.company.com
 ----
 
-== Daily Development Workflows
+=== Multiple Repository Support
 
-=== Morning Dependency Check
+[source,properties]
+----
+# Primary enterprise repository
+mavguard.repository.primary.url=https://nexus.company.com/repository/maven-public/
+mavguard.repository.primary.username=${NEXUS_USERNAME}
+mavguard.repository.primary.password=${NEXUS_PASSWORD}
 
-**Create a daily script:**
+# Fallback to Maven Central
+mavguard.repository.fallback.url=https://repo1.maven.org/maven2/
+mavguard.repository.fallback.enabled=true
+----
+
+== Development Workflows
+
+=== Daily Dependency Check Script
+
 [source,bash]
 ----
 #!/bin/bash
@@ -321,7 +207,6 @@ org.apache.commons:commons-lang3  3.12.0 -> 3.17.0 (affects: common, business-lo
 echo "🔍 Daily Dependency Check - $(date)"
 echo "======================================"
 
-# Check current project
 if [ -f "pom.xml" ]; then
     echo "📊 Project Analysis:"
     java -jar ~/tools/mav-guard-cli.jar analyze pom.xml | grep -E "(Project:|Total dependencies:|Version inconsistencies:)"
@@ -341,16 +226,8 @@ fi
 echo -e "\n✅ Daily check complete!"
 ----
 
-**Usage:**
-[source,bash]
-----
-chmod +x daily-dep-check.sh
-./daily-dep-check.sh
-----
-
 === Pre-Commit Hook
 
-**Create a Git pre-commit hook:**
 [source,bash]
 ----
 #!/bin/bash
@@ -358,7 +235,6 @@ chmod +x daily-dep-check.sh
 
 echo "🔍 Running dependency analysis..."
 
-# Check for version inconsistencies
 java -jar ~/tools/mav-guard-cli.jar analyze pom.xml > /dev/null
 exit_code=$?
 
@@ -375,137 +251,10 @@ fi
 echo "✅ Dependency analysis passed"
 ----
 
-=== Weekly Update Review
+== CI/CD Integration
 
-**Create a weekly update report:**
-[source,bash]
-----
-#!/bin/bash
-# weekly-update-report.sh
+=== GitHub Actions
 
-REPORT_FILE="dependency-updates-$(date +%Y-%m-%d).txt"
-
-echo "📋 Weekly Dependency Update Report" > "$REPORT_FILE"
-echo "Generated: $(date)" >> "$REPORT_FILE"
-echo "Project: $(pwd)" >> "$REPORT_FILE"
-echo "=========================================" >> "$REPORT_FILE"
-
-# Generate full update report
-java -jar ~/tools/mav-guard-cli.jar check-updates pom.xml >> "$REPORT_FILE"
-
-# Extract summary
-echo -e "\n📊 SUMMARY:" >> "$REPORT_FILE"
-echo "============" >> "$REPORT_FILE"
-
-updates=$(grep " -> " "$REPORT_FILE" | wc -l)
-echo "Total updates available: $updates" >> "$REPORT_FILE"
-
-if [ "$updates" -gt 0 ]; then
-    echo -e "\n🔝 TOP PRIORITY UPDATES:" >> "$REPORT_FILE"
-    grep -E "(spring|security|jackson)" "$REPORT_FILE" | grep " -> " >> "$REPORT_FILE" || echo "None identified" >> "$REPORT_FILE"
-    
-    echo -e "\n⚠️  POTENTIAL BREAKING CHANGES:" >> "$REPORT_FILE"
-    grep -E "(junit|mockito)" "$REPORT_FILE" | grep " -> " >> "$REPORT_FILE" || echo "None identified" >> "$REPORT_FILE"
-fi
-
-echo "📄 Report saved to: $REPORT_FILE"
-cat "$REPORT_FILE"
-----
-
-== Integration Examples
-
-=== Maven Build Integration
-
-**Add to Maven lifecycle:**
-[source,bash]
-----
-#!/bin/bash
-# build-with-analysis.sh
-
-echo "🏗️  Building project with dependency analysis..."
-
-# Build project
-mvn clean package
-if [ $? -ne 0 ]; then
-    echo "❌ Build failed"
-    exit 1
-fi
-
-# Analyze dependencies
-echo "🔍 Analyzing dependencies..."
-java -jar target/mav-guard-cli.jar analyze pom.xml
-if [ $? -eq 2 ]; then
-    echo "⚠️  Version inconsistencies detected - review recommended"
-fi
-
-# Check for critical updates
-echo "🔄 Checking for updates..."
-java -jar target/mav-guard-cli.jar check-updates pom.xml | grep -E "(security|CVE)" && {
-    echo "🚨 Security updates available - immediate attention required!"
-}
-
-echo "✅ Build and analysis complete"
-----
-
-=== IDE Integration
-
-**IntelliJ IDEA External Tool:**
-
-1. **Settings** → **Tools** → **External Tools** → **Add**
-2. Configure:
-   - **Name**: MavGuard Analyze
-   - **Program**: `java`
-   - **Arguments**: `-jar /path/to/mav-guard-cli.jar analyze $FilePath$`
-   - **Working Directory**: `$ProjectFileDir$`
-
-**VS Code Task (`.vscode/tasks.json`):**
-[source,json]
-----
-{
-    "version": "2.0.0",
-    "tasks": [
-        {
-            "label": "MavGuard: Analyze",
-            "type": "shell",
-            "command": "java",
-            "args": [
-                "-jar",
-                "/path/to/mav-guard-cli.jar",
-                "analyze",
-                "pom.xml"
-            ],
-            "group": "build",
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "panel": "new"
-            },
-            "problemMatcher": []
-        },
-        {
-            "label": "MavGuard: Check Updates",
-            "type": "shell",
-            "command": "java",
-            "args": [
-                "-jar",
-                "/path/to/mav-guard-cli.jar",
-                "check-updates",
-                "pom.xml"
-            ],
-            "group": "build",
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "panel": "new"
-            }
-        }
-    ]
-}
-----
-
-=== Continuous Integration
-
-**GitHub Actions workflow:**
 [source,yaml]
 ----
 name: Dependency Analysis
@@ -545,7 +294,8 @@ jobs:
           path: update-report.txt
 ----
 
-**Jenkins Pipeline:**
+=== Jenkins Pipeline
+
 [source,groovy]
 ----
 pipeline {
@@ -586,18 +336,81 @@ pipeline {
 }
 ----
 
-== Troubleshooting Examples
+== IDE Integration
 
-=== Debugging Parse Issues
+=== VS Code Tasks
 
-**When MavGuard can't parse your POM:**
+[source,json]
+----
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "MavGuard: Analyze",
+            "type": "shell",
+            "command": "java",
+            "args": [
+                "-jar",
+                "/path/to/mav-guard-cli.jar",
+                "analyze",
+                "pom.xml"
+            ],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "panel": "new"
+            }
+        },
+        {
+            "label": "MavGuard: Check Updates",
+            "type": "shell",
+            "command": "java",
+            "args": [
+                "-jar",
+                "/path/to/mav-guard-cli.jar",
+                "check-updates",
+                "pom.xml"
+            ],
+            "group": "build"
+        }
+    ]
+}
+----
+
+== Docker Deployment
+
+[source,dockerfile]
+----
+FROM openjdk:17-jre-slim
+
+# Add enterprise CA certificates
+COPY corporate-ca.crt /usr/local/share/ca-certificates/
+RUN update-ca-certificates
+
+# Create application user
+RUN groupadd -r mavguard && useradd -r -g mavguard mavguard
+
+# Copy application
+COPY mav-guard-cli.jar /app/mav-guard-cli.jar
+COPY application-prod.properties /app/application.properties
+
+# Set permissions
+RUN chown -R mavguard:mavguard /app
+USER mavguard
+
+WORKDIR /workspace
+ENTRYPOINT ["java", "-jar", "/app/mav-guard-cli.jar"]
+----
+
+== Troubleshooting
+
+=== Parse Issues
+
 [source,bash]
 ----
 # Check XML validity
 xmllint --noout pom.xml
-
-# Check file permissions
-ls -la pom.xml
 
 # Test with minimal POM
 java -jar mav-guard-cli.jar analyze sample/simple-project/pom.xml
@@ -608,7 +421,6 @@ java -jar mav-guard-cli.jar analyze pom.xml --force-multi-module
 
 === Network Issues
 
-**When update checking fails:**
 [source,bash]
 ----
 # Test network connectivity
@@ -616,30 +428,49 @@ curl -I https://repo1.maven.org/maven2/
 
 # Analyze without update checking
 java -jar mav-guard-cli.jar analyze pom.xml
-
-# Check with specific repository configuration
-# (if using custom repositories)
 ----
 
 === Performance with Large Projects
 
-**For projects with many modules:**
 [source,bash]
 ----
 # Monitor execution time
 time java -jar mav-guard-cli.jar analyze pom.xml
-
-# Use analysis only for faster execution
-java -jar mav-guard-cli.jar analyze pom.xml
 
 # Split large multi-module analysis
 java -jar mav-guard-cli.jar analyze module-a/pom.xml
 java -jar mav-guard-cli.jar analyze module-b/pom.xml
 ----
 
+== Security Best Practices
+
+=== Credential Management
+
+* Never store credentials in configuration files committed to version control
+* Use environment variables or external secret management
+* Implement credential rotation policies
+* Use service accounts with minimal required permissions
+
+=== Vault Integration Example
+
+[source,bash]
+----
+#!/bin/bash
+# fetch-credentials.sh
+
+# Fetch credentials from Vault
+NEXUS_TOKEN=$(vault kv get -field=token secret/mavguard/nexus)
+
+# Export for MavGuard
+export NEXUS_USERNAME=mavguard-service
+export NEXUS_PASSWORD="$NEXUS_TOKEN"
+
+# Run MavGuard
+java -jar mav-guard-cli.jar check-updates pom.xml
+----
+
 == Next Steps
 
-* Explore <<enterprise-setup.adoc#,enterprise configuration and authentication>>
-* Learn about <<automation-scripts.adoc#,advanced automation patterns>>
-* Review <<integration-examples.adoc#,detailed integration examples>>
+* Review <<../user-guide/configuration.adoc#,detailed configuration options>>
 * Set up <<../user-guide/ci-integration.adoc#,comprehensive CI/CD workflows>>
+* Explore <<../reference/command-reference.adoc#,complete command reference>>

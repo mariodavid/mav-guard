@@ -33,7 +33,7 @@
 
 |API Documentation
 |Java API, model classes, and programmatic usage
-|<<api/java-api.adoc#,Java API>>
+|<<api/api.adoc#,Java API>>
 
 |Reference
 |Complete command and configuration reference
@@ -70,27 +70,3 @@ New to MavGuard? Start with our <<user-guide/getting-started.adoc#,Getting Start
 Already familiar with MavGuard? Jump to the <<reference/command-reference.adoc#,Command Reference>> for detailed usage information.
 
 Want to contribute? Check out our <<developer-guide/contributing.adoc#,Contributing Guide>>.
-
-=== Documentation Sections
-
-include::user-guide/getting-started.adoc[leveloffset=+1]
-
-include::architecture/overview.adoc[leveloffset=+1]
-
-include::developer-guide/building.adoc[leveloffset=+1]
-
-include::api/java-api.adoc[leveloffset=+1]
-
-include::reference/command-reference.adoc[leveloffset=+1]
-
-include::examples/basic-usage.adoc[leveloffset=+1]
-
-
-[source,java]
-----
-import de.diedavids.mavguard.model.Project;
-
-var project = new Project();
-
-project.setNotExistingFlag(true);
-----
