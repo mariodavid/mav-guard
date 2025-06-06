@@ -228,9 +228,9 @@ class AnalyzeCommandIntegrationTest {
 
     @Test
     void testUsageHelp(CapturedOutput output) {
-        new CommandLine(analyzeCommand, factory).execute("--help");
-        assertThat(output).contains("Usage: analyze [-hV] [--detailed-usage] [--force-multi-module]");
-        assertThat(output).contains("[--color=<colorMode>] <filePath>");
+        int exitCode = new CommandLine(analyzeCommand, factory).execute("--help");
+        assertThat(exitCode).isEqualTo(0);
+        assertThat(output).contains("Usage: analyze [-hV] [--detailed-usage] [--force-multi-module] [--color=<colorMode>] <filePath>");
         assertThat(output).contains("--force-multi-module", "Force parsing as a multi-module project");
         assertThat(output).contains("--color=<colorMode>", "When to use colors: auto (default), always, never");
     }

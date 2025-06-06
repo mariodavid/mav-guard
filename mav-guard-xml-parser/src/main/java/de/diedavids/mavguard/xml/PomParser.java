@@ -26,7 +26,11 @@ public class PomParser implements PomFileProcessor {
     private final PropertyResolver propertyResolver;
 
     public PomParser() {
-        this.xmlParser = new XmlParser();
+        this(new XmlParser());
+    }
+
+    public PomParser(XmlParser xmlParser) {
+        this.xmlParser = xmlParser;
         this.propertyResolver = new MavenPropertyResolver();
     }
 
@@ -235,7 +239,7 @@ public class PomParser implements PomFileProcessor {
                         // If parentPomFile is null (empty relativePath) or not a file, silently skip loading.
                         // It's assumed to be an external parent or handled by other means (e.g. already in projectMap).
                     } catch (JAXBException e) { // Catch specific parsing errors
-                        // Temporarily removed reference to parentPomFile to isolate compilation error
+                        // Log an error if the parent POM cannot be parsed
                         System.err.println("Error parsing parent POM for " + getProjectKey(project) + ": " + e.getMessage());
                     } catch (Exception e) { // Catch other unexpected errors during parent loading
                         System.err.println("Unexpected error loading parent POM for " + getProjectKey(project) + ": " + e.getMessage());
