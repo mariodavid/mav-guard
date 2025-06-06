@@ -1,0 +1,96 @@
+= CI Integration
+
+This guide covers integrating MavGuard into continuous integration and deployment pipelines.
+
+== GitHub Actions
+
+=== Basic Workflow
+
+[source,yaml]
+----
+name: Dependency Check
+on: [push, pull_request]
+
+jobs:
+  dependency-analysis:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          
+      - name: Build project
+        run: mvn clean package -DskipTests
+        
+      - name: Analyze dependencies
+        run: java -jar mav-guard-cli/target/mav-guard-cli.jar analyze pom.xml
+----
+
+=== With Update Reporting
+
+[source,yaml]
+----
+      - name: Check for updates
+        run: |
+          java -jar mav-guard-cli.jar check-updates pom.xml > update-report.txt
+          
+      - name: Upload report
+        uses: actions/upload-artifact@v3
+        with:
+          name: dependency-updates
+          path: update-report.txt
+----
+
+== Jenkins
+
+=== Pipeline Script
+
+[source,groovy]
+----
+pipeline {
+    agent any
+    stages {
+        stage('Dependency Analysis') {
+            steps {
+                sh 'java -jar tools/mav-guard-cli.jar analyze pom.xml'
+            }
+        }
+    }
+}
+----
+
+== GitLab CI
+
+[source,yaml]
+----
+dependency-check:
+  stage: test
+  script:
+    - java -jar mav-guard-cli.jar analyze pom.xml
+  artifacts:
+    reports:
+      dependency_scanning: dependency-report.txt
+----
+
+== Exit Code Handling
+
+MavGuard provides meaningful exit codes for CI integration:
+
+* `0`: Success
+* `1`: Error (build should fail)
+* `2`: Warnings (version inconsistencies)
+
+[source,bash]
+----
+java -jar mav-guard-cli.jar analyze pom.xml
+case $? in
+    0) echo "✅ No issues" ;;
+    1) echo "❌ Errors found"; exit 1 ;;
+    2) echo "⚠️ Warnings detected" ;;
+esac
+----
+
+For detailed examples, see <<../examples/automation-scripts.adoc#,Automation Scripts>>.

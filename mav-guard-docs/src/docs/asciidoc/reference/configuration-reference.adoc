@@ -1,0 +1,295 @@
+= Configuration Reference
+
+Complete reference for all MavGuard configuration options and setup examples.
+
+== Configuration Overview
+
+MavGuard supports flexible configuration through multiple sources with the following precedence order:
+
+1. **Command-line arguments** (highest priority)
+2. **System properties** (`-D` flags)
+3. **Environment variables**
+4. **Configuration files** (`application.properties`)
+5. **Default values** (lowest priority)
+
+== Repository Configuration
+
+=== Basic Repository Settings
+
+[cols="3,2,3,2", options="header"]
+|===
+|Property |Type |Description |Default
+
+|`mavguard.repository.type`
+|String
+|Repository type: `maven-central`, `nexus`
+|`maven-central`
+
+|`mavguard.repository.url`
+|URL
+|Base URL of the repository
+|`https://repo1.maven.org/maven2/`
+
+|`mavguard.repository.timeout`
+|Duration
+|Connection timeout (e.g., `30s`, `2m`)
+|`30s`
+
+|`mavguard.repository.retries`
+|Integer
+|Number of retry attempts
+|`3`
+|===
+
+=== Authentication
+
+[cols="3,2,3,2", options="header"]
+|===
+|Property |Type |Description |Default
+
+|`mavguard.repository.username`
+|String
+|Repository username
+|_none_
+
+|`mavguard.repository.password`
+|String
+|Repository password or token
+|_none_
+
+|`mavguard.repository.auth.type`
+|String
+|Authentication type: `basic`, `token`
+|`basic`
+|===
+
+=== Proxy Configuration
+
+[cols="3,2,3,2", options="header"]
+|===
+|Property |Type |Description |Default
+
+|`mavguard.proxy.host`
+|String
+|Proxy server hostname
+|_none_
+
+|`mavguard.proxy.port`
+|Integer
+|Proxy server port
+|_none_
+
+|`mavguard.proxy.username`
+|String
+|Proxy authentication username
+|_none_
+
+|`mavguard.proxy.password`
+|String
+|Proxy authentication password
+|_none_
+|===
+
+== Application Settings
+
+=== Logging Configuration
+
+[cols="3,2,3,2", options="header"]
+|===
+|Property |Type |Description |Default
+
+|`logging.level.de.diedavids.mavguard`
+|String
+|Log level: `DEBUG`, `INFO`, `WARN`, `ERROR`
+|`INFO`
+
+|`logging.file.name`
+|String
+|Log file path
+|_console only_
+
+|`logging.pattern.console`
+|String
+|Console log pattern
+|Spring Boot default
+|===
+
+=== Performance Settings
+
+[cols="3,2,3,2", options="header"]
+|===
+|Property |Type |Description |Default
+
+|`mavguard.analysis.parallel`
+|Boolean
+|Enable parallel dependency analysis
+|`true`
+
+|`mavguard.analysis.thread-pool-size`
+|Integer
+|Thread pool size for parallel operations
+|CPU cores
+
+|`mavguard.cache.enabled`
+|Boolean
+|Enable version information caching
+|`true`
+
+|`mavguard.cache.ttl`
+|Duration
+|Cache time-to-live
+|`1h`
+|===
+
+== Configuration Examples
+
+=== Maven Central (Default)
+
+By default, MavGuard uses Maven Central with no configuration required:
+
+[source,properties]
+----
+# Default configuration (no setup required)
+mavguard.repository.type=maven-central
+mavguard.repository.url=https://repo1.maven.org/maven2/
+mavguard.repository.timeout=30s
+----
+
+For basic tuning:
+
+[source,properties]
+----
+# application.properties
+mavguard.repository.type=maven-central
+mavguard.repository.timeout=60s
+logging.level.de.diedavids.mavguard=INFO
+----
+
+=== Private Nexus Repository
+
+For enterprise environments with private Nexus repositories:
+
+[source,properties]
+----
+# application.properties
+mavguard.repository.type=nexus
+mavguard.repository.url=https://nexus.company.com/repository/maven-public/
+mavguard.repository.username=${NEXUS_USERNAME}
+mavguard.repository.password=${NEXUS_PASSWORD}
+mavguard.repository.timeout=60s
+----
+
+=== Corporate Environment with Proxy
+
+[source,properties]
+----
+# application.properties
+mavguard.repository.type=nexus
+mavguard.repository.url=https://nexus.company.com/repository/maven-public/
+
+# Proxy configuration
+mavguard.proxy.host=proxy.company.com
+mavguard.proxy.port=8080
+mavguard.proxy.username=${PROXY_USER}
+mavguard.proxy.password=${PROXY_PASS}
+
+# Authentication
+mavguard.repository.username=${NEXUS_USERNAME}
+mavguard.repository.password=${NEXUS_PASSWORD}
+----
+
+=== Development Profile
+
+[source,properties]
+----
+# application-dev.properties
+logging.level.de.diedavids.mavguard=DEBUG
+mavguard.analysis.parallel=false
+mavguard.cache.enabled=false
+----
+
+=== Production Profile
+
+[source,properties]
+----
+# application-prod.properties
+logging.level.de.diedavids.mavguard=WARN
+logging.file.name=/var/log/mavguard/application.log
+mavguard.analysis.parallel=true
+mavguard.cache.enabled=true
+mavguard.cache.ttl=2h
+----
+
+== Configuration Methods
+
+=== Environment Variables
+
+All properties can be set via environment variables using uppercase and underscores:
+
+[source,bash]
+----
+export MAVGUARD_REPOSITORY_TYPE=nexus
+export MAVGUARD_REPOSITORY_URL=https://nexus.company.com/repository/maven-public/
+export MAVGUARD_REPOSITORY_USERNAME=myuser
+export MAVGUARD_REPOSITORY_PASSWORD=mypassword
+
+java -jar mav-guard-cli.jar check-updates pom.xml
+----
+
+=== System Properties
+
+Properties can be set via `-D` flags:
+
+[source,bash]
+----
+java -Dmavguard.repository.type=nexus \
+     -Dmavguard.repository.url=https://nexus.company.com/repository/maven-public/ \
+     -Dmavguard.repository.username=user \
+     -Dmavguard.repository.password=pass \
+     -jar mav-guard-cli.jar check-updates pom.xml
+----
+
+=== Configuration File Locations
+
+MavGuard searches for `application.properties` in these locations:
+
+1. **Current directory**: `./application.properties`
+2. **User home**: `~/.mavguard/application.properties`
+3. **System config**: `/etc/mavguard/application.properties`
+
+=== Profile-Specific Configuration
+
+[source,bash]
+----
+# Activate specific profile
+java -Dspring.profiles.active=prod -jar mav-guard-cli.jar analyze pom.xml
+
+# Multiple profiles
+java -Dspring.profiles.active=prod,enterprise -jar mav-guard-cli.jar analyze pom.xml
+----
+
+== Security Considerations
+
+=== Credential Handling
+
+* **Never** store credentials in configuration files committed to version control
+* Use environment variables or external secret management
+* Consider using tokens instead of passwords where possible
+
+=== Example Secure Configuration
+
+[source,properties]
+----
+# application.properties (committed to git)
+mavguard.repository.type=nexus
+mavguard.repository.url=https://nexus.company.com/repository/maven-public/
+mavguard.repository.username=${NEXUS_USERNAME}
+mavguard.repository.password=${NEXUS_PASSWORD}
+----
+
+[source,bash]
+----
+# Environment (not committed)
+export NEXUS_USERNAME=my-service-account
+export NEXUS_PASSWORD=secure-token-here
+----
