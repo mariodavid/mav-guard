@@ -79,4 +79,36 @@ class ColorOutputServiceTest {
         colorOutputService.setColorMode(ColorOutputService.ColorMode.NEVER);
         assertThat(colorOutputService.getColorMode()).isEqualTo(ColorOutputService.ColorMode.NEVER);
     }
+
+    @Test
+    void testGetUpdateArrowWithNullCurrentVersion() {
+        colorOutputService.setColorMode(ColorOutputService.ColorMode.ALWAYS);
+        String arrow = colorOutputService.getUpdateArrow(null, "2.0.0");
+        assertThat(arrow).contains("→");
+        assertThat(arrow).contains("\u001B[34m"); // Blue for managed dependencies
+    }
+
+    @Test
+    void testGetUpdateArrowWithNullCurrentVersionNoColors() {
+        colorOutputService.setColorMode(ColorOutputService.ColorMode.NEVER);
+        String arrow = colorOutputService.getUpdateArrow(null, "2.0.0");
+        assertThat(arrow).isEqualTo("→");
+        assertThat(arrow).doesNotContain("\u001B[34m");
+    }
+
+    @Test
+    void testGetDependencyStatusWithNullCurrentVersion() {
+        colorOutputService.setColorMode(ColorOutputService.ColorMode.ALWAYS);
+        String status = colorOutputService.getDependencyStatus(null, "2.0.0");
+        assertThat(status).contains("managed dependency");
+        assertThat(status).contains("\u001B[34m"); // Blue for managed dependencies
+    }
+
+    @Test
+    void testGetDependencyStatusWithNullCurrentVersionNoColors() {
+        colorOutputService.setColorMode(ColorOutputService.ColorMode.NEVER);
+        String status = colorOutputService.getDependencyStatus(null, "2.0.0");
+        assertThat(status).isEqualTo("managed dependency");
+        assertThat(status).doesNotContain("\u001B[34m");
+    }
 }

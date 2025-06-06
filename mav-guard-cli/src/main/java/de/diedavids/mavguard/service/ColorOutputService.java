@@ -180,6 +180,12 @@ public class ColorOutputService {
      * Get colored version of dependency update arrow based on update type
      */
     public String getUpdateArrow(String currentVersion, String latestVersion) {
+        // Handle null current version (e.g., managed dependencies)
+        if (currentVersion == null) {
+            String arrow = "→";
+            return shouldUseColors() ? colorize(arrow, ColorType.BLUE) : arrow;
+        }
+        
         if (currentVersion.equals(latestVersion)) {
             return shouldUseColors() ? colorize("✓", ColorType.GREEN) : "✓";
         }
@@ -204,6 +210,11 @@ public class ColorOutputService {
      * This is a simple implementation and could be enhanced with proper semantic versioning
      */
     private boolean isMajorUpdate(String current, String latest) {
+        // If current is null, we can't determine update type
+        if (current == null) {
+            return false;
+        }
+        
         try {
             // Extract major version numbers
             String[] currentParts = current.split("\\.");
@@ -226,6 +237,11 @@ public class ColorOutputService {
      * Get colored text for dependency status
      */
     public String getDependencyStatus(String current, String latest) {
+        // Handle null current version (e.g., managed dependencies)
+        if (current == null) {
+            return colorize("managed dependency", ColorType.BLUE);
+        }
+        
         if (current.equals(latest)) {
             return colorize("up-to-date", ColorType.GREEN);
         } else if (isMajorUpdate(current, latest)) {

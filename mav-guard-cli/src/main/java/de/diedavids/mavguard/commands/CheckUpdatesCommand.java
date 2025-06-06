@@ -244,8 +244,9 @@ public class CheckUpdatesCommand implements Callable<Integer> {
                     List<String> usingModules = usageMap != null ? usageMap.get(depCoord) : null;
                     String modulesList = (usingModules != null && !usingModules.isEmpty()) ? String.join(", ", usingModules) : "root/inherited";
                     String arrow = colorOutput.getUpdateArrow(dependency.version(), latestVersion.get());
+                    String currentVersionDisplay = dependency.version() != null ? dependency.version() : "managed";
                     colorOutput.printf("  %-50s %-20s %s %-20s (Modules: %s)%n",
-                        depCoord, dependency.version(), arrow, latestVersion.get(), modulesList);
+                        depCoord, currentVersionDisplay, arrow, latestVersion.get(), modulesList);
                 }
             }
             if (!depHeaderPrinted) {
