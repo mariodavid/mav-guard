@@ -168,9 +168,40 @@ public class CheckUpdatesCommand implements Callable<Integer> {
         int updateCount = 0;
 
         if (!dependencies.isEmpty()) {
+            // Calculate dynamic column widths for dependencies
+            int maxDepLen = 0;
+            int maxCurrentVerLen = 0;
+            int maxLatestVerLen = 0;
+
+            for (Dependency dependency : dependencies) {
+                Optional<String> latestVersion = versionService.getLatestVersion(dependency);
+                if (latestVersion.isPresent() && !latestVersion.get().equals(dependency.version())) {
+                    maxDepLen = Math.max(maxDepLen, (dependency.groupId() + ":" + dependency.artifactId()).length());
+                    String currentVersionDisplay = dependency.version() != null ? dependency.version() : "managed";
+                    maxCurrentVerLen = Math.max(maxCurrentVerLen, currentVersionDisplay.length());
+                    maxLatestVerLen = Math.max(maxLatestVerLen, latestVersion.get().length());
+                }
+            }
+
+            int minDepLen = 30;
+            int minCurrentVerLen = 15;
+            int minLatestVerLen = 15;
+
+            int depColWidth = Math.max(maxDepLen, minDepLen);
+            int currentVerColWidth = Math.max(maxCurrentVerLen, minCurrentVerLen);
+            int latestVerColWidth = Math.max(maxLatestVerLen, minLatestVerLen);
+
+            // Ensure column widths are at least as long as headers
+            depColWidth = Math.max(depColWidth, "DEPENDENCY".length());
+            currentVerColWidth = Math.max(currentVerColWidth, "CURRENT".length());
+            latestVerColWidth = Math.max(latestVerColWidth, "LATEST".length());
+
+            String format = "  %-" + depColWidth + "s %-" + currentVerColWidth + "s %-5s %-" + latestVerColWidth + "s%n";
+            int totalWidth = depColWidth + currentVerColWidth + 5 + latestVerColWidth + 3 * 1; // 3 spaces between columns
+
             colorOutput.println("\nDependency Updates Available:", ColorOutputService.ColorType.BLUE);
-            colorOutput.printf("  %-50s %-20s %-5s %-20s%n", "DEPENDENCY", "CURRENT", " ", "LATEST");
-            colorOutput.println("  " + "-".repeat(97));
+            colorOutput.printf(format, "DEPENDENCY", "CURRENT", " ", "LATEST");
+            colorOutput.println("  " + "-".repeat(totalWidth));
             boolean depHeaderPrinted = false;
             for (Dependency dependency : dependencies) {
                 Optional<String> latestVersion = versionService.getLatestVersion(dependency);
@@ -178,9 +209,10 @@ public class CheckUpdatesCommand implements Callable<Integer> {
                     updatesAvailable = true;
                     updateCount++;
                     String arrow = colorOutput.getUpdateArrow(dependency.version(), latestVersion.get());
-                    colorOutput.printf("  %-50s %-20s %s %-20s%n",
+                    String currentVersionDisplay = dependency.version() != null ? dependency.version() : "managed";
+                    colorOutput.printf(format,
                         dependency.groupId() + ":" + dependency.artifactId(),
-                        dependency.version(),
+                        currentVersionDisplay,
                         arrow,
                         latestVersion.get());
                     depHeaderPrinted = true;
@@ -195,19 +227,48 @@ public class CheckUpdatesCommand implements Callable<Integer> {
 
         if (project.hasParent()) {
             Project.Parent parent = project.parent();
+
+            // Calculate dynamic column widths for parent
+            int maxParentLen = 0;
+            int maxParentCurrentVerLen = 0;
+            int maxParentLatestVerLen = 0;
+
+            Optional<String> latestParentVersionOpt = versionService.getLatestParentVersion(parent);
+            if (latestParentVersionOpt.isPresent() && !latestParentVersionOpt.get().equals(parent.version())) {
+                maxParentLen = Math.max(maxParentLen, (parent.groupId() + ":" + parent.artifactId()).length());
+                maxParentCurrentVerLen = Math.max(maxParentCurrentVerLen, parent.version().length());
+                maxParentLatestVerLen = Math.max(maxParentLatestVerLen, latestParentVersionOpt.get().length());
+            }
+
+            int minParentLen = 30; // Same as dep for consistency or can be different
+            int minParentCurrentVerLen = 15;
+            int minParentLatestVerLen = 15;
+
+            int parentColWidth = Math.max(maxParentLen, minParentLen);
+            int parentCurrentVerColWidth = Math.max(maxParentCurrentVerLen, minParentCurrentVerLen);
+            int parentLatestVerColWidth = Math.max(maxParentLatestVerLen, minParentLatestVerLen);
+
+            // Ensure column widths are at least as long as headers
+            parentColWidth = Math.max(parentColWidth, "PARENT".length());
+            parentCurrentVerColWidth = Math.max(parentCurrentVerColWidth, "CURRENT".length());
+            parentLatestVerColWidth = Math.max(parentLatestVerColWidth, "LATEST".length());
+
+            String parentFormat = "  %-" + parentColWidth + "s %-" + parentCurrentVerColWidth + "s %-5s %-" + parentLatestVerColWidth + "s%n";
+            int parentTotalWidth = parentColWidth + parentCurrentVerColWidth + 5 + parentLatestVerColWidth + 3 * 1; // 3 spaces
+
             colorOutput.println("\nParent Project Update (" + parent.getCoordinates() + "):", ColorOutputService.ColorType.BLUE);
-            colorOutput.printf("  %-50s %-20s %-5s %-20s%n", "PARENT", "CURRENT", " ", "LATEST");
-            colorOutput.println("  " + "-".repeat(97));
-            Optional<String> latestParentVersion = versionService.getLatestParentVersion(parent);
-            if (latestParentVersion.isPresent() && !latestParentVersion.get().equals(parent.version())) {
+            colorOutput.printf(parentFormat, "PARENT", "CURRENT", " ", "LATEST");
+            colorOutput.println("  " + "-".repeat(parentTotalWidth));
+
+            if (latestParentVersionOpt.isPresent() && !latestParentVersionOpt.get().equals(parent.version())) {
                 updatesAvailable = true;
                 updateCount++;
-                String arrow = colorOutput.getUpdateArrow(parent.version(), latestParentVersion.get());
-                colorOutput.printf("  %-50s %-20s %s %-20s%n",
+                String arrow = colorOutput.getUpdateArrow(parent.version(), latestParentVersionOpt.get());
+                colorOutput.printf(parentFormat,
                     parent.groupId() + ":" + parent.artifactId(),
                     parent.version(),
                     arrow,
-                    latestParentVersion.get());
+                    latestParentVersionOpt.get());
             } else {
                  colorOutput.println("  Parent is up to date or no newer version found.", ColorOutputService.ColorType.GREEN);
             }
@@ -229,9 +290,53 @@ public class CheckUpdatesCommand implements Callable<Integer> {
         int updateCount = 0;
 
         if (!consolidatedDependencies.isEmpty()) {
+            // Calculate dynamic column widths for consolidated dependencies
+            int maxDepLen = 0;
+            int maxCurrentVerLen = 0;
+            int maxLatestVerLen = 0;
+            int maxAffectedModulesLen = 0;
+            Map<String, List<String>> usageMap = report.getDependencyUsageByModule();
+
+            for (Dependency dependency : consolidatedDependencies) {
+                Optional<String> latestVersion = versionService.getLatestVersion(dependency);
+                if (latestVersion.isPresent() && !latestVersion.get().equals(dependency.version())) {
+                    String depCoord = dependency.groupId() + ":" + dependency.artifactId();
+                    maxDepLen = Math.max(maxDepLen, depCoord.length());
+                    String currentVersionDisplay = dependency.version() != null ? dependency.version() : "managed";
+                    maxCurrentVerLen = Math.max(maxCurrentVerLen, currentVersionDisplay.length());
+                    maxLatestVerLen = Math.max(maxLatestVerLen, latestVersion.get().length());
+
+                    List<String> usingModules = usageMap != null ? usageMap.get(depCoord) : null;
+                    String modulesList = (usingModules != null && !usingModules.isEmpty()) ? String.join(", ", usingModules) : "root/inherited";
+                    maxAffectedModulesLen = Math.max(maxAffectedModulesLen, modulesList.length());
+                }
+            }
+
+            int minDepLen = 30;
+            int minCurrentVerLen = 15;
+            int minLatestVerLen = 15;
+            int minAffectedModulesLen = 20;
+
+            int depColWidth = Math.max(maxDepLen, minDepLen);
+            int currentVerColWidth = Math.max(maxCurrentVerLen, minCurrentVerLen);
+            int latestVerColWidth = Math.max(maxLatestVerLen, minLatestVerLen);
+            int affectedColWidth = Math.max(maxAffectedModulesLen, minAffectedModulesLen);
+
+            depColWidth = Math.max(depColWidth, "DEPENDENCY".length());
+            currentVerColWidth = Math.max(currentVerColWidth, "CURRENT".length());
+            latestVerColWidth = Math.max(latestVerColWidth, "LATEST".length());
+            // Header for affected modules is "(Modules: %s)" so we take "AFFECTED MODULES" as an estimate for content.
+            affectedColWidth = Math.max(affectedColWidth, "AFFECTED MODULES".length());
+
+
+            String format = "  %-" + depColWidth + "s %-" + currentVerColWidth + "s %-5s %-" + latestVerColWidth + "s (Modules: %-" + affectedColWidth + "s)%n";
+            // Approx width: spaces + col1 + space + col2 + space + arrow + space + col3 + space + "(Modules: " + col4 + ")"
+            int totalWidth = depColWidth + currentVerColWidth + 5 + latestVerColWidth + affectedColWidth + 3 * 1 + "(Modules: )".length() + 1;
+
+
             colorOutput.println("\nConsolidated Dependency Updates Available:", ColorOutputService.ColorType.BLUE);
-            colorOutput.printf("  %-50s %-20s %-5s %-20s %s%n", "DEPENDENCY", "CURRENT", " ", "LATEST", "AFFECTED MODULES");
-            colorOutput.println("  " + "-".repeat(120));
+            colorOutput.printf(format, "DEPENDENCY", "CURRENT", " ", "LATEST", "AFFECTED MODULES");
+            colorOutput.println("  " + "-".repeat(totalWidth));
             boolean depHeaderPrinted = false;
             for (Dependency dependency : consolidatedDependencies) {
                 Optional<String> latestVersion = versionService.getLatestVersion(dependency);
@@ -240,12 +345,11 @@ public class CheckUpdatesCommand implements Callable<Integer> {
                     updateCount++;
                     depHeaderPrinted = true;
                     String depCoord = dependency.groupId() + ":" + dependency.artifactId();
-                    Map<String, List<String>> usageMap = report.getDependencyUsageByModule();
                     List<String> usingModules = usageMap != null ? usageMap.get(depCoord) : null;
                     String modulesList = (usingModules != null && !usingModules.isEmpty()) ? String.join(", ", usingModules) : "root/inherited";
                     String arrow = colorOutput.getUpdateArrow(dependency.version(), latestVersion.get());
                     String currentVersionDisplay = dependency.version() != null ? dependency.version() : "managed";
-                    colorOutput.printf("  %-50s %-20s %s %-20s (Modules: %s)%n",
+                    colorOutput.printf(format,
                         depCoord, currentVersionDisplay, arrow, latestVersion.get(), modulesList);
                 }
             }
@@ -256,11 +360,52 @@ public class CheckUpdatesCommand implements Callable<Integer> {
              colorOutput.println("\nNo consolidated dependencies to check for updates.");
         }
 
-        colorOutput.println("\nParent Project Updates (Per Module):", ColorOutputService.ColorType.BLUE);
-        colorOutput.printf("  %-20s %-50s %-20s %-5s %-20s%n", "MODULE", "PARENT", "CURRENT", " ", "LATEST");
-        colorOutput.println("  " + "-".repeat(120));
-        boolean parentHeaderPrinted = false;
+        // Calculate dynamic column widths for parent project updates
+        int maxModuleLen = 0;
+        int maxParentLen = 0;
+        int maxParentCurrentVerLen = 0;
+        int maxParentLatestVerLen = 0;
         boolean hasModulesWithParents = false;
+
+        for (Project project : projects) {
+            if (project.hasParent()) {
+                hasModulesWithParents = true;
+                Project.Parent parent = project.parent();
+                Optional<String> latestParentVersion = versionService.getLatestParentVersion(parent);
+                if (latestParentVersion.isPresent() && !latestParentVersion.get().equals(parent.version())) {
+                    maxModuleLen = Math.max(maxModuleLen, project.artifactId().length());
+                    maxParentLen = Math.max(maxParentLen, (parent.groupId() + ":" + parent.artifactId()).length());
+                    maxParentCurrentVerLen = Math.max(maxParentCurrentVerLen, parent.version().length());
+                    maxParentLatestVerLen = Math.max(maxParentLatestVerLen, latestParentVersion.get().length());
+                }
+            }
+        }
+
+        int minModuleLen = 20;
+        int minParentLen = 30;
+        int minParentCurrentVerLen = 15;
+        int minParentLatestVerLen = 15;
+
+        int moduleColWidth = Math.max(maxModuleLen, minModuleLen);
+        int parentColWidth = Math.max(maxParentLen, minParentLen);
+        int parentCurrentVerColWidth = Math.max(maxParentCurrentVerLen, minParentCurrentVerLen);
+        int parentLatestVerColWidth = Math.max(maxParentLatestVerLen, minParentLatestVerLen);
+
+        moduleColWidth = Math.max(moduleColWidth, "MODULE".length());
+        parentColWidth = Math.max(parentColWidth, "PARENT".length());
+        parentCurrentVerColWidth = Math.max(parentCurrentVerColWidth, "CURRENT".length());
+        parentLatestVerColWidth = Math.max(parentLatestVerColWidth, "LATEST".length());
+
+        String parentFormat = "  %-" + moduleColWidth + "s %-" + parentColWidth + "s %-" + parentCurrentVerColWidth + "s %-5s %-" + parentLatestVerColWidth + "s%n";
+        int parentTotalWidth = moduleColWidth + parentColWidth + parentCurrentVerColWidth + 5 + parentLatestVerColWidth + 4 * 1; // 4 spaces
+
+        colorOutput.println("\nParent Project Updates (Per Module):", ColorOutputService.ColorType.BLUE);
+        colorOutput.printf(parentFormat, "MODULE", "PARENT", "CURRENT", " ", "LATEST");
+        colorOutput.println("  " + "-".repeat(parentTotalWidth));
+        boolean parentHeaderPrinted = false;
+        // Reset hasModulesWithParents, it was used for length calculation, now for actual logic
+        hasModulesWithParents = false;
+
         for (Project project : projects) {
             if (project.hasParent()) {
                 hasModulesWithParents = true;
@@ -271,7 +416,7 @@ public class CheckUpdatesCommand implements Callable<Integer> {
                     updateCount++;
                     parentHeaderPrinted = true;
                     String arrow = colorOutput.getUpdateArrow(parent.version(), latestParentVersion.get());
-                    colorOutput.printf("  %-20s %-50s %-20s %s %-20s%n",
+                    colorOutput.printf(parentFormat,
                         project.artifactId(), // Module name
                         parent.groupId()+":"+parent.artifactId(), // Parent GAV
                         parent.version(), // Parent current version
