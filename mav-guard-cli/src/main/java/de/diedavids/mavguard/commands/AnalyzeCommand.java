@@ -4,6 +4,8 @@ import de.diedavids.mavguard.model.Dependency;
 import de.diedavids.mavguard.model.Project;
 import de.diedavids.mavguard.xml.MultiModuleDependencyCollector;
 import de.diedavids.mavguard.xml.PomParser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -18,6 +20,8 @@ import java.util.concurrent.Callable;
 @Component
 @Command(name = "analyze", description = "Analyzes a Maven POM file or multi-module project", mixinStandardHelpOptions = true)
 public class AnalyzeCommand implements Callable<Integer> {
+
+    private static final Logger log = LoggerFactory.getLogger(AnalyzeCommand.class);
 
     private final PomParser pomParser;
     private final MultiModuleDependencyCollector dependencyCollector;
@@ -41,8 +45,17 @@ public class AnalyzeCommand implements Callable<Integer> {
 
     @Override
     public Integer call() {
+        log.atInfo()
+            .addKeyValue("filePath", filePath)
+            .addKeyValue("detailedUsage", detailedUsage)
+            .addKeyValue("forceMultiModule", forceMultiModule)
+            .log("Starting analyze command execution");
+        
         File file = new File(filePath);
         if (!file.exists()) {
+            log.atError()
+                .addKeyValue("filePath", filePath)
+                .log("POM file not found");
             System.err.println("File not found: " + filePath);
             return 1;
         }
@@ -51,6 +64,11 @@ public class AnalyzeCommand implements Callable<Integer> {
             Project initialProject = pomParser.parsePomFile(file); // Parse the given POM first
 
             boolean isActuallyMultiModule = initialProject.isMultiModule() || forceMultiModule;
+            
+            log.atDebug()
+                .addKeyValue("projectCoordinates", initialProject.getCoordinates())
+                .addKeyValue("isMultiModule", isActuallyMultiModule)
+                .log("Analyzed project type");
 
             if (isActuallyMultiModule) {
                 // If it claims to be a multi-module project (or forced), then parse fully as multi-module
@@ -69,12 +87,17 @@ public class AnalyzeCommand implements Callable<Integer> {
                 return analyzeSingleModule(initialProject);
             }
         } catch (JAXBException e) {
+            log.atError()
+                .addKeyValue("filePath", filePath)
+                .log("Error parsing POM file: {}", e.getMessage(), e);
             System.err.println("Error parsing POM file: " + filePath);
             System.err.println("Details: " + e.getMessage());
             System.err.println("Please ensure the file is a valid Maven POM XML file and the path is correct.");
-            // Consider logging stack trace for debugging: e.printStackTrace();
             return 1;
         } catch (Exception e) {
+            log.atError()
+                .addKeyValue("filePath", filePath)
+                .log("Unexpected error during analyze command: {}", e.getMessage(), e);
             System.err.println("An unexpected error occurred: " + e.getMessage());
             e.printStackTrace(); // for more detailed debugging
             return 1;
@@ -82,13 +105,24 @@ public class AnalyzeCommand implements Callable<Integer> {
     }
 
     private Integer analyzeSingleModule(Project project) {
+        log.atInfo()
+            .addKeyValue("projectCoordinates", project.getCoordinates())
+            .addKeyValue("dependencyCount", project.getAllDependencies().size())
+            .log("Analyzing single module project");
+        
         System.out.printf("Project: %s:%s:%s%n", project.groupId(), project.artifactId(), project.version());
 
         if (project.hasParent()) {
             Project.Parent parent = project.parent();
             System.out.printf("Parent: %s (%s:%s:%s)%n", parent.getCoordinates(), parent.groupId(), parent.artifactId(), parent.version());
+            
+            log.atDebug()
+                .addKeyValue("parentCoordinates", parent.getCoordinates())
+                .log("Project has parent POM");
         } else {
             System.out.println("Parent: None");
+            log.atDebug()
+                .log("Project has no parent POM");
         }
 
         List<Dependency> dependencies = project.getAllDependencies();
@@ -100,12 +134,23 @@ public class AnalyzeCommand implements Callable<Integer> {
                 System.out.println("- " + dependency);
             }
         }
+        
+        log.atInfo()
+            .addKeyValue("projectCoordinates", project.getCoordinates())
+            .log("Single module analysis completed successfully");
         return 0;
     }
 
     // The rootProject parameter here is the project corresponding to the initially provided pom.xml
     private Integer analyzeMultiModule(List<Project> allProjectsInBuild, Project rootProjectContext) {
+        log.atInfo()
+            .addKeyValue("rootProjectCoordinates", rootProjectContext.getCoordinates())
+            .addKeyValue("moduleCount", allProjectsInBuild.size())
+            .log("Starting multi-module project analysis");
+        
         if (allProjectsInBuild.isEmpty()) {
+            log.atWarn()
+                .log("No modules found in multi-module project");
             System.out.println("No modules found in multi-module project.");
             return 1;
         }
@@ -142,6 +187,9 @@ public class AnalyzeCommand implements Callable<Integer> {
         }
 
         if (report.hasVersionInconsistencies()) {
+            log.atWarn()
+                .addKeyValue("inconsistencyCount", report.getVersionInconsistencies().size())
+                .log("Version inconsistencies detected in multi-module project");
             System.out.println("\nWARNING: Found " + report.getVersionInconsistencies().size() + " inconsistent dependency versions:");
             for (MultiModuleDependencyCollector.VersionInconsistency inconsistency : report.getVersionInconsistencies()) {
                 System.out.println("  - " + inconsistency.toString());
@@ -164,6 +212,13 @@ public class AnalyzeCommand implements Callable<Integer> {
                 }
             }
         }
+        
+        log.atInfo()
+            .addKeyValue("rootProjectCoordinates", rootProjectContext.getCoordinates())
+            .addKeyValue("moduleCount", allProjectsInBuild.size())
+            .addKeyValue("consolidatedDependencies", consolidatedDependencies.size())
+            .addKeyValue("versionInconsistencies", report.hasVersionInconsistencies() ? report.getVersionInconsistencies().size() : 0)
+            .log("Multi-module project analysis completed successfully");
         return 0;
     }
 }

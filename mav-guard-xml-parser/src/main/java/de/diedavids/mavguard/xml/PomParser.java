@@ -6,6 +6,8 @@ import de.diedavids.mavguard.xml.model.XmlProject;
 import de.diedavids.mavguard.xml.property.MavenPropertyResolver;
 import de.diedavids.mavguard.xml.property.PropertyResolver;
 import jakarta.xml.bind.JAXBException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -21,6 +23,8 @@ import java.util.Map;
  * Parser for Maven POM files.
  */
 public class PomParser implements PomFileProcessor {
+
+    private static final Logger log = LoggerFactory.getLogger(PomParser.class);
 
     private final XmlParser xmlParser;
     private final PropertyResolver propertyResolver;
@@ -44,11 +48,31 @@ public class PomParser implements PomFileProcessor {
      */
     @Override
     public Project parsePomFile(File pomFile) throws JAXBException {
+        log.atDebug()
+            .addKeyValue("pomFile", pomFile.getAbsolutePath())
+            .log("Starting POM file parsing");
+        
         validateFile(pomFile);
-        XmlProject xmlProject = xmlParser.parseXmlFile(pomFile, XmlProject.class);
-        xmlProject.setRelativePath(pomFile.getAbsolutePath());
-        resolvePropertyPlaceholders(xmlProject);
-        return xmlProject.toDomainModel();
+        
+        try {
+            XmlProject xmlProject = xmlParser.parseXmlFile(pomFile, XmlProject.class);
+            xmlProject.setRelativePath(pomFile.getAbsolutePath());
+            resolvePropertyPlaceholders(xmlProject);
+            Project result = xmlProject.toDomainModel();
+            
+            log.atInfo()
+                .addKeyValue("projectCoordinates", result.getCoordinates())
+                .addKeyValue("dependencyCount", result.getAllDependencies().size())
+                .addKeyValue("pomFile", pomFile.getAbsolutePath())
+                .log("POM file parsed successfully");
+                
+            return result;
+        } catch (JAXBException e) {
+            log.atError()
+                .addKeyValue("pomFile", pomFile.getAbsolutePath())
+                .log("Failed to parse POM file: {}", e.getMessage(), e);
+            throw e;
+        }
     }
 
     /**
@@ -61,10 +85,27 @@ public class PomParser implements PomFileProcessor {
      */
     @Override
     public Project parsePomStream(InputStream inputStream) throws JAXBException {
+        log.atDebug()
+            .log("Starting POM stream parsing");
+        
         validateInputStream(inputStream);
-        XmlProject xmlProject = xmlParser.parseXmlStream(inputStream, XmlProject.class);
-        resolvePropertyPlaceholders(xmlProject);
-        return xmlProject.toDomainModel();
+        
+        try {
+            XmlProject xmlProject = xmlParser.parseXmlStream(inputStream, XmlProject.class);
+            resolvePropertyPlaceholders(xmlProject);
+            Project result = xmlProject.toDomainModel();
+            
+            log.atInfo()
+                .addKeyValue("projectCoordinates", result.getCoordinates())
+                .addKeyValue("dependencyCount", result.getAllDependencies().size())
+                .log("POM stream parsed successfully");
+                
+            return result;
+        } catch (JAXBException e) {
+            log.atError()
+                .log("Failed to parse POM stream: {}", e.getMessage(), e);
+            throw e;
+        }
     }
 
     /**
@@ -79,27 +120,47 @@ public class PomParser implements PomFileProcessor {
      */
     @Override
     public List<Project> parseMultiModuleProject(File rootPomFile) throws JAXBException {
+        log.atDebug()
+            .addKeyValue("rootPomFile", rootPomFile.getAbsolutePath())
+            .log("Starting multi-module project parsing");
+        
         validateFile(rootPomFile);
         List<Project> projects = new ArrayList<>();
         Map<String, XmlProject> processedProjects = new HashMap<>();
         
-        // Parse the root POM
-        XmlProject rootProject = parseAndProcessProject(rootPomFile, processedProjects);
-        
-        // Process parent-child relationships
-        processParentChildRelationships(processedProjects);
-        
-        // Resolve property placeholders in all projects
-        for (XmlProject project : processedProjects.values()) {
-            resolvePropertyPlaceholders(project);
+        try {
+            // Parse the root POM
+            XmlProject rootProject = parseAndProcessProject(rootPomFile, processedProjects);
+            
+            log.atDebug()
+                .addKeyValue("moduleCount", processedProjects.size())
+                .log("Parsed all modules, processing relationships");
+            
+            // Process parent-child relationships
+            processParentChildRelationships(processedProjects);
+            
+            // Resolve property placeholders in all projects
+            for (XmlProject project : processedProjects.values()) {
+                resolvePropertyPlaceholders(project);
+            }
+            
+            // Convert XML projects to domain models
+            for (XmlProject project : processedProjects.values()) {
+                projects.add(project.toDomainModel());
+            }
+            
+            log.atInfo()
+                .addKeyValue("moduleCount", projects.size())
+                .addKeyValue("rootPomFile", rootPomFile.getAbsolutePath())
+                .log("Multi-module project parsed successfully");
+            
+            return projects;
+        } catch (JAXBException e) {
+            log.atError()
+                .addKeyValue("rootPomFile", rootPomFile.getAbsolutePath())
+                .log("Failed to parse multi-module project: {}", e.getMessage(), e);
+            throw e;
         }
-        
-        // Convert XML projects to domain models
-        for (XmlProject project : processedProjects.values()) {
-            projects.add(project.toDomainModel());
-        }
-        
-        return projects;
     }
 
     /**
@@ -294,17 +355,28 @@ public class PomParser implements PomFileProcessor {
         if (version != null && propertyResolver.isPropertyPlaceholder(version)) {
             String resolvedVersion = propertyResolver.resolveProperty(version, project);
             dependency.setResolvedVersion(resolvedVersion);
+            
+            log.atDebug()
+                .addKeyValue("dependency", dependency.getGroupId() + ":" + dependency.getArtifactId())
+                .addKeyValue("originalVersion", version)
+                .addKeyValue("resolvedVersion", resolvedVersion)
+                .log("Property placeholder resolved in dependency");
         }
     }
 
     private void validateFile(File file) {
         if (file == null || !file.exists()) {
+            log.atError()
+                .addKeyValue("file", file != null ? file.getAbsolutePath() : "null")
+                .log("POM file validation failed");
             throw new IllegalArgumentException("POM file must not be null and must exist");
         }
     }
 
     private void validateInputStream(InputStream inputStream) {
         if (inputStream == null) {
+            log.atError()
+                .log("POM input stream validation failed - stream is null");
             throw new IllegalArgumentException("Input stream must not be null");
         }
     }

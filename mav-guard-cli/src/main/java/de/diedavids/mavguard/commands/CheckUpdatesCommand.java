@@ -5,6 +5,8 @@ import de.diedavids.mavguard.model.Project;
 import de.diedavids.mavguard.nexus.service.DependencyVersionService;
 import de.diedavids.mavguard.xml.MultiModuleDependencyCollector;
 import de.diedavids.mavguard.xml.PomParser; // Changed from PomFileProcessor
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -24,6 +26,8 @@ import java.util.concurrent.Callable;
     mixinStandardHelpOptions = true
 )
 public class CheckUpdatesCommand implements Callable<Integer> {
+
+    private static final Logger log = LoggerFactory.getLogger(CheckUpdatesCommand.class);
 
     private final PomParser pomParser;
     private final DependencyVersionService versionService;

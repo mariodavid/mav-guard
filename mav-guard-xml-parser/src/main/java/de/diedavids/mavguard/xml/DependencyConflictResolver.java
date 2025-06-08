@@ -2,6 +2,8 @@ package de.diedavids.mavguard.xml;
 
 import de.diedavids.mavguard.model.Dependency;
 import de.diedavids.mavguard.model.Project;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,6 +16,8 @@ import java.util.Map;
  */
 public class DependencyConflictResolver {
 
+    private static final Logger log = LoggerFactory.getLogger(DependencyConflictResolver.class);
+
     /**
      * Returns a consolidated list of dependencies from all modules with conflicts resolved.
      * 
@@ -21,7 +25,13 @@ public class DependencyConflictResolver {
      * @return A consolidated and deduplicated list of dependencies
      */
     public List<Dependency> resolveConflicts(List<Project> projects) {
+        log.atDebug()
+            .addKeyValue("projectCount", projects != null ? projects.size() : 0)
+            .log("Starting dependency conflict resolution");
+            
         if (projects == null || projects.isEmpty()) {
+            log.atDebug()
+                .log("No projects provided, returning empty dependency list");
             return new ArrayList<>();
         }
 
@@ -32,7 +42,14 @@ public class DependencyConflictResolver {
         Map<String, Map<String, Dependency>> dependenciesByModule = collectAllDependencies(projects);
         
         // Resolve conflicts and consolidate dependencies
-        return resolveConflictsAndConsolidate(dependenciesByModule, projectMap);
+        List<Dependency> result = resolveConflictsAndConsolidate(dependenciesByModule, projectMap);
+        
+        log.atInfo()
+            .addKeyValue("projectCount", projects.size())
+            .addKeyValue("consolidatedDependencies", result.size())
+            .log("Dependency conflict resolution completed");
+            
+        return result;
     }
 
     /**

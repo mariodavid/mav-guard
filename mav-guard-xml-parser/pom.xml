@@ -27,6 +27,12 @@
             <!-- Version will be managed by the parent Spring Boot POM -->
         </dependency>
 
+        <!-- Logging dependencies -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+
         <!-- XML parsing dependencies -->
         <dependency>
             <groupId>jakarta.xml.bind</groupId>
