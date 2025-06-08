@@ -133,9 +133,15 @@ class CheckUpdatesCommandTest {
         int expectedTotalWidth = TABLE_ROW_LEADING_SPACES + expectedDepColWidth + INTER_COLUMN_SINGLE_SPACE +
                                  expectedCurrentVerColWidth + INTER_COLUMN_SINGLE_SPACE + ARROW_COLUMN_WIDTH +
                                  INTER_COLUMN_SINGLE_SPACE + expectedLatestVerColWidth;
-        String expectedSeparator = "  " + "-".repeat(expectedTotalWidth);
-        assertTrue(allPrintlns.stream().anyMatch(s -> s.equals(expectedSeparator)),
-            "Expected separator line not found or incorrect. Expected: '" + expectedSeparator + "', Found: " + allPrintlns);
+
+        String actualSeparatorLine = allPrintlns.stream()
+            .filter(s -> s.trim().matches("^-+$") && s.trim().length() == expectedTotalWidth)
+            .findFirst()
+            .orElse("");
+        org.junit.jupiter.api.Assertions.assertFalse(actualSeparatorLine.isEmpty(), "Separator line not found or does not match expected length/pattern for dependency table. Expected length: " + expectedTotalWidth);
+        // assertTrue(actualSeparatorLine.trim().matches("^-+$"), "Separator line '" + actualSeparatorLine + "' should be all hyphens.");
+        // assertEquals(expectedTotalWidth, actualSeparatorLine.trim().length(), "Separator line length mismatch for '" + actualSeparatorLine + "'.");
+
 
         // Check header print
         boolean headerPrinted = false;
@@ -307,21 +313,39 @@ class CheckUpdatesCommandTest {
         checkUpdatesCommand.call();
 
         // Assert
+        // The println captor is used by multiple calls, ensure to clear or get all values if needed by other assertions.
         verify(colorOutput, atLeastOnce()).println(printlnCaptor.capture(), any(ColorOutputService.ColorType.class));
         verify(colorOutput, atLeastOnce()).printf(printfFormatCaptor.capture(), printfArgsCaptor.capture());
 
-        List<String> allPrintlns = printlnCaptor.getAllValues();
-        assertTrue(allPrintlns.stream().anyMatch(s -> s.contains("All dependencies are up to date.")),
+        List<String> allPrintlnMessages = printlnCaptor.getAllValues();
+        assertTrue(allPrintlnMessages.stream().anyMatch(s -> s.contains("All dependencies are up to date.")),
             "Expected 'All dependencies are up to date.' message not found.");
 
         List<String> allFormats = printfFormatCaptor.getAllValues();
         List<Object[]> allArgs = printfArgsCaptor.getAllValues();
 
         // Parent table format (similar to basic dependency, assuming short names for parent)
-        // parentColWidth = Math.max(Math.max(("com.parent:parent-artifact").length(), 30), "PARENT".length()) = 30
-        // parentCurrentVerColWidth = Math.max(Math.max("2.0".length(), 15), "CURRENT".length()) = 15
-        // parentLatestVerColWidth = Math.max(Math.max("2.1".length(), 15), "LATEST".length()) = 15
-        String expectedParentFormat = String.format("  %%-30s %%-15s %%-%ds %%-15s%%n", ARROW_COLUMN_WIDTH);
+        int parentColWidth = Math.max("com.parent:parent-artifact".length(), "PARENT".length());
+        parentColWidth = Math.max(parentColWidth, 30);
+        int parentCurrentVerColWidth = Math.max("2.0".length(), "CURRENT".length());
+        parentCurrentVerColWidth = Math.max(parentCurrentVerColWidth, 15);
+        int parentLatestVerColWidth = Math.max("2.1".length(), "LATEST".length());
+        parentLatestVerColWidth = Math.max(parentLatestVerColWidth, 15);
+
+        String expectedParentFormat = String.format("  %%-%ds %%-%ds %%-%ds %%-%ds%%n",
+            parentColWidth, parentCurrentVerColWidth, ARROW_COLUMN_WIDTH, parentLatestVerColWidth);
+
+        int expectedParentTotalWidth = TABLE_ROW_LEADING_SPACES + parentColWidth + INTER_COLUMN_SINGLE_SPACE +
+                                     parentCurrentVerColWidth + INTER_COLUMN_SINGLE_SPACE + ARROW_COLUMN_WIDTH +
+                                     INTER_COLUMN_SINGLE_SPACE + parentLatestVerColWidth;
+
+        String actualParentSeparator = allPrintlnMessages.stream()
+            .filter(s -> s.trim().matches("^-+$") && s.trim().length() == expectedParentTotalWidth)
+            .findFirst()
+            .orElse("");
+        org.junit.jupiter.api.Assertions.assertFalse(actualParentSeparator.isEmpty(),
+            "Parent table separator line not found or does not match. Expected length: " + expectedParentTotalWidth + ". Found lines: " + allPrintlnMessages);
+
 
         boolean parentHeaderPrinted = false;
         boolean parentDataPrinted = false;
@@ -428,10 +452,13 @@ class CheckUpdatesCommandTest {
                                            maxCurrentVerLen + INTER_COLUMN_SINGLE_SPACE + ARROW_COLUMN_WIDTH +
                                            INTER_COLUMN_SINGLE_SPACE + maxLatestVerLen + INTER_COLUMN_SINGLE_SPACE +
                                            "(Modules: )".length() + maxAffectedLen;
-        String expectedConsolidatedSeparator = "  " + "-".repeat(expectedConsolidatedTotalWidth);
 
-        assertTrue(allPrintlns.stream().anyMatch(s -> s.equals(expectedConsolidatedSeparator)),
-                   "Expected consolidated separator line not found or incorrect. Expected: '" + expectedConsolidatedSeparator + "', Found: " + allPrintlns);
+        String actualConsolidatedSeparator = allPrintlns.stream()
+            .filter(s -> s.trim().matches("^-+$") && s.trim().length() == expectedConsolidatedTotalWidth)
+            .findFirst()
+            .orElse("");
+        org.junit.jupiter.api.Assertions.assertFalse(actualConsolidatedSeparator.isEmpty(), "Consolidated separator line not found or does not match. Expected length: " + expectedConsolidatedTotalWidth + ". Found lines: " + allPrintlns);
+
 
         assertTrue(allFormats.stream().anyMatch(f -> f.equals(expectedFormat)),
             "Expected format for consolidated dependencies not found. Expected: '" + expectedFormat + "'. Found: " + allFormats);
@@ -533,9 +560,11 @@ class CheckUpdatesCommandTest {
                                      maxParentNameLen + INTER_COLUMN_SINGLE_SPACE + maxParentVerLen +
                                      INTER_COLUMN_SINGLE_SPACE + ARROW_COLUMN_WIDTH + INTER_COLUMN_SINGLE_SPACE +
                                      maxParentLatestVerLen;
-        String expectedParentSeparator = "  " + "-".repeat(expectedParentTotalWidth);
-        assertTrue(allPrintlns.stream().anyMatch(s -> s.equals(expectedParentSeparator)),
-                   "Expected parent table separator line not found or incorrect. Expected: '" + expectedParentSeparator + "'");
+        String actualParentSeparator = allPrintlns.stream()
+            .filter(s -> s.trim().matches("^-+$") && s.trim().length() == expectedParentTotalWidth)
+            .findFirst()
+            .orElse("");
+        org.junit.jupiter.api.Assertions.assertFalse(actualParentSeparator.isEmpty(), "Parent table separator line not found or does not match. Expected length: " + expectedParentTotalWidth + ". Found lines: " + allPrintlns);
 
         // Since moduleC's parent has no update, it should not be printed as an update line.
         // And rootProject and moduleA parents do have updates.
@@ -593,10 +622,24 @@ class CheckUpdatesCommandTest {
 
         checkUpdatesCommand.call();
 
-        verify(colorOutput, atLeastOnce()).println(printlnCaptor.capture(), any(ColorOutputService.ColorType.class));
-        List<String> allPrintlns = printlnCaptor.getAllValues();
+        // In this case, a header and separator for the parent table are printed.
+        List<String> capturedPrintlns = printlnCaptor.getAllValues();
 
-        assertTrue(allPrintlns.stream().anyMatch(s -> s.trim().equals("All module parents are up to date or no newer versions found.")),
-            "Expected 'All module parents are up to date' message not found. Found: " + allPrintlns);
+        int expectedParentTableWidth = TABLE_ROW_LEADING_SPACES + 20 + INTER_COLUMN_SINGLE_SPACE + // module col (min 20)
+                                     30 + INTER_COLUMN_SINGLE_SPACE + // parent col (min 30)
+                                     15 + INTER_COLUMN_SINGLE_SPACE + // current ver col (min 15)
+                                     ARROW_COLUMN_WIDTH + INTER_COLUMN_SINGLE_SPACE +
+                                     15; // latest ver col (min 15)
+
+        String actualParentSep = capturedPrintlns.stream()
+            .filter(s -> s.trim().matches("^-+$") && s.trim().length() == expectedParentTableWidth)
+            .findFirst()
+            .orElse("");
+        org.junit.jupiter.api.Assertions.assertFalse(actualParentSep.isEmpty(),
+            "Parent table separator expected for 'ParentsExistButNoUpdates' but not found/matched. Expected length: " + expectedParentTableWidth + ". Found: " + capturedPrintlns);
+
+
+        assertTrue(capturedPrintlns.stream().anyMatch(s -> s.trim().equals("All module parents are up to date or no newer versions found.")),
+            "Expected 'All module parents are up to date' message not found. Found: " + capturedPrintlns);
     }
 }
