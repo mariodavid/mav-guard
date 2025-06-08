@@ -33,6 +33,11 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class CheckUpdatesCommandTest {
 
+    // Constants to mirror those in CheckUpdatesCommand for calculations
+    private static final int TABLE_ROW_LEADING_SPACES = 2;
+    private static final int INTER_COLUMN_SINGLE_SPACE = 1;
+    private static final int ARROW_COLUMN_WIDTH = 5;
+
     @Mock
     private PomParser pomParser;
 
@@ -118,14 +123,19 @@ class CheckUpdatesCommandTest {
         // depColWidth = Math.max(Math.max(("com.group:artifact").length(), 30), "DEPENDENCY".length()) = Math.max(19, 30) = 30
         // currentVerColWidth = Math.max(Math.max("1.0".length(), 15), "CURRENT".length()) = Math.max(3,15) = 15
         // latestVerColWidth = Math.max(Math.max("1.1".length(), 15), "LATEST".length()) = Math.max(3,15) = 15
-        String expectedFormat = "  %-30s %-15s %-5s %-15s%n";
+        String expectedFormat = String.format("  %%-30s %%-15s %%-%ds %%-15s%%n", ARROW_COLUMN_WIDTH); // Use ARROW_COLUMN_WIDTH
         assertTrue(allFormats.stream().anyMatch(f -> f.equals(expectedFormat)),
             "Expected format string not found. Found: " + allFormats);
 
-        int expectedTotalWidth = 30 + 15 + 5 + 15 + 3; // cols + spaces
+        int expectedDepColWidth = 30;
+        int expectedCurrentVerColWidth = 15;
+        int expectedLatestVerColWidth = 15;
+        int expectedTotalWidth = TABLE_ROW_LEADING_SPACES + expectedDepColWidth + INTER_COLUMN_SINGLE_SPACE +
+                                 expectedCurrentVerColWidth + INTER_COLUMN_SINGLE_SPACE + ARROW_COLUMN_WIDTH +
+                                 INTER_COLUMN_SINGLE_SPACE + expectedLatestVerColWidth;
         String expectedSeparator = "  " + "-".repeat(expectedTotalWidth);
         assertTrue(allPrintlns.stream().anyMatch(s -> s.equals(expectedSeparator)),
-            "Expected separator line not found or incorrect. Found: " + allPrintlns);
+            "Expected separator line not found or incorrect. Expected: '" + expectedSeparator + "', Found: " + allPrintlns);
 
         // Check header print
         boolean headerPrinted = false;
@@ -160,7 +170,7 @@ class CheckUpdatesCommandTest {
         // Arrange
         String longGroupId = "com.example.very.long.group.id.that.exceeds.min.width";
         String longArtifactId = "my-super-duper-long-artifact-id-that-is-just-too-long";
-        String depName = longGroupId + ":" + longArtifactId; // Length > 30
+        String depName = longGroupId + ":" + longArtifactId;
         Dependency dep1 = createDependency(longGroupId, longArtifactId, "1.0");
         mockProject.addDependency(dep1);
         mockProject.setParent(null);
@@ -175,11 +185,12 @@ class CheckUpdatesCommandTest {
         verify(colorOutput, atLeastOnce()).printf(printfFormatCaptor.capture(), printfArgsCaptor.capture());
         List<String> allFormats = printfFormatCaptor.getAllValues();
 
-        int expectedDepColWidth = Math.max(depName.length(), "DEPENDENCY".length()); // minWidth (30) will be overridden
-        String expectedFormat = String.format("  %%-%ds %%-15s %%-5s %%-15s%%n", expectedDepColWidth);
+        int expectedDepColWidth = Math.max(depName.length(), "DEPENDENCY".length());
+        expectedDepColWidth = Math.max(expectedDepColWidth, 30); // Apply minWidth
+        String expectedFormat = String.format("  %%-%ds %%-15s %%-%ds %%-15s%%n", expectedDepColWidth, ARROW_COLUMN_WIDTH);
 
         assertTrue(allFormats.stream().anyMatch(f -> f.equals(expectedFormat)),
-            "Expected format string with dynamic width for long dependency name not found. Expected: " + expectedFormat + ", Found: " + allFormats);
+            "Expected format string with dynamic width for long dependency name not found. Expected: '" + expectedFormat + "', Found: " + allFormats);
     }
 
     // Test Case 3: Long Version Strings
@@ -201,12 +212,14 @@ class CheckUpdatesCommandTest {
         verify(colorOutput, atLeastOnce()).printf(printfFormatCaptor.capture(), printfArgsCaptor.capture());
         List<String> allFormats = printfFormatCaptor.getAllValues();
 
-        int expectedCurrentVerColWidth = Math.max("1.0.0-alpha-very-long-SNAPSHOT-version".length(), "CURRENT".length()); // minWidth (15) overridden
-        int expectedLatestVerColWidth = Math.max(latestVersionStr.length(), "LATEST".length()); // minWidth (15) overridden
-        String expectedFormat = String.format("  %%-30s %%-%ds %%-5s %%-%ds%%n", expectedCurrentVerColWidth, expectedLatestVerColWidth);
+        int expectedCurrentVerColWidth = Math.max("1.0.0-alpha-very-long-SNAPSHOT-version".length(), "CURRENT".length());
+        expectedCurrentVerColWidth = Math.max(expectedCurrentVerColWidth, 15); // Apply minWidth
+        int expectedLatestVerColWidth = Math.max(latestVersionStr.length(), "LATEST".length());
+        expectedLatestVerColWidth = Math.max(expectedLatestVerColWidth, 15); // Apply minWidth
+        String expectedFormat = String.format("  %%-30s %%-%ds %%-%ds %%-%ds%%n", expectedCurrentVerColWidth, ARROW_COLUMN_WIDTH, expectedLatestVerColWidth);
 
         assertTrue(allFormats.stream().anyMatch(f -> f.equals(expectedFormat)),
-            "Expected format string with dynamic width for long versions not found. Expected: " + expectedFormat + ", Found: " + allFormats);
+            "Expected format string with dynamic width for long versions not found. Expected: '" + expectedFormat + "', Found: " + allFormats);
     }
 
     // Test Case 4: Managed Dependencies (Null Version)
@@ -232,9 +245,9 @@ class CheckUpdatesCommandTest {
         // depColWidth = Math.max("com.group:managed-artifact".length(), 30) = 30
         // currentVerColWidth = Math.max("managed".length(), 15) = 15
         // latestVerColWidth = Math.max("1.5".length(), 15) = 15
-        String expectedFormat = "  %-30s %-15s %-5s %-15s%n";
+        String expectedFormat = String.format("  %%-30s %%-15s %%-%ds %%-15s%%n", ARROW_COLUMN_WIDTH);
         assertTrue(allFormats.stream().anyMatch(f -> f.equals(expectedFormat)),
-            "Expected format string for managed dependency not found. Found: " + allFormats);
+            "Expected format string for managed dependency not found. Expected: '" + expectedFormat + "' Found: " + allFormats);
 
         boolean dataPrintedCorrectly = false;
         for (int i = 0; i < allFormats.size(); i++) {
@@ -308,7 +321,7 @@ class CheckUpdatesCommandTest {
         // parentColWidth = Math.max(Math.max(("com.parent:parent-artifact").length(), 30), "PARENT".length()) = 30
         // parentCurrentVerColWidth = Math.max(Math.max("2.0".length(), 15), "CURRENT".length()) = 15
         // parentLatestVerColWidth = Math.max(Math.max("2.1".length(), 15), "LATEST".length()) = 15
-        String expectedParentFormat = "  %-30s %-15s %-5s %-15s%n";
+        String expectedParentFormat = String.format("  %%-30s %%-15s %%-%ds %%-15s%%n", ARROW_COLUMN_WIDTH);
 
         boolean parentHeaderPrinted = false;
         boolean parentDataPrinted = false;
@@ -403,19 +416,30 @@ class CheckUpdatesCommandTest {
         int affectedModules2Len = "moduleA".length();
         int affectedModules3Len = "root".length();
         int maxAffectedLen = Math.max(Math.max(affectedModules1Len, affectedModules2Len), affectedModules3Len);
-        maxAffectedLen = Math.max(maxAffectedLen, "AFFECTED MODULES".length());
-        maxAffectedLen = Math.max(maxAffectedLen, 20);
+        maxAffectedLen = Math.max(maxAffectedLen, "(Modules: AFFECTED MODULES)".length()); // Corrected: Full header text for width
+        maxAffectedLen = Math.max(maxAffectedLen, 20); // minAffectedModulesLen
 
-        String expectedFormat = String.format("  %%-%ds %%-%ds %%-5s %%-%ds (Modules: %%-%ds)%%n",
-            maxDepLen, maxCurrentVerLen, maxLatestVerLen, maxAffectedLen);
+        String expectedFormat = String.format("  %%-%ds %%-%ds %%-%ds %%-%ds (Modules: %%-%ds)%%n",
+            maxDepLen, maxCurrentVerLen, ARROW_COLUMN_WIDTH, maxLatestVerLen, maxAffectedLen);
+
+        // Also check the separator line width for this complex table
+        List<String> allPrintlns = printlnCaptor.getAllValues();
+        int expectedConsolidatedTotalWidth = TABLE_ROW_LEADING_SPACES + maxDepLen + INTER_COLUMN_SINGLE_SPACE +
+                                           maxCurrentVerLen + INTER_COLUMN_SINGLE_SPACE + ARROW_COLUMN_WIDTH +
+                                           INTER_COLUMN_SINGLE_SPACE + maxLatestVerLen + INTER_COLUMN_SINGLE_SPACE +
+                                           "(Modules: )".length() + maxAffectedLen;
+        String expectedConsolidatedSeparator = "  " + "-".repeat(expectedConsolidatedTotalWidth);
+
+        assertTrue(allPrintlns.stream().anyMatch(s -> s.equals(expectedConsolidatedSeparator)),
+                   "Expected consolidated separator line not found or incorrect. Expected: '" + expectedConsolidatedSeparator + "', Found: " + allPrintlns);
 
         assertTrue(allFormats.stream().anyMatch(f -> f.equals(expectedFormat)),
-            "Expected format for consolidated dependencies not found. Expected: " + expectedFormat + ". Found: " + allFormats);
+            "Expected format for consolidated dependencies not found. Expected: '" + expectedFormat + "'. Found: " + allFormats);
     }
 
     // Test Case 8: Parent Updates in Multi-Module - Mixed Lengths
     @Test
-    void testHandleMultiModuleUpdates_ParentUpdates_MixedLengths() throws Exception {
+    void testHandleMultiModuleUpdates_ParentUpdates_MixedLengthsAndScenarios() throws Exception {
         // Arrange
         checkUpdatesCommand = new CheckUpdatesCommand(pomParser, versionService, dependencyCollector, colorOutput);
         new CommandLine(checkUpdatesCommand).parseArgs("--force-multi-module", "dummy.pom");
@@ -425,58 +449,154 @@ class CheckUpdatesCommandTest {
         Project.Parent rootParent = createParent("com.root.parent", "parent-artifact-long-name", "1.0");
         rootProject.setParent(rootParent);
 
-        Project moduleA = new Project("com.example", "moduleA-short", "1.0.0"); // Short module name
+        Project moduleA = new Project("com.example", "moduleA-short", "1.0.0");
         moduleA.setRelativePath("moduleA/pom.xml");
-        Project.Parent moduleAParent = createParent("com.moduleA", "parentA", "2.0.0-long-version"); // Long parent version
+        Project.Parent moduleAParent = createParent("com.moduleA", "parentA", "2.0.0-long-version");
         moduleA.setParent(moduleAParent);
 
-        List<Project> allProjects = List.of(rootProject, moduleA);
+        Project moduleB_noParent = new Project("com.example", "moduleB-no-parent", "1.0.0");
+        moduleB_noParent.setRelativePath("moduleB/pom.xml");
+        moduleB_noParent.setParent(null); // Module with no parent
+
+        Project moduleC_parentNoUpdate = new Project("com.example", "moduleC-parent-no-update", "1.0.0");
+        moduleC_parentNoUpdate.setRelativePath("moduleC/pom.xml");
+        Project.Parent moduleCParent = createParent("com.moduleC", "parentC", "3.0");
+        moduleC_parentNoUpdate.setParent(moduleCParent);
+
+
+        List<Project> allProjects = List.of(rootProject, moduleA, moduleB_noParent, moduleC_parentNoUpdate);
         MultiModuleDependencyCollector.DependencyReport mockReport = mock(MultiModuleDependencyCollector.DependencyReport.class);
-        when(mockReport.getConsolidatedDependencies()).thenReturn(Collections.emptyList()); // No dependency updates for this test
+        when(mockReport.getConsolidatedDependencies()).thenReturn(Collections.emptyList());
 
         when(pomParser.parseMultiModuleProject(any(File.class))).thenReturn(allProjects);
-        when(pomParser.parsePomFile(any(File.class))).thenReturn(rootProject); // Root context for initial parse
+        when(pomParser.parsePomFile(any(File.class))).thenReturn(rootProject);
         when(dependencyCollector.collectDependencies(allProjects)).thenReturn(mockReport);
 
-        when(versionService.getLatestParentVersion(rootParent)).thenReturn(Optional.of("1.1")); // Update for root parent
-        when(versionService.getLatestParentVersion(moduleAParent)).thenReturn(Optional.of("2.1")); // Update for moduleA parent
+        when(versionService.getLatestParentVersion(rootParent)).thenReturn(Optional.of("1.1")); // Has update
+        when(versionService.getLatestParentVersion(moduleAParent)).thenReturn(Optional.of("2.1")); // Has update
+        when(versionService.getLatestParentVersion(moduleCParent)).thenReturn(Optional.of("3.0")); // No update
+
 
         // Act
         checkUpdatesCommand.call();
 
         // Assert
         verify(colorOutput, atLeastOnce()).printf(printfFormatCaptor.capture(), printfArgsCaptor.capture());
+        verify(colorOutput, atLeastOnce()).println(printlnCaptor.capture(), colorTypeCaptor.capture());
         List<String> allFormats = printfFormatCaptor.getAllValues();
+        List<String> allPrintlns = printlnCaptor.getAllValues();
 
-        // Calculate expected widths
-        int rootModuleNameLen = "root-project".length();
-        int moduleANameLen = "moduleA-short".length();
-        int maxModuleLen = Math.max(rootModuleNameLen, moduleANameLen);
-        maxModuleLen = Math.max(maxModuleLen, "MODULE".length());
+        // Calculate expected widths (considering all projects with parents, even those without updates)
+        int maxModuleLen = "MODULE".length(); // Start with header length
+        maxModuleLen = Math.max(maxModuleLen, rootProject.artifactId().length());
+        maxModuleLen = Math.max(maxModuleLen, moduleA.artifactId().length());
+        maxModuleLen = Math.max(maxModuleLen, moduleC_parentNoUpdate.artifactId().length());
         maxModuleLen = Math.max(maxModuleLen, 20); // minModuleLen
 
-        int rootParentNameLen = "com.root.parent:parent-artifact-long-name".length();
-        int moduleAParentNameLen = "com.moduleA:parentA".length();
-        int maxParentNameLen = Math.max(rootParentNameLen, moduleAParentNameLen);
-        maxParentNameLen = Math.max(maxParentNameLen, "PARENT".length());
+        int maxParentNameLen = "PARENT".length();
+        maxParentNameLen = Math.max(maxParentNameLen, (rootParent.groupId() + ":" + rootParent.artifactId()).length());
+        maxParentNameLen = Math.max(maxParentNameLen, (moduleAParent.groupId() + ":" + moduleAParent.artifactId()).length());
+        maxParentNameLen = Math.max(maxParentNameLen, (moduleCParent.groupId() + ":" + moduleCParent.artifactId()).length());
         maxParentNameLen = Math.max(maxParentNameLen, 30); // minParentLen
 
-        int rootParentVerLen = "1.0".length();
-        int moduleAParentVerLen = "2.0.0-long-version".length();
-        int maxParentVerLen = Math.max(rootParentVerLen, moduleAParentVerLen);
-        maxParentVerLen = Math.max(maxParentVerLen, "CURRENT".length());
-        maxParentVerLen = Math.max(maxParentVerLen, 15); // minParentCurrentVerLen
+        int maxParentVerLen = "CURRENT".length();
+        maxParentVerLen = Math.max(maxParentVerLen, rootParent.version().length());
+        maxParentVerLen = Math.max(maxParentVerLen, moduleAParent.version().length());
+        maxParentVerLen = Math.max(maxParentVerLen, moduleCParent.version().length());
+        maxParentVerLen = Math.max(maxParentVerLen, 15);
 
-        int rootParentLatestLen = "1.1".length();
-        int moduleAParentLatestLen = "2.1".length();
-        int maxParentLatestVerLen = Math.max(rootParentLatestLen, moduleAParentLatestLen);
-        maxParentLatestVerLen = Math.max(maxParentLatestVerLen, "LATEST".length());
-        maxParentLatestVerLen = Math.max(maxParentLatestVerLen, 15); // minParentLatestVerLen
+        int maxParentLatestVerLen = "LATEST".length(); // Only updated versions contribute to this max length beyond header
+        maxParentLatestVerLen = Math.max(maxParentLatestVerLen, "1.1".length());
+        maxParentLatestVerLen = Math.max(maxParentLatestVerLen, "2.1".length());
+        maxParentLatestVerLen = Math.max(maxParentLatestVerLen, 15);
 
-        String expectedFormat = String.format("  %%-%ds %%-%ds %%-%ds %%-5s %%-%ds%%n",
-            maxModuleLen, maxParentNameLen, maxParentVerLen, maxParentLatestVerLen);
+        String expectedFormat = String.format("  %%-%ds %%-%ds %%-%ds %%-%ds %%-%ds%%n",
+            maxModuleLen, maxParentNameLen, maxParentVerLen, ARROW_COLUMN_WIDTH, maxParentLatestVerLen);
 
         assertTrue(allFormats.stream().anyMatch(f -> f.equals(expectedFormat)),
-            "Expected format for multi-module parent updates not found. Expected: " + expectedFormat + ". Found: " + allFormats);
+            "Expected format for multi-module parent updates not found. Expected: '" + expectedFormat + "'. Found: " + allFormats);
+
+        // Check that the header and separator were printed because hasAnyParentInProjects is true
+        boolean headerPrintedForParents = allFormats.stream()
+            .filter(f -> f.equals(expectedFormat))
+            .findFirst()
+            .map(format -> {
+                // Find corresponding args
+                for(Object[] args : printfArgsCaptor.getAllValues()) {
+                    if(args.length == 5 && args[0].equals("MODULE") && args[1].equals("PARENT")) return true;
+                }
+                return false;
+            }).orElse(false);
+        assertTrue(headerPrintedForParents, "Parent updates table header should be printed.");
+
+        int expectedParentTotalWidth = TABLE_ROW_LEADING_SPACES + maxModuleLen + INTER_COLUMN_SINGLE_SPACE +
+                                     maxParentNameLen + INTER_COLUMN_SINGLE_SPACE + maxParentVerLen +
+                                     INTER_COLUMN_SINGLE_SPACE + ARROW_COLUMN_WIDTH + INTER_COLUMN_SINGLE_SPACE +
+                                     maxParentLatestVerLen;
+        String expectedParentSeparator = "  " + "-".repeat(expectedParentTotalWidth);
+        assertTrue(allPrintlns.stream().anyMatch(s -> s.equals(expectedParentSeparator)),
+                   "Expected parent table separator line not found or incorrect. Expected: '" + expectedParentSeparator + "'");
+
+        // Since moduleC's parent has no update, it should not be printed as an update line.
+        // And rootProject and moduleA parents do have updates.
+        // So, the "All module parents are up to date..." message should NOT be printed.
+        boolean allUpToDateMessageFound = allPrintlns.stream()
+            .anyMatch(s -> s.contains("All module parents are up to date or no newer versions found."));
+        org.junit.jupiter.api.Assertions.assertFalse(allUpToDateMessageFound,
+            "'All module parents up to date' message should not be present when some updates are available and printed.");
+
+    }
+
+    @Test
+    void testHandleMultiModuleUpdates_NoParentsDefined() throws Exception {
+        checkUpdatesCommand = new CheckUpdatesCommand(pomParser, versionService, dependencyCollector, colorOutput);
+        new CommandLine(checkUpdatesCommand).parseArgs("--force-multi-module", "dummy.pom");
+
+        Project moduleNoParent1 = new Project("com.example", "moduleNP1", "1.0.0");
+        moduleNoParent1.setParent(null);
+        Project moduleNoParent2 = new Project("com.example", "moduleNP2", "1.0.0");
+        moduleNoParent2.setParent(null);
+        List<Project> allProjects = List.of(moduleNoParent1, moduleNoParent2);
+
+        MultiModuleDependencyCollector.DependencyReport mockReport = mock(MultiModuleDependencyCollector.DependencyReport.class);
+        when(mockReport.getConsolidatedDependencies()).thenReturn(Collections.emptyList());
+
+        when(pomParser.parseMultiModuleProject(any(File.class))).thenReturn(allProjects);
+        when(pomParser.parsePomFile(any(File.class))).thenReturn(moduleNoParent1); // some root context
+        when(dependencyCollector.collectDependencies(allProjects)).thenReturn(mockReport);
+
+        checkUpdatesCommand.call();
+
+        verify(colorOutput, atLeastOnce()).println(printlnCaptor.capture());
+        List<String> allPrintlns = printlnCaptor.getAllValues();
+        assertTrue(allPrintlns.stream().anyMatch(s -> s.contains("No parent projects defined in any of the modules.")),
+            "Expected 'No parent projects defined' message not found.");
+    }
+
+    @Test
+    void testHandleMultiModuleUpdates_ParentsExistButNoUpdates() throws Exception {
+        checkUpdatesCommand = new CheckUpdatesCommand(pomParser, versionService, dependencyCollector, colorOutput);
+        new CommandLine(checkUpdatesCommand).parseArgs("--force-multi-module", "dummy.pom");
+
+        Project projectWithParent = new Project("com.example", "projectWP", "1.0.0");
+        Project.Parent parent = createParent("com.parent", "parent-artifact", "1.0");
+        projectWithParent.setParent(parent);
+        List<Project> allProjects = List.of(projectWithParent);
+
+        MultiModuleDependencyCollector.DependencyReport mockReport = mock(MultiModuleDependencyCollector.DependencyReport.class);
+        when(mockReport.getConsolidatedDependencies()).thenReturn(Collections.emptyList());
+
+        when(pomParser.parseMultiModuleProject(any(File.class))).thenReturn(allProjects);
+        when(pomParser.parsePomFile(any(File.class))).thenReturn(projectWithParent);
+        when(dependencyCollector.collectDependencies(allProjects)).thenReturn(mockReport);
+        when(versionService.getLatestParentVersion(parent)).thenReturn(Optional.of("1.0")); // Same version
+
+        checkUpdatesCommand.call();
+
+        verify(colorOutput, atLeastOnce()).println(printlnCaptor.capture(), any(ColorOutputService.ColorType.class));
+        List<String> allPrintlns = printlnCaptor.getAllValues();
+
+        assertTrue(allPrintlns.stream().anyMatch(s -> s.trim().equals("All module parents are up to date or no newer versions found.")),
+            "Expected 'All module parents are up to date' message not found. Found: " + allPrintlns);
     }
 }
