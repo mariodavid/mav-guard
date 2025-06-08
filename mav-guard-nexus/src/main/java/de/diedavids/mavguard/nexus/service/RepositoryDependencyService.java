@@ -3,6 +3,8 @@ package de.diedavids.mavguard.nexus.service;
 import de.diedavids.mavguard.model.Dependency;
 import de.diedavids.mavguard.model.Project;
 import de.diedavids.mavguard.nexus.model.NexusArtifactVersion;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -14,6 +16,8 @@ import java.util.List;
  */
 @Service
 public class RepositoryDependencyService implements DependencyVersionService {
+
+    private static final Logger log = LoggerFactory.getLogger(RepositoryDependencyService.class);
 
     private final RepositoryServiceFactory repositoryServiceFactory;
 
@@ -44,8 +48,9 @@ public class RepositoryDependencyService implements DependencyVersionService {
                     .sorted(Comparator.reverseOrder())
                     .toList();
         } catch (Exception e) {
-            // Log the error and return empty list
-            System.err.println("Error fetching versions from repository: " + e.getMessage());
+            log.atError()
+                .addKeyValue("dependency", dependency.groupId() + ":" + dependency.artifactId())
+                .log("Error fetching versions from repository: {}", e.getMessage(), e);
             return Collections.emptyList();
         }
     }
@@ -69,8 +74,9 @@ public class RepositoryDependencyService implements DependencyVersionService {
                     .sorted(Comparator.reverseOrder())
                     .toList();
         } catch (Exception e) {
-            // Log the error and return empty list
-            System.err.println("Error fetching parent versions from repository: " + e.getMessage());
+            log.atError()
+                .addKeyValue("parent", parent.getCoordinates())
+                .log("Error fetching parent versions from repository: {}", e.getMessage(), e);
             return Collections.emptyList();
         }
     }

@@ -6,6 +6,8 @@ import de.diedavids.mavguard.nexus.config.NexusProperties;
 import de.diedavids.mavguard.nexus.config.RepositoryType;
 import de.diedavids.mavguard.nexus.model.MavenMetadata;
 import de.diedavids.mavguard.nexus.model.NexusArtifactVersion;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
@@ -18,6 +20,8 @@ import java.util.List;
  */
 @Component
 public class NexusRepositoryService implements RepositoryService {
+
+    private static final Logger log = LoggerFactory.getLogger(NexusRepositoryService.class);
 
     private final NexusClient nexusClient;
     private final NexusProperties properties;
@@ -49,8 +53,10 @@ public class NexusRepositoryService implements RepositoryService {
                     .sorted(Comparator.comparing(NexusArtifactVersion::version).reversed())
                     .toList();
         } catch (Exception e) {
-            // Log the error and return empty list
-            System.err.println("Error fetching versions from Nexus: " + e.getMessage());
+            log.atError()
+                .addKeyValue("dependency", dependency.groupId() + ":" + dependency.artifactId())
+                .addKeyValue("repository", properties.repository())
+                .log("Error fetching versions from Nexus: {}", e.getMessage(), e);
             return Collections.emptyList();
         }
     }
@@ -77,8 +83,10 @@ public class NexusRepositoryService implements RepositoryService {
                     .sorted(Comparator.comparing(NexusArtifactVersion::version).reversed())
                     .toList();
         } catch (Exception e) {
-            // Log the error and return empty list
-            System.err.println("Error fetching parent versions from Nexus: " + e.getMessage());
+            log.atError()
+                .addKeyValue("parent", parent.getCoordinates())
+                .addKeyValue("repository", properties.repository())
+                .log("Error fetching parent versions from Nexus: {}", e.getMessage(), e);
             return Collections.emptyList();
         }
     }

@@ -205,10 +205,14 @@ public class PomParser implements PomFileProcessor {
                         XmlProject moduleProject = parseAndProcessProject(modulePomFile, processedProjects);
                     } catch (JAXBException e) {
                         // Log error but continue with other modules
-                        System.err.println("Error parsing module " + modulePath + ": " + e.getMessage());
+                        log.atWarn()
+                            .addKeyValue("modulePath", modulePath)
+                            .log("Error parsing module, continuing with other modules: {}", e.getMessage(), e);
                     }
                 } else {
-                    System.err.println("Module POM file not found: " + modulePomPath);
+                    log.atWarn()
+                        .addKeyValue("modulePomPath", modulePomPath)
+                        .log("Module POM file not found, skipping");
                 }
             }
         }
@@ -295,15 +299,22 @@ public class PomParser implements PomFileProcessor {
                             project.setParentProject(loadedParent);
                         } else if (relativePath != null && !relativePath.isEmpty() && (parentPomFile == null || !parentPomFile.exists())) {
                             // Only log error if relativePath was specified but not found
-                            System.err.println("Parent POM specified by relativePath '" + relativePath + "' not found for " + getProjectKey(project));
+                            log.atWarn()
+                                .addKeyValue("relativePath", relativePath)
+                                .addKeyValue("project", getProjectKey(project))
+                                .log("Parent POM specified by relativePath not found");
                         }
                         // If parentPomFile is null (empty relativePath) or not a file, silently skip loading.
                         // It's assumed to be an external parent or handled by other means (e.g. already in projectMap).
                     } catch (JAXBException e) { // Catch specific parsing errors
                         // Log an error if the parent POM cannot be parsed
-                        System.err.println("Error parsing parent POM for " + getProjectKey(project) + ": " + e.getMessage());
+                        log.atError()
+                            .addKeyValue("project", getProjectKey(project))
+                            .log("Error parsing parent POM: {}", e.getMessage(), e);
                     } catch (Exception e) { // Catch other unexpected errors during parent loading
-                        System.err.println("Unexpected error loading parent POM for " + getProjectKey(project) + ": " + e.getMessage());
+                        log.atError()
+                            .addKeyValue("project", getProjectKey(project))
+                            .log("Unexpected error loading parent POM: {}", e.getMessage(), e);
                     }
                 }
             }
