@@ -48,8 +48,16 @@ public class CheckUpdatesCommand implements Callable<Integer> {
 
     @Override
     public Integer call() {
+        log.atInfo()
+            .addKeyValue("filePath", filePath)
+            .addKeyValue("forceMultiModule", forceMultiModule)
+            .log("Starting check-updates command execution");
+        
         File file = new File(filePath);
         if (!file.exists()) {
+            log.atError()
+                .addKeyValue("filePath", filePath)
+                .log("POM file not found");
             System.err.println("File not found: " + filePath);
             return 1;
         }
@@ -57,6 +65,11 @@ public class CheckUpdatesCommand implements Callable<Integer> {
         try {
             Project initialProject = pomParser.parsePomFile(file); // Parse the given POM first
             boolean isActuallyMultiModule = initialProject.isMultiModule() || forceMultiModule;
+            
+            log.atDebug()
+                .addKeyValue("projectCoordinates", initialProject.getCoordinates())
+                .addKeyValue("isMultiModule", isActuallyMultiModule)
+                .log("Analyzed project type for update check");
 
             if (isActuallyMultiModule) {
                 // This will re-parse the root, but ensures all modules are loaded
@@ -79,12 +92,17 @@ public class CheckUpdatesCommand implements Callable<Integer> {
                 return handleSingleModuleUpdates(initialProject);
             }
         } catch (JAXBException e) {
+            log.atError()
+                .addKeyValue("filePath", filePath)
+                .log("Error parsing POM file: {}", e.getMessage(), e);
             System.err.println("Error parsing POM file: " + filePath);
             System.err.println("Details: " + e.getMessage());
             System.err.println("Please ensure the file is a valid Maven POM XML file and the path is correct.");
-            // e.printStackTrace(); // Uncomment for full stack trace during debugging
             return 1;
         } catch (Exception e) {
+            log.atError()
+                .addKeyValue("filePath", filePath)
+                .log("Unexpected error during check-updates command: {}", e.getMessage(), e);
             System.err.println("An unexpected error occurred: " + e.getMessage());
             e.printStackTrace(); // Uncomment for full stack trace
             return 1;

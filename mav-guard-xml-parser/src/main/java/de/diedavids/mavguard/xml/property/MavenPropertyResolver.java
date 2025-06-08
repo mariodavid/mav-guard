@@ -1,6 +1,8 @@
 package de.diedavids.mavguard.xml.property;
 
 import de.diedavids.mavguard.xml.model.XmlProject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -10,6 +12,7 @@ import java.util.regex.Pattern;
  */
 public class MavenPropertyResolver implements PropertyResolver {
 
+    private static final Logger log = LoggerFactory.getLogger(MavenPropertyResolver.class);
     private static final Pattern PROPERTY_PATTERN = Pattern.compile("\\$\\{([^}]+)\\}");
     private static final int MAX_RESOLUTION_DEPTH = 10; // Prevent infinite recursion
 
@@ -149,10 +152,19 @@ public class MavenPropertyResolver implements PropertyResolver {
         // Look up the property in the properties section
         Map<String, String> properties = project.getProperties();
         if (properties == null) {
+            log.atDebug()
+                .addKeyValue("propertyName", propertyName)
+                .log("No properties section found in project");
             return null;
         }
 
         String propertyValue = properties.get(propertyName);
+        
+        if (propertyValue == null) {
+            log.atDebug()
+                .addKeyValue("propertyName", propertyName)
+                .log("Property not found in project properties");
+        }
 
         // If property value contains other property references, resolve them recursively
         if (propertyValue != null && isPropertyPlaceholder(propertyValue)) {

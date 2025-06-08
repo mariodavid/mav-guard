@@ -2,6 +2,8 @@ package de.diedavids.mavguard;
 
 import de.diedavids.mavguard.commands.AnalyzeCommand;
 import de.diedavids.mavguard.commands.CheckUpdatesCommand;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -19,7 +21,12 @@ import picocli.CommandLine.IFactory;
 )
 public class MavGuardApplication implements Runnable {
 
+    private static final Logger log = LoggerFactory.getLogger(MavGuardApplication.class);
+
     public static void main(String[] args) {
+        log.atInfo()
+            .addKeyValue("args", String.join(" ", args))
+            .log("Starting MavGuard application");
         int exitCode = SpringApplication.exit(SpringApplication.run(MavGuardApplication.class, args));
         System.exit(exitCode);
     }
@@ -27,9 +34,18 @@ public class MavGuardApplication implements Runnable {
     @Bean
     public CommandLineRunner commandLineRunner(MavGuardApplication app, IFactory factory) {
         return args -> {
+            log.atDebug()
+                .addKeyValue("commandArgs", String.join(" ", args))
+                .log("Executing command line runner");
             int exitCode = new CommandLine(app, factory).execute(args);
             if (exitCode != 0) {
+                log.atDebug()
+                    .addKeyValue("exitCode", exitCode)
+                    .log("Command execution completed with non-zero exit code");
                 System.exit(exitCode);
+            } else {
+                log.atDebug()
+                    .log("Command execution completed successfully");
             }
         };
     }

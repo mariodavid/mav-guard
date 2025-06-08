@@ -1,6 +1,8 @@
 package de.diedavids.mavguard.nexus.service;
 
 import de.diedavids.mavguard.nexus.config.NexusProperties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -10,6 +12,8 @@ import java.util.List;
  */
 @Component
 public class RepositoryServiceFactory {
+
+    private static final Logger log = LoggerFactory.getLogger(RepositoryServiceFactory.class);
 
     private final List<RepositoryService> repositoryServices;
     private final NexusProperties properties;
@@ -28,10 +32,27 @@ public class RepositoryServiceFactory {
     public RepositoryService createRepositoryService() {
         String configuredType = properties.type().name();
         
-        return repositoryServices.stream()
-                .filter(service -> service.getRepositoryType().equals(configuredType))
+        log.atDebug()
+            .addKeyValue("configuredType", configuredType)
+            .addKeyValue("availableServices", repositoryServices.size())
+            .log("Creating repository service");
+        
+        RepositoryService service = repositoryServices.stream()
+                .filter(s -> s.getRepositoryType().equals(configuredType))
                 .findFirst()
-                .orElseThrow(() -> new IllegalStateException(
-                        "No repository service found for type: " + configuredType));
+                .orElseThrow(() -> {
+                    log.atError()
+                        .addKeyValue("configuredType", configuredType)
+                        .log("No repository service found for configured type");
+                    return new IllegalStateException(
+                            "No repository service found for type: " + configuredType);
+                });
+        
+        log.atInfo()
+            .addKeyValue("repositoryType", configuredType)
+            .addKeyValue("serviceClass", service.getClass().getSimpleName())
+            .log("Repository service created successfully");
+            
+        return service;
     }
 }

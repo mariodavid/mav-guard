@@ -3,6 +3,8 @@ package de.diedavids.mavguard.xml;
 import org.springframework.stereotype.Component; // Added import
 import de.diedavids.mavguard.model.Dependency;
 import de.diedavids.mavguard.model.Project;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,6 +17,8 @@ import java.util.TreeMap;
  */
 @Component // Added annotation
 public class MultiModuleDependencyCollector {
+
+    private static final Logger log = LoggerFactory.getLogger(MultiModuleDependencyCollector.class);
 
     private final DependencyConflictResolver conflictResolver;
 
@@ -29,7 +33,13 @@ public class MultiModuleDependencyCollector {
      * @return a consolidated dependency report
      */
     public DependencyReport collectDependencies(List<Project> projects) {
+        log.atDebug()
+            .addKeyValue("projectCount", projects != null ? projects.size() : 0)
+            .log("Starting dependency collection for multi-module project");
+            
         if (projects == null || projects.isEmpty()) {
+            log.atDebug()
+                .log("No projects provided, returning empty dependency report");
             return new DependencyReport(new ArrayList<>(), new ArrayList<>(), new HashMap<>());
         }
 
@@ -41,6 +51,12 @@ public class MultiModuleDependencyCollector {
 
         // Identify inconsistent versions across modules
         List<VersionInconsistency> versionInconsistencies = identifyVersionInconsistencies(projects);
+
+        log.atInfo()
+            .addKeyValue("projectCount", projects.size())
+            .addKeyValue("consolidatedDependencies", consolidatedDependencies.size())
+            .addKeyValue("versionInconsistencies", versionInconsistencies.size())
+            .log("Dependency collection completed");
 
         return new DependencyReport(consolidatedDependencies, versionInconsistencies, dependencyUsage);
     }
