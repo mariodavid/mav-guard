@@ -286,7 +286,7 @@ class CheckUpdatesCommandTest {
         verify(colorOutput, atLeastOnce()).println(printlnCaptor.capture(), any(ColorOutputService.ColorType.class));
         List<String> allPrintlns = printlnCaptor.getAllValues();
 
-        assertTrue(allPrintlns.stream().anyMatch(s -> s.contains("All dependencies are up to date.")),
+        assertTrue(allPrintlns.stream().anyMatch(s -> s.trim().equals("All dependencies are up to date.")), // Applied .trim()
             "Expected 'All dependencies are up to date.' message not found. Found: " + allPrintlns);
 
         // Check that no dependency update data rows were printed using printf, beyond the header.
@@ -318,7 +318,7 @@ class CheckUpdatesCommandTest {
         verify(colorOutput, atLeastOnce()).printf(printfFormatCaptor.capture(), printfArgsCaptor.capture());
 
         List<String> allPrintlnMessages = printlnCaptor.getAllValues();
-        assertTrue(allPrintlnMessages.stream().anyMatch(s -> s.contains("All dependencies are up to date.")),
+        assertTrue(allPrintlnMessages.stream().anyMatch(s -> s.trim().equals("All dependencies are up to date.")), // Applied .trim()
             "Expected 'All dependencies are up to date.' message not found.");
 
         List<String> allFormats = printfFormatCaptor.getAllValues();
@@ -570,7 +570,7 @@ class CheckUpdatesCommandTest {
         // And rootProject and moduleA parents do have updates.
         // So, the "All module parents are up to date..." message should NOT be printed.
         boolean allUpToDateMessageFound = allPrintlns.stream()
-            .anyMatch(s -> s.contains("All module parents are up to date or no newer versions found."));
+            .anyMatch(s -> s.trim().equals("All module parents are up to date or no newer versions found.")); // Applied .trim()
         org.junit.jupiter.api.Assertions.assertFalse(allUpToDateMessageFound,
             "'All module parents up to date' message should not be present when some updates are available and printed.");
 
@@ -596,10 +596,10 @@ class CheckUpdatesCommandTest {
 
         checkUpdatesCommand.call();
 
-        verify(colorOutput, atLeastOnce()).println(printlnCaptor.capture());
+        verify(colorOutput, atLeastOnce()).println(printlnCaptor.capture()); // Captures all println calls
         List<String> allPrintlns = printlnCaptor.getAllValues();
-        assertTrue(allPrintlns.stream().anyMatch(s -> s.contains("No parent projects defined in any of the modules.")),
-            "Expected 'No parent projects defined' message not found.");
+        assertTrue(allPrintlns.stream().anyMatch(s -> s.trim().equals("No parent projects defined in any of the modules.")), // Applied .trim()
+            "Expected 'No parent projects defined' message not found. Found: " + allPrintlns);
     }
 
     @Test
@@ -639,7 +639,7 @@ class CheckUpdatesCommandTest {
             "Parent table separator expected for 'ParentsExistButNoUpdates' but not found/matched. Expected length: " + expectedParentTableWidth + ". Found: " + capturedPrintlns);
 
 
-        assertTrue(capturedPrintlns.stream().anyMatch(s -> s.trim().equals("All module parents are up to date or no newer versions found.")),
+        assertTrue(capturedPrintlns.stream().anyMatch(s -> s.trim().equals("All module parents are up to date or no newer versions found.")), // .trim() was already here, which is good.
             "Expected 'All module parents are up to date' message not found. Found: " + capturedPrintlns);
     }
 }
