@@ -31,7 +31,7 @@
         
         <!-- Dependency Versions -->
         <spring.version>5.3.24</spring.version>
-        <jackson.version>2.13.4</jackson.version>
+        <jackson.version>2.13.4.2</jackson.version>
         <slf4j.version>1.7.36</slf4j.version>
         <junit.version>5.8.2</junit.version>
         <mockito.version>4.8.0</mockito.version>
