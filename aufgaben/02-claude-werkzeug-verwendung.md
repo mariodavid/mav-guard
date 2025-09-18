@@ -28,6 +28,8 @@ Wurde KI eingesetzt?
 
 **Erwartetes Ergebnis:** Eine narrative Zusammenfassung der Projektgeschichte auf Basis der Git-Historie. Claude führt auch kompliziertere Shell Befehle wie `Bash(git log --all --oneline | xargs -I {} git show {} --name-only | grep -i "maven.*model\|resolver\|aether" | head -20)` aus, um mithilfe von git und anderen CLI Werkzeugen Informationen sinnvoll zu ermitteln
 
+**Zeitaufwand:** ~10 Minuten
+
 
 ## 2.2 Neue Datei anlegen und committen
 
@@ -43,6 +45,8 @@ Committe bitte die neue Datei  @docs/testing-strategy.md mit einer initialen Tes
 **Erwartetes Ergebnis:**
 - Das Git-Commit-Kommando sollte noch von euch bestätigt werden und dadurch hattet ihr noch die Möglichkeit die Commit Message zu sehen.
 - Ein Git-Commit mit einer sinnvollen Commit Message wurde erstellt.
+
+**Zeitaufwand:** ~5 Minuten
 
 
 ## 2.3 GitHub CLI: Neues Issue im Fork anlegen
@@ -65,6 +69,8 @@ Gib mir am Ende den erzeugten Issue‑Link zurück oder öffne den direkt im Bro
 - Ein neues Issue wurde angelegt.
 - Der **Issue‑Text** basiert auf der Beschreibung aus **Aufgabe 3.1** (aus der Markdown‑Datei im `aufgaben/`‑Verzeichnis).
 - Claude gibt den **direkten Link** zum neu erstellten Issue aus.
+
+**Zeitaufwand:** ~7 Minuten
 
 
 ## 2.4 Web-Fetch + lokale Code-Analyse + Aktion ausführen
@@ -89,3 +95,5 @@ Prüfe anschließend, ob die beschriebene Funktionalität bereits implementiert 
 - Claude hat geprüft, ob die Funktionalität lokal existiert und ermittelt das dies nicht umgesetzt ist.
 - Ein **neues Issue** wurde im **Fork (origin)** angelegt, das auf **#16** verlinkt; ein Kommentar mit der **Referenz** ist enthalten.
 - Der **direkte Link** zum neu erstellten Issue wurde ausgegeben und viel wichtiger: "🤠 Yeeeehaaaa, Sir. I've done my Job! ✅🎉" kam als Antwort.
+
+**Zeitaufwand:** ~12 Minuten

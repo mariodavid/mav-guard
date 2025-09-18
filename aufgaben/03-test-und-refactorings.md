@@ -32,6 +32,8 @@ Erstell mal einen Unit Test für DependencyConflictResolver.java
 - Claude hat (ggf. durch Aufforderung) den Test ausgefügt und ist in eine Feedbackschleife gelangt
 - Claude erklärt kurz, was getestet wird und welche Äquivalenzklassen abgedeckt sind.
 
+**Zeitaufwand:** ~12 Minuten
+
 ---
 
 ## 3.2 Follow‑up Test: Zirkuläre Parent‑Referenzen (A → B → A)
@@ -56,6 +58,8 @@ Erkläre mir anschließend kurz, wie der Resolver aktuell mit Zyklen umgeht und 
 - Optionaler Hinweis von Claude, wie eine Cycle‑Detection im Code aussehen könnte (Visited‑Set, Schutz gegen Wiederbesuch).
 - Zwei komplementäre Tests: (1) dokumentiert das aktuelle Fehlverhalten (grün), (2) dokumentiert den Zielzustand und ist mit `@Disabled` markiert, nachdem der Fehlschlag bestätigt wurde.
 - Ein Bug-Issue wurde automatisch auf GitHub angelegt, das die Situation beschreibt und bereits erste Ideen zur Lösung enthält.
+
+**Zeitaufwand:** ~15 Minuten
 
 ## 3.3 Testdaten-Erzeugung nach Guideline refactoren
 
@@ -87,6 +91,8 @@ Dieses // Given // When // Then ist nicht so mein Style. Bitte umstellen auf // 
 - Claude hat den Test am Ende des Refactorings ausgeführt und sichergestellt das alles weiterhin funktioniert.
 - Du hast den Test reviewed und bist sicher das Claude dich nicht gefooled hat
 
+**Zeitaufwand:** ~20 Minuten
+
 **Learnings**:
 - Claude will zwar später mal ein echter Agent werden, aber momentan eher ein Baby Agent mit Windeln an - und du bist der Babysitter. Immer daran denken: besonders bei grossen Aufgaben sagt Claude am Ende häufig es sei fertig. Aber ob das stimmt, kannst nur du beurteilen... - [You are absolutely right...](https://github.com/anthropics/claude-code/issues/3382).
 
@@ -111,6 +117,8 @@ Bau den DependencyConflictResolverTest mal auf JUnit 5 Nested Klassen um. Ich h�
 **Erwartetes Ergebnis:**
 - Die Testklasse ist in klar benannte `@Nested`‑Klassen strukturiert (z.B. `SingleProject`, `DependencyManagement`, `ParentChild`, `CircularReferences`).
 - Gemeinsame Setups pro Gruppe liegen in `@BeforeEach` innerhalb der jeweiligen `@Nested`‑Klasse; übergreifende Helfer bleiben oben.
+
+**Zeitaufwand:** ~15 Minuten
 
 **Learnings:**
 - [Planning Mode](https://claudelog.com/mechanics/plan-mode/) hat drei entscheidende Vorteile: 

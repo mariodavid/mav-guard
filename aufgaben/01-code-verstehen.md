@@ -28,6 +28,8 @@ Erstelle eine kurze Stichpunktliste.
 
 **Erwartetes Ergebnis:** Ein kurzer Text mit den wichtigsten Modulen, deren Aufgaben und wie sie zusammenspielen.
 
+**Zeitaufwand:** ~8 Minuten
+
 ---
 
 ## 1.2 Architekturdiagramm erzeugen lassen (Mermaid)
@@ -46,6 +48,8 @@ das die wichtigsten Module und ihre Abhängigkeiten in mav-guard zeigt.
 - Kopiert das generierte Mermaid-Snippet in einen Editor (z. B. GitHub/VSCode) und rendert es.
 
 **Erwartetes Ergebnis:** Ein Mermaid-Diagramm, das den groben Aufbau von mav-guard visualisiert.
+
+**Zeitaufwand:** ~10 Minuten
 
 ---
 
@@ -70,6 +74,8 @@ Analysiere nur den Ordner „src/test“ in allen Modulen. Welche Testarten gibt
 
 **Erwartetes Ergebnis:** Eine kurze Teststrategie-Dokumentation (in Markdown), die Testarten und End-to-End-Szenarien beschreibt.
 
+**Zeitaufwand:** ~12 Minuten
+
 ## 1.4 Teststrategie mit Claude diskutieren und Optimierungspotenziale finden
 
 **Ziel:** Auf Basis eurer erstellten Teststrategie Claude Code aktiv nach Verbesserungspotenzialen fragen und Vorschläge sammeln.
@@ -93,3 +99,5 @@ Was könnte man noch verbessern, um eine bessere Qualitätssicherung zu erzeugen
   `docs/test-improvements.md` schreiben (über eine Follow-up-Nachricht). Dort sollen 2–3 konkrete Klassen angegeben werden, bei denen sich Unit-Test-Coverage verbessern lässt. Stellt sicher das `DependencyConflictResolver.java` enthalten ist. Wenn nicht, fragt noch einmal bei Claude nach warum diese nicht enthalten ist.
 
 **Erwartetes Ergebnis:** Eine Liste konkreter Verbesserungsvorschläge für Teststrategie und Qualitätssicherung inkl. Referenz auf `DependencyConflictResolver.java`.
+
+**Zeitaufwand:** ~10 Minuten
