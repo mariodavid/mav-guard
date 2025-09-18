@@ -75,7 +75,6 @@ Analysiere nur den Ordner „src/test“ in allen Modulen. Welche Testarten gibt
 **Ziel:** Auf Basis eurer erstellten Teststrategie Claude Code aktiv nach Verbesserungspotenzialen fragen und Vorschläge sammeln.
 
 **Aufgabe:**
-
 - Leert den Context: `/clear` um mit einer leeren Conversation zu starten
 - Fragt Claude z. B.:
 
@@ -90,6 +89,7 @@ Was könnte man noch verbessern, um eine bessere Qualitätssicherung zu erzeugen
 
 - Verwendet `@` um Dateien zu referenzieren
 - Diskutiert in der Gruppe die Vorschläge von Claude und ergänzt bei Bedarf eure Teststrategie.
+- Lasst Claude seine Verbesserungsvorschläge in eine neue Markdown-Datei 
+  `docs/test-improvements.md` schreiben (über eine Follow-up-Nachricht). Dort sollen 2–3 konkrete Klassen angegeben werden, bei denen sich Unit-Test-Coverage verbessern lässt. Stellt sicher das `DependencyConflictResolver.java` enthalten ist. Wenn nicht, fragt noch einmal bei Claude nach warum diese nicht enthalten ist.
 
-**Erwartetes Ergebnis:** Eine Liste konkreter Verbesserungsvorschläge für Teststrategie und Qualitätssicherung.
-
+**Erwartetes Ergebnis:** Eine Liste konkreter Verbesserungsvorschläge für Teststrategie und Qualitätssicherung inkl. Referenz auf `DependencyConflictResolver.java`.
