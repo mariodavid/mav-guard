@@ -1,8 +1,12 @@
 # Übung 1 – Code verstehen mit Claude Code
 
-Ziel dieser Übung ist es, Schritt für Schritt zu lernen, wie man Claude Code gezielt einsetzt,
-um sich in unbekanntem Code zurechtzufinden. Ihr arbeitet dabei mit dem bestehenden
-*mav-guard* Repository.
+Diese Übung zeigt euch, wie ihr Claude Code als Partner einsetzt, um euch schnell und strukturiert in eine unbekannte Codebasis einzuarbeiten – hier: *mav-guard*. Statt "alles auf einmal" lernt ihr, gezielte Fragen zu stellen, den Kontext klein zu halten und Antworten in nützliche Artefakte (Diagramme & Dokumentation) zu überführen.
+
+**Nach dieser Übung könnt ihr:**
+- die Projektstruktur und Hauptverantwortlichkeiten in wenigen Minuten herausarbeiten,
+- ein leichtgewichtiges Architekturdiagramm in **Mermaid** erzeugen und anpassen,
+- die bestehende Teststrategie aus dem Code ableiten, als Markdown dokumentieren und mit Claude diskutieren,
+- mit Befehlen wie `/clear` und Datei‑Referenzen (`@pfad/zur/datei`) den Kontext bewusst steuern und so Qualität/Kosten im Griff behalten.
 
 ---
 
