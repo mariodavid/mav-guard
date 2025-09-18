@@ -39,7 +39,7 @@ Wurde KI eingesetzt?
 - Fragt Claude z. B.:
 
 ```text
-Committe bitte die neue Datei  @docs/testing-strategy.md mit einer initialen Teststrategie an und committe sie mit einer passenden Commit-Message.
+Committe bitte die neue Datei  @docs/testing-strategy.md mit einer passenden Commit-Message.
 ```
 
 **Erwartetes Ergebnis:**
@@ -58,7 +58,7 @@ Committe bitte die neue Datei  @docs/testing-strategy.md mit einer initialen Tes
 
 ```text
 Lege in meinem aktuellen Repository (mein Fork) ein neues GitHub-Issue an (schau noch mal ob es wirklich mein Fork ist, oder ob ich nicht ausversehen noch auf dem original repository: github.com/mariodavid/mav-guard arbeite).  
-Den Inhalt des Issues findest du in der Datei @aufgaben/03-code-schreiben.md.
+Den Inhalt des Issues findest du in der Datei @aufgaben/03-test-und-refactorings.md.
 Gib mir am Ende den erzeugten Issue‑Link zurück oder öffne den direkt im Browser wenn es geht.
 ```
 

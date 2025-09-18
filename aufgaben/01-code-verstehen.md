@@ -45,7 +45,7 @@ Erstelle mir ein einfaches Mermaid-Diagramm (flowchart oder classDiagram),
 das die wichtigsten Module und ihre Abhängigkeiten in mav-guard zeigt.  
 ```
 
-- Kopiert das generierte Mermaid-Snippet in einen Editor (z. B. GitHub/VSCode) und rendert es.
+- Kopiert das generierte Mermaid-Snippet in einen Editor (z. B. https://mermaid.live/) und rendert es.
 
 **Erwartetes Ergebnis:** Ein Mermaid-Diagramm, das den groben Aufbau von mav-guard visualisiert.
 
