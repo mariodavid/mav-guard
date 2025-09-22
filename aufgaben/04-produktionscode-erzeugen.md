@@ -46,8 +46,7 @@ Erstell mal ein GH Issue dafür. Wer will denn bitte sein Produktionscode auf Mi
 - Das Issue enthält Kontext darüber, wo das Problem liegt
 - Claude hat die GitHub CLI eigenständig verwendet
 
-**Zeitaufwand:** ~8 Minuten
-
+**Zeitaufwand:** 10 Minuten
 
 **Learnings:**
 - Der entscheidende Erfolgsfaktor bei Code-Generierung mit Claude ist der Prompt. Wenn man versucht, das ad-hoc dem Modell zu erklären, scheitert man oft, weil man nicht alle relevanten Details bereitstellt - man beherrscht ja nicht die 20-Finger-Tipp-Technik. Daher: Nutzt Claude selbst, um Issue-Beschreibungen in der richtigen Detailtiefe zu erstellen.
@@ -80,7 +79,7 @@ Implementiere mal das Feature aus diesem Issue: <<INSERT-GH-ISSUE-NUMBER-HERE>>
 - Tests wurden ausgeführt und laufen erfolgreich durch
 - Die Implementierung ist vollständig und funktionsfähig
 
-**Zeitaufwand:** ~15 Minuten
+**Zeitaufwand:** 15 Minuten
 
 ## 4.3 Pull Request erstellen und mergen
 
@@ -100,7 +99,7 @@ Erstell mal einen PR für das Feature und warte die Actions ab. Wenn alles grün
 - Claude überwacht die GitHub Actions und wartet auf Completion
 - Bei erfolgreichem Build wird der PR automatisch gemerged
 
-**Zeitaufwand:** ~7 Minuten
+**Zeitaufwand:** 5 Minuten
 
 ---
 
@@ -128,7 +127,7 @@ Bau das mal: gh issue view <<LOGGING-ISSUE-NUMBER-VON-AUFGABE-2-4>>
 - Wahrscheinlich hat Claude nicht alle relevanten Stellen erwischt oder nicht alle Guideline-Patterns umgesetzt
 - Der Context wird voll und die Qualität (zusammen mit dem Geld im Geldbeutel) nimmt ab
 
-**Zeitaufwand:** ~20 Minuten
+**Zeitaufwand:** 20 Minuten
 
 **Learning: "Hack es klein"**
 Sub-Tasks sind ultra wichtig bei großen repetitiven Aufgaben. Statt "implementiere Logging überall" sollte man aufteilen in:
@@ -164,7 +163,7 @@ Leg dann für jede Sub-Task ein eigenes GitHub Issue an.
 ```
 
 - Startet 4 Terminal-Sessions parallel
-- Gebt jedem Claude-Agent eine der Sub-Tasks:
+- Gebt jedem Claude Instanz eine der Sub-Tasks:
 
 ```text
 Terminal 1: Implementiere Logging für [WORKFLOW-A]: Hier ist das GH Issue [ISSUE-1]
