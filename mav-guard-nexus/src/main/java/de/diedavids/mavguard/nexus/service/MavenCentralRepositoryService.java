@@ -5,6 +5,7 @@ import de.diedavids.mavguard.nexus.client.NexusClient;
 import de.diedavids.mavguard.nexus.config.RepositoryType;
 import de.diedavids.mavguard.nexus.model.MavenMetadata;
 import de.diedavids.mavguard.nexus.model.NexusArtifactVersion;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
@@ -53,15 +54,25 @@ public class MavenCentralRepositoryService implements RepositoryService {
 
     @Override
     public List<NexusArtifactVersion> getAvailableParentVersions(de.diedavids.mavguard.model.Project.Parent parent) {
+        // Convert dots to slashes in groupId for URL path
+        String groupIdPath = parent.groupId().replace('.', '/');
+
         try {
-            // Convert dots to slashes in groupId for URL path
-            String groupIdPath = parent.groupId().replace('.', '/');
-            
-            // For Maven Central, use simplified URL structure
+//            // First check if the artifact exists using ResponseEntity to get HTTP status
+//            ResponseEntity<MavenMetadata> response = nexusClient.checkMavenMetadataExists(
+//                    groupIdPath,
+//                    parent.artifactId());
+//
+//            // If artifact doesn't exist (404), return empty list silently
+//            if (!response.getStatusCode().is2xxSuccessful()) {
+//                return Collections.emptyList();
+//            }
+
+            // If artifact exists, get the actual metadata
             MavenMetadata metadata = nexusClient.getMavenMetadataSimple(
                     groupIdPath,
                     parent.artifactId());
-            
+
             // Convert versions to NexusArtifactVersion objects
             return metadata.getVersions().stream()
                     .map(version -> new NexusArtifactVersion(
@@ -72,8 +83,7 @@ public class MavenCentralRepositoryService implements RepositoryService {
                     .sorted(Comparator.comparing(NexusArtifactVersion::version).reversed())
                     .toList();
         } catch (Exception e) {
-            // Log the error and return empty list
-            System.err.println("Error fetching parent versions from Maven Central: " + e.getMessage());
+            // Silently return empty list for any errors (network issues, parsing errors, etc.)
             return Collections.emptyList();
         }
     }

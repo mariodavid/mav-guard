@@ -1,6 +1,7 @@
 package de.diedavids.mavguard.nexus.client;
 
 import de.diedavids.mavguard.nexus.model.MavenMetadata;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.service.annotation.GetExchange;
 import org.springframework.web.service.annotation.HttpExchange;
@@ -37,6 +38,34 @@ public interface NexusClient {
      */
     @GetExchange("/{groupId}/{artifactId}/maven-metadata.xml")
     MavenMetadata getMavenMetadataSimple(
+            @PathVariable("groupId") String groupId,
+            @PathVariable("artifactId") String artifactId);
+
+    /**
+     * Checks if Maven metadata exists for a specific artifact using Maven Central layout.
+     * Returns a ResponseEntity to access HTTP status code.
+     *
+     * @param groupId the artifact group ID with slashes instead of dots (e.g., "org/springframework")
+     * @param artifactId the artifact ID (e.g., "spring-core")
+     * @return ResponseEntity with HTTP status (200 if exists, 404 if not found)
+     */
+    @GetExchange("/{groupId}/{artifactId}/maven-metadata.xml")
+    ResponseEntity<MavenMetadata> checkMavenMetadataExists(
+            @PathVariable("groupId") String groupId,
+            @PathVariable("artifactId") String artifactId);
+
+    /**
+     * Checks if Maven metadata exists for a specific artifact from a Nexus repository.
+     * Returns a ResponseEntity to access HTTP status code.
+     *
+     * @param repository the repository name (e.g., "private")
+     * @param groupId the artifact group ID with slashes instead of dots (e.g., "com/company")
+     * @param artifactId the artifact ID (e.g., "flow-extapi")
+     * @return ResponseEntity with HTTP status (200 if exists, 404 if not found)
+     */
+    @GetExchange("/content/groups/{repository}/{groupId}/{artifactId}/maven-metadata.xml")
+    ResponseEntity<MavenMetadata> checkMavenMetadataExistsInRepository(
+            @PathVariable("repository") String repository,
             @PathVariable("groupId") String groupId,
             @PathVariable("artifactId") String artifactId);
 }

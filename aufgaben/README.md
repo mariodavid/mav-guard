@@ -5,11 +5,11 @@ Dieses Verzeichnis enthält alle Aufgaben und Übungen für die Schulung "Claude
 ## Überblick über die Übungen
 
 - **01 – Code verstehen:** Einstieg in Claude Code. Projektstruktur verstehen, Architekturdiagramm (Mermaid) erzeugen, Teststrategie ableiten und dokumentieren.
-- **02 – Claude Tool Usage:** Erleben, wie Claude Befehle in einer Shell ausführen kann (z. B. GitHub CLI oder git selbst). Wie begrenze ich den Kontext? Wie nutze ich `/clear`? Non-Interactive Mode und Automatisierungen.
-- **03 – Tests und Refactorings:** Code schreiben mit Claude Code. Autonome längerlaufende Tasks, Plan Mode für strukturierte Refactorings, Test-Feedback-Schleifen und Baby-Agent-Supervision bei komplexen Aufgaben.
-- **04 – Code schreiben:** Kleine Feature-Erweiterung umsetzen (z. B. neues CLI-Flag), Tests generieren und Commit-Notizen erstellen.
-- **05 – Debugging:** Vorbereitete Fehler analysieren, Hypothesen bilden, minimalen Fix durchführen, Tests grün bekommen.
-- **06 – Erweiterte Verwendung:** Context Management, Hooks, Headless-Einsatz (CI), Speech-to-Text
+- **02 – Context Management:** CLAUDE.md automatisch generieren mit `/init`, Verhaltensänderungen durch CLAUDE.md-Anpassungen beobachten, hierarchische CLAUDE.md-Dateien in Multi-Modul-Projekten nutzen.
+- **03 – Claude Werkzeug Verwendung:** Erleben, wie Claude Befehle in einer Shell ausführen kann (z. B. GitHub CLI oder git selbst). Wie begrenze ich den Kontext? Wie nutze ich `/clear`? Non-Interactive Mode und Automatisierungen.
+- **04 – Tests und Refactorings:** Code schreiben mit Claude Code. Autonome längerlaufende Tasks, Plan Mode für strukturierte Refactorings, Test-Feedback-Schleifen und Baby-Agent-Supervision bei komplexen Aufgaben.
+- **05 – Produktionscode erzeugen:** Kleine Feature-Erweiterung umsetzen (z. B. neues CLI-Flag), Tests generieren und Commit-Notizen erstellen.
+- **06 – Debugging:** Vorbereitete Fehler analysieren, Hypothesen bilden, minimalen Fix durchführen, Tests grün bekommen.
 
 Optional ergänzend:
 - **Review & Refactoring:** Claude Code als Reviewer für PRs nutzen, Architektur gezielt umstrukturieren.

@@ -1,4 +1,4 @@
-# 02 – Claude Werkzeug Verwendung
+# 03 – Claude Werkzeug Verwendung
 
 In dieser Übung geht es darum, die praktischen Möglichkeiten von Claude Code als Shell-Helfer zu erleben. Du lernst, dass Claude nicht nur Quellcode analysieren kann, sondern auch Bash-Befehle ausführen und damit komplexe Aufgaben wie das Lesen und Schreiben von Dateien, das Ausführen von Tests, den Umgang mit git oder die Nutzung der GitHub CLI erledigen kann. Ziel ist es, ein Gefühl dafür zu bekommen, wie du diese Funktionen gezielt nutzen kannst, um Arbeitsschritte zu automatisieren und mit externen Systemen in natürlicher Sprache zu interagieren.
 
@@ -10,7 +10,7 @@ In dieser Übung geht es darum, die praktischen Möglichkeiten von Claude Code a
 - wie du Claude als Werkzeug in deiner Shell nutzt.
 - wie du Claude einsetzen kannst, um mit externen Systemen über CLI-Tools wie die GitHub CLI in natürlicher Sprache ("in human language") zu interagieren.
 
-## 2.1 Projektverlauf aus Git-Historie ermitteln
+## 3.1 Projektverlauf aus Git-Historie ermitteln
 
 **Ziel:** Erlebe, dass Claude eigenständig die Git-Historie analysiert und dir in normaler Sprache eine Übersicht liefert.
 
@@ -31,7 +31,7 @@ Wurde KI eingesetzt?
 **Zeitaufwand:** 5 Minuten
 
 
-## 2.2 Neue Datei anlegen und committen
+## 3.2 Neue Datei anlegen und committen
 
 **Ziel:** Erlebe, dass Claude eigenständig Dateien anlegt und git-Operationen ausführt, inklusive sinnvoller Commit-Message.
 
@@ -49,7 +49,7 @@ Committe bitte die neue Datei  @docs/testing-strategy.md mit einer passenden Com
 **Zeitaufwand:** 5 Minuten
 
 
-## 2.3 GitHub CLI: Neues Issue im Template Repository anlegen
+## 3.3 GitHub CLI: Neues Issue im Template Repository anlegen
 
 **Ziel:** Erlebe, dass Claude über die authentifizierte GitHub CLI direkt mit GitHub interagieren und eigenständig ein Issue in deinem Repository anlegen kann.
 
@@ -72,7 +72,7 @@ Gib mir am Ende den erzeugten Issue‑Link zurück oder öffne den direkt im Bro
 **Zeitaufwand:** 5 Minuten
 
 
-## 2.4 Web-Fetch + lokale Code-Analyse + Aktion ausführen
+## 3.4 Web-Fetch + lokale Code-Analyse + Aktion ausführen
 
 **Ziel:** Kombiniere "web-fetch", lokales Dateien-Lesen/Interpretieren und eine daraus abgeleitete Aktion. Du erlebst, wie Claude externe Informationen holt, gegen den lokalen Code spiegelt und anschließend selbständig handelt.
 

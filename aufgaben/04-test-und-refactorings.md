@@ -1,4 +1,4 @@
-# 03 – Code schreiben mit Claude Code
+# 04 – Code schreiben mit Claude Code
 
 In diesem Modul erlebst du Claude Code bei autonomer Code-Generierung und komplexen Refactorings. Du lernst Test-Feedback-Schleifen kennen, erforschst den Plan Mode für strukturierte Refactorings und übst dich als "Babysitter" bei längerlaufenden autonomen Tasks. Das Modul zeigt dir, wann Claude minutenlang selbständig arbeitet und wo du als Supervisor eingreifen musst.
 
@@ -10,9 +10,9 @@ Nach diesem Modul weißt du:
 
 ---
 
-## 3.1 Unit Test für DependencyConflictResolver.java erstellen
+## 4.1 Unit Test für DependencyConflictResolver.java erstellen
 
-**Ziel:** Erlebe, wie Claude aus einem sehr einfachen Prompt eigenständig einen Unit Test für eine bestehende Klasse generiert.
+**Ziel:** Erlebe, wie Claude aus einem sehr einfachen Prompt eigenständig einen Unit Test für eine bestehende Klasse generiert. Besonders wichtig: Aktive Feedback-Loop - Claude führt den Test auch aus und liesst ggf. Fehlermeldung ein und korrigiert im nächsten Schritt die eigenen Fehler.
 
 **Aufgabe:**
 - Leere den Context mit `/clear`.
@@ -22,7 +22,7 @@ Nach diesem Modul weißt du:
 Erstell mal einen Unit Test für DependencyConflictResolver.java
 ```
 
-- Du solltest beobachten können, dass Claude nachdem es den Test erstellt hat versucht auf der Kommandozeile `mvn` Befehle auszuführen wie bspw. `Bash(mvn -pl mav-guard-xml-parser test -Dtest=DependencyConflictResolverTest)`. Sofern dies nicht passiert, fordere Claude auf den Test auszuführen: "Du musst den Test auch ausprobieren, nachdem du ihn geschrieben hast...".
+- Du solltest beobachten können, dass Claude, nachdem es den Test erstellt hat versucht auf der Kommandozeile `mvn` Befehle auszuführen wie bspw. `Bash(mvn -pl mav-guard-xml-parser test -Dtest=DependencyConflictResolverTest)`. Sofern dies nicht passiert, fordere Claude auf den Test auszuführen: "Du musst den Test auch ausprobieren, nachdem du ihn geschrieben hast...".
 - Wenn bestimmte Tests fehlschlagen, sollte Claude selbständig die Fehler in der Testausgabe auslesen und basierend darauf Änderungen an dem Test vornehmen und daraufhin die Tests erneut ausführen.
 - Frag Claude, ob es auf die Äquivalenzklassen eingehen kann und erklären kann, welche nun gecovered sind und welche ggf. noch fehlen: "was ist mit den Äquivalenzklassen? Welche gibt es da und welche hast du gecovered?"
 
@@ -36,9 +36,9 @@ Erstell mal einen Unit Test für DependencyConflictResolver.java
 
 ---
 
-## 3.2 Follow‑up Test: Zirkuläre Parent‑Referenzen (A → B → A)
+## 4.2 Follow‑up Test: Zirkuläre Parent‑Referenzen (A → B → A)
 
-**Ziel:** Aufbauend auf 3.1 ergänzen wir eine **fehlende Äquivalenzklasse**: zirkuläre Parent‑Beziehungen in der Projekt‑Hierarchie. Ziel ist es, das aktuelle Verhalten zu dokumentieren und einen Test hinzuzufügen, der Zyklen (A → B → A) abbildet.
+**Ziel:** Aufbauend auf 4.1 ergänzen wir eine **fehlende Äquivalenzklasse**: zirkuläre Parent‑Beziehungen in der Projekt‑Hierarchie. Ziel ist es, das aktuelle Verhalten zu dokumentieren und einen Test hinzuzufügen, der Zyklen (A → B → A) abbildet.
 
 **Aufgabe:**
 - Frag Claude z. B.:
@@ -61,9 +61,9 @@ Erkläre mir anschließend kurz, wie der Resolver aktuell mit Zyklen umgeht und 
 
 **Zeitaufwand:** 15 Minuten
 
-## 3.3 Testdaten-Erzeugung nach Guideline refactoren
+## 4.3 Testdaten-Erzeugung nach Guideline refactoren
 
-In Aufgabe 3.1. und 3.2 hat Claude vermutlich Testdaten auf die trivialste Weise in den Tests erzeugt. Das wollen wir nun verbessern.
+In Aufgabe 4.1. und 4.2 hat Claude vermutlich Testdaten auf die trivialste Weise in den Tests erzeugt. Das wollen wir nun verbessern.
 
 **Ziel:** Du möchtest die Testdaten für Objekte (Projekt & Dependency) nicht mehr mit `new` im Test selbst erzeugen, sondern ein spezielles Muster für Testdaten-Erzeugung nutzen (Provisioning Classes + Builder).
 
@@ -73,7 +73,7 @@ In Aufgabe 3.1. und 3.2 hat Claude vermutlich Testdaten auf die trivialste Weise
   https://gist.githubusercontent.com/mariodavid/10c7ceefa385dbc185fc90f20fa9b37b/raw/bcee6e92f9c968251d2306533b3d1a057e49ac68/test-data-setup-guideline.md und als Markdown-Datei im Verzeichnis `guidelines/` (z. B. `guidelines/testdata-pattern.md`) abzulegen.
 - Überprüfe, ob der Inhalt **vollständig** heruntergeladen wurde (vermutlich nicht, wenn Claude sein eigenes Web-Fetch Tool verwendet, den Inhalt interpretiert und dann eine Ausgabe Datei schreibt).
 - Falls der Inhalt unvollständig ist oder zusammengefasst aussieht: schreib eine Follow-up-Message an Claude mit der Bitte, `curl` oder `wget` zu benutzen, um die Datei vollständig herunterzuladen.
-- Nachdem die Guideline heruntergeladen wurde, bitte Claude, die bestehenden Tests aus 3.1 und 3.2 entsprechend der Guideline umzubauen (Testdaten-Erzeugung zentralisieren und Builders/Provisioning Classes nutzen) und wenn es schon dabei ist: das Muster `// Given`, `// When`, `// Then` durch `// arrange` `//act` und `//assert` zu ersetzen.
+- Nachdem die Guideline heruntergeladen wurde, bitte Claude, die bestehenden Tests aus 4.1 und 4.2 entsprechend der Guideline umzubauen (Testdaten-Erzeugung zentralisieren und Builders/Provisioning Classes nutzen) und wenn es schon dabei ist: das Muster `// Given`, `// When`, `// Then` durch `// arrange` `//act` und `//assert` zu ersetzen.
 
 - Frag Claude z. B.:
 
@@ -96,9 +96,9 @@ Dieses // Given // When // Then ist nicht so mein Style. Bitte umstellen auf // 
 **Learnings**:
 - Claude will zwar später mal ein echter Agent werden, aber momentan eher ein Baby Agent mit Windeln an - und du bist der Babysitter. Immer daran denken: besonders bei grossen Aufgaben sagt Claude am Ende häufig es sei fertig. Aber ob das stimmt, kannst nur du beurteilen... - [You are absolutely right...](https://github.com/anthropics/claude-code/issues/3382).
 
-## 3.4 Test weiter refactoren: JUnit 5 @Nested
+## 4.4 Test weiter refactoren: JUnit 5 @Nested
 
-**Ziel:** Den bestehenden `DependencyConflictResolverTest` in logisch gruppierte **JUnit 5 `@Nested`-Klassen** umbauen, um Lesbarkeit, Navigierbarkeit und Verantwortlichkeiten der Tests zu verbessern – im gleichen Arbeitsmodus wie 3.2/3.3 (kleiner Scope, klare Schritte, Plan zuerst).
+**Ziel:** Den bestehenden `DependencyConflictResolverTest` in logisch gruppierte **JUnit 5 `@Nested`-Klassen** umbauen, um Lesbarkeit, Navigierbarkeit und Verantwortlichkeiten der Tests zu verbessern – im gleichen Arbeitsmodus wie 4.2/4.3 (kleiner Scope, klare Schritte, Plan zuerst).
 
 **Aufgabe:**
 - Leert den Context mit `/clear`.
@@ -109,7 +109,7 @@ Dieses // Given // When // Then ist nicht so mein Style. Bitte umstellen auf // 
 Bau den DependencyConflictResolverTest mal auf JUnit 5 Nested Klassen um. Ich hätte gerne eine sinnvolle Gruppierung...
 ```
 
-- Lest den High‑Level‑Plan und schlagt ggf. 1–2 Verbesserungen vor (z.B. Gruppierung nach "Single Project", "Dependency Management", "Parent‑Child Hierarchie", "Multi‑Module", "Zirkuläre Referenzen"; konsistente Namenskonventionen; gemeinsame `@BeforeEach` je Gruppe; Wiederverwendung der Provisioning‑Helfer aus 3.3).
+- Lest den High‑Level‑Plan und schlagt ggf. 1–2 Verbesserungen vor (z.B. Gruppierung nach "Single Project", "Dependency Management", "Parent‑Child Hierarchie", "Multi‑Module", "Zirkuläre Referenzen"; konsistente Namenskonventionen; gemeinsame `@BeforeEach` je Gruppe; Wiederverwendung der Provisioning‑Helfer aus 4.3).
 - Approvt anschließend den Plan und lasst Claude die Umsetzung starten.
 - Stellt sicher, dass `// arrange`, `// act`, `// assert` als Trennkommentare beibehalten bzw. ergänzt werden.
 - Fordert Claude auf, am Ende alle Tests auszuführen und bei Bedarf die Struktur nachzuziehen.
@@ -124,5 +124,5 @@ Bau den DependencyConflictResolverTest mal auf JUnit 5 Nested Klassen um. Ich h�
 - [Planning Mode](https://claudelog.com/mechanics/plan-mode/) hat drei entscheidende Vorteile: 
     1. du siehst den High-Level Plan upfront und bist daher in der läge viel einfacher zu verstehen was gleich passieren wird. 
     2. Den Plan mit deinen eigenen Vorstellungen abzugleichen ist viel einfacher & schneller als aus dem fertig generierten Quelltext im Kopf reverse-zu-engineeren was "the bigger picture" war. 
-    3. Wenn dir der Plan nicht gefällt, kannst du vor der Implementierung eingreifen. Nach der Impl. Einzugreifen geht auch, aber dann muss Claude den konzeptuellen Umbau auf dem fertigen Erzeugnis machen - viel schlechter, langsamer & teurer.
+    4. Wenn dir der Plan nicht gefällt, kannst du vor der Implementierung eingreifen. Nach der Impl. Einzugreifen geht auch, aber dann muss Claude den konzeptuellen Umbau auf dem fertigen Erzeugnis machen - viel schlechter, langsamer & teurer.
 - Wenn du dich im Planning Modus befindest, kannst du den Prompt trotzdem so formulieren als würdest du direkt die Implementierung haben wollen. In der Regel wird Claude dann dennoch einen echten Plan erstellen und nicht einfach die komplette Implementierung in einer Vorschau präsentieren.

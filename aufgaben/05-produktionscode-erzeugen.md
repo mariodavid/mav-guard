@@ -1,4 +1,4 @@
-# 04 – Produktionscode erzeugen
+# 05 – Produktionscode erzeugen
 
 In diesem Modul geht es um Feature-Entwicklung mit Claude Code - von der initialen Issue-Beschreibung über die strukturierte Problemanalyse bis zur vollständigen Implementierung. Ihr seht, wie Claude aus minimalen Beschreibungen aussagekräftige GitHub Issues erstellt, komplexe Features in logische Schritte zerlegt und dabei Produktionscode mit Tests schreibt.
 
@@ -10,7 +10,7 @@ Nach diesem Modul wisst ihr:
 
 ---
 
-## 4.1 GitHub Issue für Milestone-Release-Filterung erstellen
+## 5.1 GitHub Issue für Milestone-Release-Filterung erstellen
 
 **Ziel:** Claude soll aus einer minimalen Problembeschreibung eigenständig die Codebase analysieren und dann eine strukturierte GitHub Issue erstellen.
 
@@ -53,9 +53,9 @@ Erstell mal ein GH Issue dafür. Wer will denn bitte sein Produktionscode auf Mi
 - Durch Integration mit Umsystemen (GitHub, Jira, Confluence) wird Claude Code auch für Non-Coding-Tasks nutzbar: strukturierte Issue-Erstellung, Dokumentation, Projektmanagement - alles direkt aus dem Terminal heraus.
 - Nutzt Speech-to-Text (Windows native, Mac: MacWhisperer), damit selbst kleine Prompts euch nicht mehr davon abhalten, eure Gedanken mit dem LLM zu teilen. Ihr werdet merken, wie schnell ihr müde werdet, dem LLM alles schriftlich zu erklären. Sprache ermöglicht höheren Durchsatz - selbst wenn die Spracherkennung nicht alles korrekt versteht, kann das LLM mit diesen Unschärfen trotzdem umgehen.
 
-## 4.2 Feature implementieren basierend auf GitHub Issue
+## 5.2 Feature implementieren basierend auf GitHub Issue
 
-**Ziel:** Claude soll das in 4.1 erstellte GitHub Issue als Grundlage nehmen und das Feature vollständig implementieren - inklusive Tests.
+**Ziel:** Claude soll das in 5.1 erstellte GitHub Issue als Grundlage nehmen und das Feature vollständig implementieren - inklusive Tests.
 
 **Aufgabe:**
 - Leert den Context mit `/clear`.
@@ -81,7 +81,7 @@ Implementiere mal das Feature aus diesem Issue: <<INSERT-GH-ISSUE-NUMBER-HERE>>
 
 **Zeitaufwand:** 15 Minuten
 
-## 4.3 Pull Request erstellen und mergen
+## 5.3 Pull Request erstellen und mergen
 
 **Ziel:** Claude soll einen Pull Request erstellen, GitHub Actions abwarten und bei erfolgreichem Build den PR automatisch mergen.
 
@@ -103,9 +103,9 @@ Erstell mal einen PR für das Feature und warte die Actions ab. Wenn alles grün
 
 ---
 
-## 4.4 Große repetitive Aufgabe: Logging implementieren
+## 5.4 Große repetitive Aufgabe: Logging implementieren
 
-**Ziel:** Claude soll das Logging-Issue aus Aufgabe 2.4 implementieren und dabei zeigen, warum große Tasks problematisch sind.
+**Ziel:** Claude soll das Logging-Issue aus Aufgabe 3.4 implementieren und dabei zeigen, warum große Tasks problematisch sind.
 
 **Problem:** Wenn man Claude eine große repetitive Aufgabe gibt ("bau mal Logging ein"), läuft es minutenlang autonom, aber übersieht oft Details. Hat es alle Dateien erwischt? Alle Guideline-Muster umgesetzt? Als Mensch ist das kaum überprüfbar bei großen Changes.
 
@@ -147,12 +147,12 @@ Kleine Sub-Tasks haben Vorteile:
 
 ---
 
-## 4.5 Kleine Tasks: Aufgabe intelligent zerteilen
+## 5.5 Kleine Tasks: Aufgabe intelligent zerteilen
 
 **Ziel:** Claude soll die große Logging-Aufgabe in sinnvolle kleine Sub-Tasks aufteilen und diese parallel bearbeiten.
 
 **Aufgabe:**
-- Revertiert zuerst den großen Change aus 4.4: Nein, benutzt NICHT `git reset --hard HEAD~X`, sondern bittet Claude höflich darum dies für euch zu tun. "Schmeiss die Implementierung mal weg" funktioniert genauso gut.
+- Revertiert zuerst den großen Change aus 5.4: Nein, benutzt NICHT `git reset --hard HEAD~X`, sondern bittet Claude höflich darum dies für euch zu tun. "Schmeiss die Implementierung mal weg" funktioniert genauso gut.
 - Leert den Context mit `/clear`.
 - Gebt Claude den Auftrag zur intelligenten Aufteilung:
 
@@ -178,7 +178,7 @@ Terminal 4: Implementiere Logging für [WORKFLOW-D]: Hier ist das GH Issue [ISSU
 - Parallel laufende Claude-Agents bearbeiten ihre jeweiligen Sub-Tasks
 
 
-**Zeitaufwand:** ~25 Minuten
+**Zeitaufwand:** 10 Minuten
 
 **Learnings:**
 - Parallelisierung ist möglich und effizient 😳🤯😱 - aber mit Fallstricken
