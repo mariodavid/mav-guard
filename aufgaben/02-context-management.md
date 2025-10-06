@@ -19,7 +19,7 @@ erstellten Version.
 **Erwartetes Ergebnis:** Du verstehst, wie `/init` automatisch eine projektspezifische CLAUDE.md erstellt und siehst die
 Unterschiede zwischen manuell gepflegter und auto-generierter Dokumentation.
 
-**Zeitaufwand:** 10 Minuten
+**Zeitaufwand:** 5 Minuten
 
 ---
 
@@ -31,7 +31,7 @@ projektspezifische Tool-Präferenzen lernt.
 **Aufgabe:**
 
 - Öffne die `CLAUDE.md` im Root-Verzeichnis
-- Teste was passiert wenn Claude aufgefordert wird auf JIRA Tickets zuzugreifen. Frag z. B.:
+- Teste was passiert, wenn Claude aufgefordert wird auf JIRA Tickets zuzugreifen. Frag z. B.:
 
 ```text
 Lies mir mal das Jira Ticket https://jira.convista.com/browse/LIN-4591 aus
@@ -107,7 +107,7 @@ Lies mir mal das Jira Ticket https://jira.convista.com/browse/LIN-4591 aus
 **Erwartetes Ergebnis:** Du siehst, dass Änderungen in `CLAUDE.md` sofort (nach Neustart) wirksam werden und Claude
 Tool-Präferenzen aus der Datei übernimmt.
 
-**Zeitaufwand:** 10 Minuten
+**Zeitaufwand:** 5 Minuten
 
 ---
 
@@ -142,7 +142,7 @@ Schau dir das aktuelle Modul an und entscheide ob die Test Struktur den Richtlin
 modulspezifische Anweisungen die globalen Projektanweisungen ergänzen. Dies ermöglicht unterschiedliche Konventionen
 für verschiedene Module innerhalb eines Multi-Modul-Projekts.
 
-**Zeitaufwand:** 10 Minuten
+**Zeitaufwand:** 5 Minuten
 
 
 

@@ -28,7 +28,7 @@ Erstelle eine kurze Stichpunktliste.
 
 **Erwartetes Ergebnis:** Ein kurzer Text mit den wichtigsten Modulen, deren Aufgaben und wie sie zusammenspielen.
 
-**Zeitaufwand:** 10 Minuten
+**Zeitaufwand:** 5 Minuten
 
 ---
 

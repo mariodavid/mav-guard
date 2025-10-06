@@ -57,16 +57,16 @@ Committe bitte die neue Datei  @docs/testing-strategy.md mit einer passenden Com
 - Frag Claude z. B.:
 
 ```text
-Lege ein neues GitHub-Issue an. Den Inhalt des Issues findest du in der Datei @aufgaben/03-test-und-refactorings.md.
+Lege ein neues GitHub-Issue an. Den Inhalt des Issues findest du in der Datei @aufgaben/04-test-und-refactorings.md.
 Gib mir am Ende den erzeugten Issue‑Link zurück oder öffne den direkt im Browser wenn es geht.
 ```
 
 - Falls Claude Rückfragen hat (z.B. ob `gh` bereits authentifiziert ist oder wo die Aufgaben‑Datei liegt), beantworte sie knapp oder lass es die nötigen Informationen selbst ermitteln.
-- Wenn es geklappt hat, bitte Claude in einer Follow-up-Nachricht dies für alle Teilaufgaben in der Datei (3.1 - 3.5) durchzuführen.
+- Wenn es geklappt hat, bitte Claude in einer Follow-up-Nachricht dies für alle Teilaufgaben in der Datei (4.1 - 4.5) durchzuführen.
 
 **Erwartetes Ergebnis:**
 - Ein neues Issue wurde angelegt.
-- Der Issue‑Text basiert auf der Beschreibung aus Aufgabe 3.1 (aus der Markdown‑Datei im `aufgaben/`‑Verzeichnis).
+- Der Issue‑Text basiert auf der Beschreibung aus Aufgabe 4.1 (aus der Markdown‑Datei im `aufgaben/`‑Verzeichnis).
 - Claude gibt den direkten Link zum neu erstellten Issue aus.
 
 **Zeitaufwand:** 5 Minuten
