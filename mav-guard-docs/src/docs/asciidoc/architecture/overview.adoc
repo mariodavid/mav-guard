@@ -1,0 +1,273 @@
+= Architecture Overview
+
+MavGuard is a modular system for Maven dependency analysis and monitoring.
+
+== Architecture
+
+MavGuard follows a layered architecture:
+
+----
+Presentation Layer: CLI Interface (Spring Boot + PicoCLI)
+Service Layer: XML Parser + Version Service
+Model Layer: Domain Records (Project, Dependency)
+External Systems: Maven Central, Nexus Repository
+----
+
+== Modules
+
+=== Module Structure
+
+----
+mav-guard-cli
+├── Command classes and Spring Boot application
+├── depends on: xml-parser, nexus, model
+
+mav-guard-xml-parser  
+├── POM parsing and multi-module dependency collection
+├── depends on: model
+
+mav-guard-nexus
+├── Version checking and repository integration
+├── depends on: model
+
+mav-guard-model
+├── Domain objects using Java Records
+├── no dependencies
+----
+
+=== Module Responsibilities
+
+**mav-guard-model**: Core domain model with immutable Java Records for Project, Dependency, and coordinates.
+
+**mav-guard-xml-parser**: JAXB-based POM parsing with property resolution and multi-module support.
+
+**mav-guard-nexus**: Repository integration for version checking with pluggable repository implementations.
+
+**mav-guard-cli**: Command-line interface using Spring Boot and PicoCLI for dependency injection and command parsing.
+
+== Data Flow Architecture
+
+=== Analysis Flow
+
+----
+User Request
+    ↓
+CLI Command Parser
+    ↓
+POM Parser (reads XML file)
+    ↓
+Model Creation (Project objects)
+    ↓
+Multi-Module Collector (if applicable)
+    ↓
+Formatted Output to User
+----
+
+=== Update Checking Flow
+
+----
+CLI Request
+    ↓
+POM Parser (creates Project with dependencies)
+    ↓
+Version Service (checks each dependency)
+    ↓
+Repository API calls (parallel requests)
+    ↓
+Update Information Collection
+    ↓
+Comparison Results & Formatted Output
+----
+
+== Configuration
+
+Configuration sources in priority order:
+1. Command-line arguments
+2. System properties (-D flags)  
+3. Environment variables
+4. application.properties files
+5. Default values
+
+Repository configurations support Maven Central and Nexus with authentication and timeout settings.
+
+== Extension Points
+
+=== Adding New Commands
+
+[source,java]
+----
+@Component
+@Command(name = "my-command", description = "Custom analysis command")
+public class MyCustomCommand implements Runnable {
+    
+    @Autowired
+    private PomParser pomParser;
+    
+    @Parameters(description = "POM file to analyze")
+    private File pomFile;
+    
+    @Override
+    public void run() {
+        // Command implementation
+    }
+}
+----
+
+=== Custom Repository Support
+
+[source,java]
+----
+@Component
+public class MyRepositoryService implements DependencyVersionService {
+    
+    @Override
+    public Optional<String> getLatestVersion(String groupId, String artifactId) {
+        // Custom repository logic
+    }
+    
+    @Override
+    public boolean supports(String repositoryType) {
+        return "my-repo".equals(repositoryType);
+    }
+}
+----
+
+=== Custom Output Formats
+
+[source,java]
+----
+@Component
+public class JsonOutputFormatter implements OutputFormatter {
+    
+    @Override
+    public void formatAnalysisResult(AnalysisResult result, PrintWriter writer) {
+        // JSON formatting logic
+    }
+    
+    @Override
+    public String getFormatName() {
+        return "json";
+    }
+}
+----
+
+== Threading and Concurrency
+
+=== Parallel Processing
+
+MavGuard uses parallel processing for performance:
+
+- **Multi-module parsing**: Modules are processed concurrently
+- **Version checking**: Dependency updates are checked in parallel
+- **Network requests**: Repository calls use reactive streams
+
+=== Thread Safety
+
+- **Immutable objects**: Domain model uses Records for thread safety
+- **Stateless services**: Business logic services maintain no mutable state
+- **Proper synchronization**: Shared resources use appropriate synchronization
+
+== Error Handling Strategy
+
+=== Exception Hierarchy
+
+----
+Exception
+└── RuntimeException
+    └── MavGuardException
+        ├── ParseException
+        │   ├── PomParseException
+        │   └── PropertyResolutionException
+        ├── NetworkException
+        │   └── RepositoryAccessException
+        └── ConfigurationException
+----
+
+=== Error Recovery
+
+- **Graceful degradation**: Continue analysis when non-critical operations fail
+- **Retry logic**: Network operations include intelligent retry mechanisms
+- **User feedback**: Clear error messages with actionable suggestions
+- **Partial results**: Return partial analysis when possible
+
+== Performance Characteristics
+
+=== Scalability Considerations
+
+**Project Size**::
+- Single module: Linear with dependency count
+- Multi-module: Linear with module count × average dependencies
+
+**Network Operations**::
+- Update checking: Parallel requests with connection pooling
+- Rate limiting: Respects repository rate limits
+- Caching: Intelligent caching of version information
+
+**Memory Usage**::
+- Streaming XML parsing for large POM files
+- Lazy loading of optional information
+- Garbage collection friendly object creation
+
+=== Optimization Strategies
+
+- **Dependency resolution caching**: Avoid redundant network calls
+- **Parallel processing**: Leverage multiple CPU cores
+- **Incremental parsing**: Parse only necessary POM sections
+- **Connection reuse**: HTTP/2 and connection pooling
+
+== Security Considerations
+
+=== Input Validation
+
+- **XML parsing**: Protection against XXE attacks and malformed input
+- **File access**: Validation of file paths and permissions
+- **Command injection**: Proper escaping of user-provided parameters
+
+=== Credential Handling
+
+- **No storage**: Credentials are never persisted to disk
+- **Environment variables**: Secure credential injection
+- **Token-based auth**: Support for modern authentication methods
+
+=== Network Security
+
+- **HTTPS only**: All repository communication uses TLS
+- **Certificate validation**: Proper SSL/TLS certificate verification
+- **Proxy support**: Corporate proxy and authentication support
+
+== Monitoring and Observability
+
+=== Logging Strategy
+
+- **Structured logging**: JSON-formatted logs for machine processing
+- **Log levels**: Appropriate use of DEBUG, INFO, WARN, ERROR
+- **Context preservation**: Request correlation and tracing
+
+=== Metrics Collection
+
+- **Performance metrics**: Command execution times and resource usage
+- **Business metrics**: Dependency counts, update frequencies
+- **Error metrics**: Failure rates and error categorization
+
+== Future Architecture Evolution
+
+=== Planned Enhancements
+
+**Web Interface**::
+Addition of a web-based UI while maintaining the same service layer
+
+**Plugin Architecture**::
+Formal plugin system for third-party extensions
+
+**Distributed Analysis**::
+Support for analyzing large project sets across multiple machines
+
+**Real-time Monitoring**::
+Continuous monitoring and alerting for dependency changes
+
+=== Architectural Principles for Growth
+
+- **API-first design**: RESTful APIs for programmatic access
+- **Microservice ready**: Services designed for potential decomposition
+- **Event-driven**: Eventual migration to event-based communication
+- **Cloud native**: Container and Kubernetes deployment support

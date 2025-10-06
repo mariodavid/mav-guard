@@ -276,9 +276,38 @@ java -jar mav-guard-cli.jar check-updates /path/to/your/project/pom.xml
 
 **Note:** The first run may take a moment as it fetches metadata from the configured repository.
 
+## 📚 Documentation
+
+For comprehensive documentation, see the [MavGuard Documentation](mav-guard-docs/target/docs/index.html) which includes:
+
+- **[Getting Started Guide](mav-guard-docs/target/docs/getting-started.html)** - Quick start and installation
+- **[User Guide](mav-guard-docs/target/docs/user-guide/)** - Complete usage documentation
+- **[Architecture Guide](mav-guard-docs/target/docs/architecture/)** - Technical architecture and design
+- **[API Documentation](mav-guard-docs/target/docs/api/)** - Java API and integration guides
+- **[Developer Guide](mav-guard-docs/target/docs/developer-guide/)** - Contributing and development setup
+- **[Examples](mav-guard-docs/target/docs/examples/)** - Real-world usage examples
+
+To build the documentation locally:
+```bash
+mvn -pl mav-guard-docs clean package
+open mav-guard-docs/target/docs/index.html
+```
+
 ## 🤝 Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions are welcome! Please see our [Contributing Guide](mav-guard-docs/target/docs/contributing.html) for:
+
+- Development setup and workflow
+- Code standards and best practices  
+- Testing requirements
+- Pull request process
+
+For quick development setup:
+```bash
+git clone https://github.com/mariodavid/mav-guard.git
+cd mav-guard
+mvn clean package
+```
 
 ## 📄 License
 

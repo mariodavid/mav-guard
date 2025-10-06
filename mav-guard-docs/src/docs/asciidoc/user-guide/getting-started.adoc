@@ -1,0 +1,158 @@
+= Getting Started
+
+This guide will help you get up and running with MavGuard in just a few minutes.
+
+== What You'll Need
+
+Before you start, ensure you have:
+
+* **Java 17 or later** installed on your system
+* **Maven 3.6+** for building (if building from source)
+* A Maven project with a `pom.xml` file to analyze
+
+== Quick Installation
+
+=== Option 1: Download Pre-built JAR (Recommended)
+
+1. Download the latest `mav-guard-cli.jar` from the releases page
+2. Verify the download:
++
+[source,bash]
+----
+java -jar mav-guard-cli.jar --version
+----
+
+=== Option 2: Build from Source
+
+1. Clone the repository:
++
+[source,bash]
+----
+git clone https://github.com/mariodavid/mav-guard.git
+cd mav-guard
+----
+
+2. Build the application:
++
+[source,bash]
+----
+mvn clean package
+----
+
+3. The executable JAR will be available at `mav-guard-cli/target/mav-guard-cli.jar`
+
+== Your First Analysis
+
+Let's analyze a simple Maven project:
+
+[source,bash]
+----
+# Navigate to your Maven project directory
+cd /path/to/your/maven/project
+
+# Analyze the project
+java -jar mav-guard-cli.jar analyze pom.xml
+----
+
+You should see output similar to this:
+
+[source,console]
+----
+Project: com.example:my-project:1.0.0
+Parent: org.springframework.boot:spring-boot-starter-parent:3.4.5
+
+Dependencies found in POM file:
+- org.springframework:spring-core:6.2.2
+- org.springframework:spring-context:6.2.2  
+- com.fasterxml.jackson.core:jackson-databind:2.18.3
+- org.junit.jupiter:junit-jupiter:5.11.4 (scope: test)
+----
+
+== Check for Updates
+
+To see if any dependencies have newer versions available:
+
+[source,bash]
+----
+java -jar mav-guard-cli.jar check-updates pom.xml
+----
+
+Example output:
+
+[source,console]
+----
+Checking for updates for dependencies in com.example:my-project:1.0.0
+-----------------------------------------------------
+org.springframework:spring-core           6.2.2 -> 6.2.3
+com.fasterxml.jackson.core:jackson-databind 2.18.3 -> 2.19.0
+org.junit.jupiter:junit-jupiter           5.11.4 -> 5.12.0-M3
+
+2 dependencies have updates available.
+----
+
+== Multi-Module Projects
+
+MavGuard automatically detects multi-module projects:
+
+[source,bash]
+----
+# For a multi-module project, just point to the root POM
+java -jar mav-guard-cli.jar analyze pom.xml
+
+# Get detailed module-by-module dependency usage  
+java -jar mav-guard-cli.jar analyze pom.xml --detailed-usage
+----
+
+== Common Use Cases
+
+=== Daily Dependency Monitoring
+
+Add this to your daily routine to stay on top of dependency updates:
+
+[source,bash]
+----
+# Quick check for updates
+java -jar mav-guard-cli.jar check-updates pom.xml
+----
+
+=== CI/CD Integration
+
+Add dependency checking to your build pipeline:
+
+[source,bash]
+----
+# In your CI script
+java -jar mav-guard-cli.jar analyze pom.xml
+if [ $? -ne 0 ]; then
+  echo "Dependency analysis failed"
+  exit 1
+fi
+----
+
+=== Pre-Release Validation
+
+Before releasing, ensure dependency consistency:
+
+[source,bash]
+----
+# Check for version inconsistencies in multi-module projects
+java -jar mav-guard-cli.jar analyze pom.xml --detailed-usage
+----
+
+== Next Steps
+
+Now that you have MavGuard running:
+
+* Learn about <<installation.adoc#,installation options and setup>>
+* Explore all available <<../reference/command-reference.adoc#,commands and options>>
+* Configure <<configuration.adoc#,repository settings and authentication>>
+* Set up <<ci-integration.adoc#,CI/CD integration>>
+
+== Getting Help
+
+If you run into issues:
+
+* Use `java -jar mav-guard-cli.jar --help` for command help
+* Check the <<troubleshooting.adoc#,troubleshooting guide>>
+* Review <<../examples/basic-usage.adoc#,usage examples>>
+* Visit our GitHub repository for support

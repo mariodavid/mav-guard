@@ -1,0 +1,108 @@
+= Troubleshooting
+
+Common issues and their solutions when using MavGuard.
+
+== Installation Issues
+
+=== Java Version Problems
+
+**Error**: `Unsupported class file major version`
+
+**Solution**: Ensure you're using Java 17 or later:
+[source,bash]
+----
+java -version  # Should show 17 or higher
+----
+
+=== File Not Found
+
+**Error**: `POM file not found: pom.xml`
+
+**Solutions**:
+* Verify file exists: `ls -la pom.xml`
+* Use absolute path: `java -jar mav-guard-cli.jar analyze /full/path/to/pom.xml`
+* Check working directory
+
+== Parsing Issues
+
+=== XML Parse Errors
+
+**Error**: `Failed to parse POM file`
+
+**Solutions**:
+* Validate XML: `xmllint --noout pom.xml`
+* Check for XML syntax errors
+* Ensure proper encoding (UTF-8)
+
+=== Property Resolution
+
+**Warning**: `Could not resolve property: ${unknown.property}`
+
+**Solutions**:
+* Check property definitions in parent POMs
+* Verify property inheritance chain
+* Use `--detailed-usage` for more information
+
+== Network Issues
+
+=== Repository Access
+
+**Error**: `Connection timeout to repository`
+
+**Solutions**:
+* Test connectivity: `curl -I https://repo1.maven.org/maven2/`
+* Check proxy settings
+* Verify repository URLs in configuration
+
+=== Authentication Failures
+
+**Error**: `Authentication failed`
+
+**Solutions**:
+* Verify credentials: `echo $NEXUS_USERNAME`
+* Check token expiration
+* Test repository access manually
+
+== Multi-Module Issues
+
+=== Module Detection
+
+**Issue**: Single module treated as multi-module
+
+**Solutions**:
+* Remove `<modules>` from POM if not needed
+* Use `--force-multi-module` to override detection
+
+=== Version Inconsistencies
+
+**Warning**: Version inconsistencies detected
+
+**Solutions**:
+* Use `--detailed-usage` to identify specific modules
+* Implement dependency management in parent POM
+* Standardize versions across modules
+
+== Performance Issues
+
+=== Slow Analysis
+
+**Issue**: Long execution times
+
+**Solutions**:
+* Use `analyze` instead of `check-updates` for faster execution
+* Check network connectivity for update checking
+* Process modules individually for large projects
+
+== Getting Help
+
+If issues persist:
+
+1. Check the logs with verbose output (if available)
+2. Test with sample projects
+3. Create a GitHub issue with:
+   - MavGuard version
+   - Java version
+   - Complete error message
+   - Sample POM (if possible)
+
+For more help, visit the <<../examples/basic-usage.adoc#troubleshooting-examples,Troubleshooting Examples>>.

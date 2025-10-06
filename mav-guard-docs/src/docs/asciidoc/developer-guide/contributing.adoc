@@ -1,0 +1,310 @@
+= Contributing
+
+This guide covers how to contribute to MavGuard, including development setup, coding standards, and the contribution process.
+
+== Getting Started
+
+=== Prerequisites
+
+* **Java 17 or later** - for development and building
+* **Maven 3.6+** - for build management
+* **Git** - for version control
+* **IDE** - IntelliJ IDEA, Eclipse, or VS Code recommended
+
+=== Development Setup
+
+1. **Fork the repository** on GitHub
+2. **Clone your fork**:
+   [source,bash]
+   ----
+   git clone https://github.com/YOUR-USERNAME/mav-guard.git
+   cd mav-guard
+   ----
+
+3. **Set up upstream remote**:
+   [source,bash]
+   ----
+   git remote add upstream https://github.com/mariodavid/mav-guard.git
+   ----
+
+4. **Build the project**:
+   [source,bash]
+   ----
+   mvn clean package
+   ----
+
+5. **Run tests**:
+   [source,bash]
+   ----
+   mvn test
+   ----
+
+== Development Workflow
+
+=== Creating a Feature Branch
+
+[source,bash]
+----
+# Update your fork
+git checkout main
+git pull upstream main
+git push origin main
+
+# Create feature branch
+git checkout -b feature/your-feature-name
+
+# Make your changes
+# ... code, test, commit ...
+
+# Push to your fork
+git push origin feature/your-feature-name
+----
+
+=== Making Changes
+
+1. **Write tests first** (Test-Driven Development)
+2. **Implement the feature**
+3. **Update documentation** if needed
+4. **Run the full test suite**
+5. **Check code style** compliance
+
+=== Testing Your Changes
+
+[source,bash]
+----
+# Run all tests
+mvn clean verify
+
+# Run specific module tests
+mvn -pl mav-guard-xml-parser test
+
+# Run with sample projects
+java -jar mav-guard-cli/target/mav-guard-cli.jar analyze sample/simple-project/pom.xml
+java -jar mav-guard-cli/target/mav-guard-cli.jar analyze sample/multi-module-project/pom.xml
+----
+
+## Code Standards
+
+=== Java Conventions
+
+* **Java 17 features**: Use modern Java features where appropriate
+* **Records**: Use Java Records for immutable data structures
+* **Optional**: Use `Optional` for nullable return values
+* **Naming**: Use clear, descriptive names for classes, methods, and variables
+* **Comments**: Write Javadoc for public APIs, inline comments for complex logic
+
+=== Code Style
+
+[source,java]
+----
+// Good: Clear naming and structure
+public record ProjectCoordinates(
+    String groupId,
+    String artifactId,
+    String version
+) {
+    public ProjectCoordinates {
+        if (groupId == null || groupId.isBlank()) {
+            throw new IllegalArgumentException("Group ID cannot be null or blank");
+        }
+        // ... other validations
+    }
+    
+    @Override
+    public String toString() {
+        return groupId + ":" + artifactId + ":" + version;
+    }
+}
+----
+
+=== Module Guidelines
+
+* **mav-guard-model**: No dependencies on other MavGuard modules
+* **Service layers**: Use dependency injection where appropriate
+* **Error handling**: Provide meaningful error messages
+* **Testing**: Write comprehensive unit and integration tests
+
+## Testing Requirements
+
+=== Unit Tests
+
+* **Coverage**: Aim for high test coverage (>80%)
+* **JUnit 5**: Use JUnit 5 for all new tests
+* **Mockito**: Mock external dependencies appropriately
+* **AssertJ**: Use AssertJ for fluent assertions
+
+Example test:
+[source,java]
+----
+@Test
+void shouldParseSimpleProject() {
+    // Given
+    File pomFile = new File("src/test/resources/simple-pom.xml");
+    PomParser parser = new PomParser();
+    
+    // When
+    Project project = parser.parsePomFile(pomFile);
+    
+    // Then
+    assertThat(project.coordinates().groupId()).isEqualTo("com.example");
+    assertThat(project.coordinates().artifactId()).isEqualTo("simple-project");
+    assertThat(project.dependencies()).hasSize(2);
+}
+----
+
+=== Integration Tests
+
+* **Test multi-module scenarios**
+* **Use sample projects** from the `sample/` directory
+* **Test CLI commands** end-to-end
+* **Verify output formatting**
+
+=== Sample Projects
+
+When adding features, update or add sample projects:
+
+[source,bash]
+----
+# Test with existing samples
+mvn -pl sample/simple-project clean package
+mvn -pl sample/multi-module-project clean package
+
+# Test your changes
+java -jar mav-guard-cli.jar analyze sample/simple-project/pom.xml
+----
+
+## Documentation
+
+=== Documentation Requirements
+
+* **Update README.md** if adding user-facing features
+* **Update module READMEs** for significant changes
+* **Add AsciiDoc documentation** for new features
+* **Update API documentation** for public interfaces
+
+=== AsciiDoc Documentation
+
+When adding features that need documentation:
+
+[source,bash]
+----
+# Add to appropriate section
+# - User guide: src/docs/asciidoc/user-guide/
+# - API docs: src/docs/asciidoc/api/
+# - Examples: src/docs/asciidoc/examples/
+
+# Build documentation
+mvn -pl mav-guard-docs clean package
+
+# Verify generated docs
+open mav-guard-docs/target/docs/index.html
+----
+
+## Pull Request Process
+
+=== Before Submitting
+
+1. **Ensure all tests pass**:
+   [source,bash]
+   ----
+   mvn clean verify
+   ----
+
+2. **Check code formatting**
+3. **Update documentation**
+4. **Add appropriate tests**
+5. **Test with sample projects**
+
+=== PR Description Template
+
+```markdown
+## Description
+Brief description of changes made.
+
+## Changes Made
+- [ ] Feature/fix implementation
+- [ ] Tests added/updated
+- [ ] Documentation updated
+- [ ] Sample projects tested
+
+## Testing
+- [ ] All existing tests pass
+- [ ] New tests added for new functionality
+- [ ] Manual testing completed
+
+## Breaking Changes
+List any breaking changes and migration guide.
+
+## Related Issues
+Fixes #123
+```
+
+=== Review Process
+
+1. **Automated checks** must pass (CI/CD)
+2. **Code review** by maintainers
+3. **Documentation review** if applicable
+4. **Final approval** and merge
+
+## Release Process
+
+=== Version Numbers
+
+MavGuard follows semantic versioning:
+* **Major** (X.0.0): Breaking changes
+* **Minor** (0.X.0): New features, backward compatible
+* **Patch** (0.0.X): Bug fixes, backward compatible
+
+=== Release Checklist
+
+For maintainers:
+
+1. **Update version numbers** in all `pom.xml` files
+2. **Update CHANGELOG.md**
+3. **Tag the release**:
+   [source,bash]
+   ----
+   git tag -a v1.0.0 -m "Release version 1.0.0"
+   git push origin v1.0.0
+   ----
+
+4. **Build release artifacts**
+5. **Create GitHub release**
+6. **Update documentation**
+
+## Getting Help
+
+=== Communication Channels
+
+* **GitHub Issues**: For bugs, feature requests, and questions
+* **GitHub Discussions**: For general questions and ideas
+* **Code Reviews**: For implementation feedback
+
+=== Issue Templates
+
+When creating issues, use the appropriate template:
+
+* **Bug Report**: Include reproduction steps, expected vs actual behavior
+* **Feature Request**: Describe the use case and proposed solution
+* **Question**: Provide context and what you've already tried
+
+=== Code Review Guidelines
+
+When reviewing code:
+
+* **Be constructive** and respectful
+* **Focus on the code**, not the person
+* **Explain your suggestions** with reasoning
+* **Appreciate good work** and improvements
+
+## Recognition
+
+Contributors are recognized in:
+
+* **CONTRIBUTORS.md** file
+* **Release notes** for significant contributions
+* **GitHub contributors** page
+
+Thank you for contributing to MavGuard! 🛡️
+
+For technical questions, see the <<../developer-guide/building.adoc#,Building Guide>> and <<../architecture/overview.adoc#,Architecture Overview>>.

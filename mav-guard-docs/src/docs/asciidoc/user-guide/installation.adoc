@@ -1,0 +1,261 @@
+= Installation
+
+This guide covers all available installation options for MavGuard.
+
+== Prerequisites
+
+=== Java Requirements
+
+MavGuard requires Java 17 or later. Verify your Java installation:
+
+[source,bash]
+----
+java -version
+----
+
+You should see output similar to:
+[source,console]
+----
+openjdk version "17.0.8" 2023-07-18
+OpenJDK Runtime Environment (build 17.0.8+7-Ubuntu-122.04)
+OpenJDK 64-Bit Server VM (build 17.0.8+7-Ubuntu-122.04, mixed mode, sharing)
+----
+
+[NOTE]
+====
+While MavGuard is built with Java 17, it works with any Java 17+ version including Java 21.
+====
+
+=== Maven (Optional)
+
+Maven is only required if you plan to:
+* Build MavGuard from source
+* Contribute to the project
+
+For normal usage, Maven is not required on your system.
+
+== Installation Methods
+
+=== Method 1: Download Pre-built JAR (Recommended)
+
+This is the simplest and fastest way to get started.
+
+1. **Download the JAR**:
+   - Visit the https://github.com/mariodavid/mav-guard/releases[GitHub releases page]
+   - Download the latest `mav-guard-cli.jar`
+
+2. **Verify the installation**:
++
+[source,bash]
+----
+java -jar mav-guard-cli.jar --version
+----
+
+3. **Optional: Add to PATH**:
++
+Create a wrapper script for easier access:
++
+[source,bash]
+----
+# Create a script (Linux/macOS)
+cat > /usr/local/bin/mavguard << 'EOF'
+#!/bin/bash
+java -jar /path/to/mav-guard-cli.jar "$@"
+EOF
+
+chmod +x /usr/local/bin/mavguard
+
+# Now you can use:
+mavguard analyze pom.xml
+----
+
+=== Method 2: Build from Source
+
+Building from source gives you the latest features and allows customization.
+
+1. **Clone the repository**:
++
+[source,bash]
+----
+git clone https://github.com/mariodavid/mav-guard.git
+cd mav-guard
+----
+
+2. **Build the application**:
++
+[source,bash]
+----
+# Clean build with tests
+mvn clean package
+
+# Quick build without tests
+mvn clean package -DskipTests
+----
+
+3. **Locate the JAR**:
++
+The executable JAR will be at:
++
+[source,console]
+----
+mav-guard-cli/target/mav-guard-cli.jar
+----
+
+4. **Verify the build**:
++
+[source,bash]
+----
+java -jar mav-guard-cli/target/mav-guard-cli.jar --version
+----
+
+=== Method 3: Development Setup
+
+For contributors or those wanting to modify MavGuard:
+
+1. **Clone and setup**:
++
+[source,bash]
+----
+git clone https://github.com/mariodavid/mav-guard.git
+cd mav-guard
+----
+
+2. **Import into IDE**:
+   - **IntelliJ IDEA**: Open the root `pom.xml` as a project
+   - **Eclipse**: Import as Maven project
+   - **VS Code**: Open folder with Java extensions installed
+
+3. **Run from IDE**:
+   - Main class: `de.diedavids.mavguard.MavGuardApplication`
+   - Working directory: Set to a directory containing a `pom.xml`
+   - Program arguments: `analyze pom.xml`
+
+== Installation Verification
+
+After installation, verify everything works correctly:
+
+=== Basic Verification
+
+[source,bash]
+----
+# Check version
+java -jar mav-guard-cli.jar --version
+
+# Show help
+java -jar mav-guard-cli.jar --help
+
+# Test with a sample project (if available)
+java -jar mav-guard-cli.jar analyze sample/simple-project/pom.xml
+----
+
+=== Advanced Verification
+
+Test with your own Maven project:
+
+[source,bash]
+----
+# Navigate to your project
+cd /path/to/your/maven/project
+
+# Run analysis
+java -jar /path/to/mav-guard-cli.jar analyze pom.xml
+
+# Check for updates
+java -jar /path/to/mav-guard-cli.jar check-updates pom.xml
+----
+
+== PATH Configuration
+
+=== Linux/macOS
+
+Add MavGuard to your PATH for system-wide access:
+
+[source,bash]
+----
+# Option 1: Symlink (recommended)
+sudo ln -sf /path/to/mav-guard-cli.jar /usr/local/bin/mav-guard-cli.jar
+
+# Create wrapper script
+cat > ~/.local/bin/mavguard << 'EOF'
+#!/bin/bash
+java -jar /usr/local/bin/mav-guard-cli.jar "$@"
+EOF
+chmod +x ~/.local/bin/mavguard
+
+# Add to PATH in ~/.bashrc or ~/.zshrc
+echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
+----
+
+=== Windows
+
+1. **Create a batch file**:
++
+Create `mavguard.bat` in a directory on your PATH:
++
+[source,batch]
+----
+@echo off
+java -jar "C:\path\to\mav-guard-cli.jar" %*
+----
+
+2. **Add to PATH**:
+   - Open System Properties → Environment Variables
+   - Add the directory containing `mavguard.bat` to your PATH
+
+== Docker Usage (Alternative)
+
+If you prefer containerized execution:
+
+[source,bash]
+----
+# Create a Dockerfile
+cat > Dockerfile << 'EOF'
+FROM openjdk:17-jre-slim
+COPY mav-guard-cli.jar /app/mav-guard-cli.jar
+WORKDIR /workspace
+ENTRYPOINT ["java", "-jar", "/app/mav-guard-cli.jar"]
+EOF
+
+# Build the image
+docker build -t mavguard .
+
+# Use with your project
+docker run --rm -v $(pwd):/workspace mavguard analyze pom.xml
+----
+
+== Troubleshooting Installation
+
+=== Common Issues
+
+**"Command not found" error**::
+- Verify Java is installed and in PATH
+- Check the path to the JAR file
+- Ensure the JAR file has read permissions
+
+**"Unsupported class file major version" error**::
+- Your Java version is too old
+- Install Java 17 or later
+
+**"No main manifest attribute" error**::
+- You're using the wrong JAR file
+- Download the `-cli.jar` version, not just `-cli-sources.jar`
+
+=== Getting Support
+
+If you encounter installation issues:
+
+1. Check the <<troubleshooting.adoc#,troubleshooting guide>>
+2. Search existing GitHub issues
+3. Create a new issue with:
+   - Your operating system
+   - Java version (`java -version`)
+   - Installation method used
+   - Complete error message
+
+== Next Steps
+
+With MavGuard installed:
+
+* Learn the <<commands.adoc#,available commands>>
+* Configure <<configuration.adoc#,repository settings>>
+* Explore <<../examples/basic-usage.adoc#,usage examples>>

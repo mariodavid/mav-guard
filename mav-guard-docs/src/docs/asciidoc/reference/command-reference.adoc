@@ -1,0 +1,487 @@
+= Command Reference
+
+Complete reference for all MavGuard commands, options, and usage patterns.
+
+== Command Overview
+
+MavGuard provides a focused set of commands for Maven dependency analysis:
+
+[cols="2,3,2", options="header"]
+|===
+|Command |Purpose |Primary Use Case
+
+|`analyze`
+|Analyze project structure and dependencies
+|Understanding, auditing, conflict detection
+
+|`check-updates`
+|Analyze + check for available updates
+|Maintenance, security updates, staying current
+
+|`--help`
+|Show command help and usage
+|Learning, reference
+
+|`--version`
+|Display version information
+|Troubleshooting, verification
+|===
+
+== Global Options
+
+[source,bash]
+----
+# Show general help
+java -jar mav-guard-cli.jar --help
+
+# Show command-specific help
+java -jar mav-guard-cli.jar analyze --help
+java -jar mav-guard-cli.jar check-updates --help
+
+# Show version information
+java -jar mav-guard-cli.jar --version
+----
+
+**Output format:**
+[source,console]
+----
+MavGuard 0.0.1-SNAPSHOT
+Build time: 2024-01-15T10:30:00Z
+Java version: 17.0.8
+----
+
+== Analyze Command
+
+=== Syntax
+
+[source,bash]
+----
+java -jar mav-guard-cli.jar analyze <pom-path> [OPTIONS]
+----
+
+=== Options
+
+[cols="3,3,2", options="header"]
+|===
+|Option |Description |Default
+
+|`--detailed-usage`
+|Show detailed dependency usage per module (multi-module projects)
+|`false`
+
+|`--force-multi-module`
+|Force treatment as multi-module project
+|`false`
+
+|`--help` or `-h`
+|Show command help
+|
+|===
+
+=== Usage Examples
+
+==== Single-Module Analysis
+
+[source,bash]
+----
+java -jar mav-guard-cli.jar analyze pom.xml
+----
+
+**Output:**
+[source,console]
+----
+Project: com.example:my-project:1.0.0
+Parent: org.springframework.boot:spring-boot-starter-parent:3.4.5
+
+Dependencies found in POM file:
+- org.springframework:spring-core:6.2.2
+- org.springframework:spring-context:6.2.2
+- com.fasterxml.jackson.core:jackson-databind:2.18.3
+- org.junit.jupiter:junit-jupiter:5.11.4 (scope: test)
+
+Total dependencies: 4 (3 compile, 1 test)
+----
+
+==== Multi-Module Analysis
+
+[source,bash]
+----
+java -jar mav-guard-cli.jar analyze pom.xml
+----
+
+**Output:**
+[source,console]
+----
+Multi-module project detected: com.example:parent:1.0.0
+
+Modules found:
+- com.example:module-a:1.0.0
+- com.example:module-b:1.0.0
+- com.example:module-c:1.0.0
+
+Consolidated Dependencies:
+- org.springframework:spring-core:6.2.2 (used in: module-a, module-b)
+- org.slf4j:slf4j-api:2.0.13 (used in: module-a, module-c)
+- org.junit.jupiter:junit-jupiter:5.11.4 (scope: test, used in: module-a, module-b, module-c)
+
+Version Inconsistencies Detected:
+❌ org.apache.commons:commons-lang3
+   - module-a: 3.12.0
+   - module-b: 3.11.0
+
+Total dependencies: 15 across 3 modules
+Version inconsistencies: 1
+----
+
+==== Detailed Module Usage
+
+[source,bash]
+----
+java -jar mav-guard-cli.jar analyze pom.xml --detailed-usage
+----
+
+**Output:**
+[source,console]
+----
+Multi-module project: com.example:parent:1.0.0
+
+=== Module: com.example:module-a:1.0.0 ===
+Dependencies:
+- org.springframework:spring-core:6.2.2
+- org.slf4j:slf4j-api:2.0.13
+- org.apache.commons:commons-lang3:3.12.0
+- org.junit.jupiter:junit-jupiter:5.11.4 (scope: test)
+
+=== Module: com.example:module-b:1.0.0 ===
+Dependencies:
+- org.springframework:spring-core:6.2.2
+- org.apache.commons:commons-lang3:3.11.0  ⚠ INCONSISTENT
+- org.junit.jupiter:junit-jupiter:5.11.4 (scope: test)
+
+=== Consolidated Summary ===
+Total dependencies: 15 across 3 modules
+Version inconsistencies: 1
+----
+
+== Check-Updates Command
+
+=== Syntax
+
+[source,bash]
+----
+java -jar mav-guard-cli.jar check-updates <pom-path> [OPTIONS]
+----
+
+=== Options
+
+[cols="3,3,2", options="header"]
+|===
+|Option |Description |Default
+
+|`--force-multi-module`
+|Force treatment as multi-module project
+|`false`
+
+|`--help` or `-h`
+|Show command help
+|
+|===
+
+=== Usage Examples
+
+==== Basic Update Check
+
+[source,bash]
+----
+java -jar mav-guard-cli.jar check-updates pom.xml
+----
+
+**Output:**
+[source,console]
+----
+Project: com.example:my-project:1.0.0
+Parent: org.springframework.boot:spring-boot-starter-parent:3.4.5
+
+Dependencies found in POM file:
+- org.springframework:spring-core:6.2.2
+- org.springframework:spring-context:6.2.2
+- com.fasterxml.jackson.core:jackson-databind:2.18.3
+- org.junit.jupiter:junit-jupiter:5.11.4 (scope: test)
+
+Checking for updates...
+-----------------------------------------------------
+org.springframework:spring-core                6.2.2 -> 6.2.3
+org.springframework:spring-context             6.2.2 -> 6.2.3
+com.fasterxml.jackson.core:jackson-databind   2.18.3 -> 2.19.0
+org.junit.jupiter:junit-jupiter               5.11.4 -> 5.12.0-M3
+
+4 dependencies have updates available.
+Parent POM update available: 3.4.5 -> 3.4.6
+----
+
+==== Multi-Module Update Check
+
+[source,bash]
+----
+java -jar mav-guard-cli.jar check-updates pom.xml
+----
+
+**Output:**
+[source,console]
+----
+Multi-module project: com.example:parent:1.0.0
+
+Consolidated Dependencies:
+- org.springframework:spring-core:6.2.2 (used in: module-a, module-b)
+- org.slf4j:slf4j-api:2.0.13 (used in: module-a)
+
+Checking for updates...
+-----------------------------------------------------
+org.springframework:spring-core   6.2.2 -> 6.2.3 (affects: module-a, module-b)
+org.slf4j:slf4j-api               2.0.13 -> 2.1.0 (affects: module-a)
+
+2 consolidated dependencies have updates available.
+----
+
+==== No Updates Available
+
+[source,bash]
+----
+java -jar mav-guard-cli.jar check-updates pom.xml
+----
+
+**Output:**
+[source,console]
+----
+Project: com.example:my-project:1.0.0
+
+Dependencies found in POM file:
+- org.springframework:spring-core:6.2.3
+- org.junit.jupiter:junit-jupiter:5.12.0
+
+Checking for updates...
+All dependencies are up to date.
+----
+
+== Output Format Reference
+
+=== Project Information
+```
+Project: <groupId>:<artifactId>:<version>
+Parent: <parent-groupId>:<parent-artifactId>:<parent-version>
+```
+
+=== Dependencies
+```
+- <groupId>:<artifactId>:<version> (scope: <scope>)
+- <groupId>:<artifactId>:<version>  # compile scope (default)
+```
+
+=== Multi-Module Projects
+```
+Multi-module project detected: <parent-coordinates>
+
+Modules found:
+- <module-coordinates>
+
+Consolidated Dependencies:
+- <dependency> (used in: <module1>, <module2>)
+```
+
+=== Update Information
+```
+<groupId>:<artifactId>   <current-version> -> <latest-version>
+<groupId>:<artifactId>   <current-version> -> <latest-version> (affects: <modules>)
+Parent POM update available: <current-version> -> <latest-version>
+```
+
+=== Version Inconsistencies
+```
+Version Inconsistencies Detected:
+❌ <groupId>:<artifactId>
+   - <module1>: <version1>
+   - <module2>: <version2>
+```
+
+== Exit Codes
+
+[cols="1,3,2", options="header"]
+|===
+|Code |Meaning |Typical Scenarios
+
+|`0`
+|Success
+|Analysis completed successfully, no issues found
+
+|`1`
+|Error
+|Invalid arguments, file not found, parse errors, network failures
+
+|`2`
+|Warning
+|Version inconsistencies detected (multi-module projects)
+|===
+
+=== Exit Code Examples
+
+[source,bash]
+----
+# Check exit code
+java -jar mav-guard-cli.jar analyze pom.xml
+echo "Exit code: $?"
+
+# Handle specific exit codes
+java -jar mav-guard-cli.jar analyze pom.xml
+case $? in
+    0) echo "✅ Success - no issues" ;;
+    1) echo "❌ Error occurred" ;;
+    2) echo "⚠️ Warnings detected" ;;
+esac
+----
+
+== Advanced Usage
+
+=== Automation Scripts
+
+[source,bash]
+----
+#!/bin/bash
+# Check for updates and handle exit codes
+java -jar mav-guard-cli.jar check-updates pom.xml
+exit_code=$?
+
+if [ $exit_code -eq 0 ]; then
+    echo "✅ No issues found"
+else
+    echo "❌ Issues detected - check output above"
+    exit 1
+fi
+----
+
+=== Output Processing
+
+[source,bash]
+----
+# Extract specific information
+java -jar mav-guard-cli.jar analyze pom.xml | grep "Total dependencies"
+
+# Count updates available
+java -jar mav-guard-cli.jar check-updates pom.xml | grep -c " -> "
+
+# Filter for specific dependencies
+java -jar mav-guard-cli.jar check-updates pom.xml | grep "org.springframework"
+----
+
+=== Batch Processing
+
+[source,bash]
+----
+# Process multiple projects
+for project in projects/*/pom.xml; do
+    echo "Analyzing: $project"
+    java -jar mav-guard-cli.jar analyze "$project"
+    echo "---"
+done
+
+# Find and process all POM files
+find . -name "pom.xml" -type f | while read pom; do
+    echo "Processing: $pom"
+    java -jar mav-guard-cli.jar check-updates "$pom"
+done
+----
+
+=== IDE Integration
+
+**IntelliJ IDEA External Tool:**
+- Program: `java`
+- Arguments: `-jar /path/to/mav-guard-cli.jar analyze $FilePath$`
+- Working Directory: `$ProjectFileDir$`
+
+**VS Code Task:**
+[source,json]
+----
+{
+    "label": "MavGuard Analyze",
+    "type": "shell",
+    "command": "java",
+    "args": ["-jar", "/path/to/mav-guard-cli.jar", "analyze", "pom.xml"],
+    "group": "build"
+}
+----
+
+=== CI/CD Integration
+
+[source,bash]
+----
+# Jenkins/GitHub Actions
+java -jar mav-guard-cli.jar check-updates pom.xml
+if [ $? -ne 0 ]; then
+    echo "Dependency issues detected"
+    exit 1
+fi
+----
+
+== Error Handling
+
+=== Common Error Messages
+
+**File Not Found:**
+```
+Error: POM file not found: /path/to/pom.xml
+Please verify the file path and try again.
+```
+
+**Parse Error:**
+```
+Error: Failed to parse POM file: /path/to/pom.xml
+Cause: XML syntax error at line 25, column 10
+```
+
+**Network Error:**
+```
+Warning: Could not check for updates
+Cause: Connection timeout to repository
+Continuing with analysis only...
+```
+
+=== Troubleshooting
+
+[source,bash]
+----
+# Test file accessibility
+ls -la pom.xml
+java -jar mav-guard-cli.jar analyze pom.xml
+
+# Test with sample project
+java -jar mav-guard-cli.jar analyze sample/simple-project/pom.xml
+
+# Check Java compatibility
+java -version
+java -jar mav-guard-cli.jar --version
+----
+
+== Performance Considerations
+
+=== Large Projects
+
+* Analysis time scales with the number of modules
+* Network requests are made for update checking
+* Consider running analysis separately from update checking
+
+=== Network Timeouts
+
+[source,bash]
+----
+# Analysis only (no network required)
+java -jar mav-guard-cli.jar analyze pom.xml
+
+# Update checking (requires network)
+java -jar mav-guard-cli.jar check-updates pom.xml
+----
+
+== Next Steps
+
+* Learn about <<../user-guide/configuration.adoc#,configuration options>>
+* Explore <<../examples/basic-usage.adoc#,automation examples>>  
+* Review <<../user-guide/ci-integration.adoc#,CI/CD integration patterns>>
+* See <<../user-guide/troubleshooting.adoc#,troubleshooting guide>>
