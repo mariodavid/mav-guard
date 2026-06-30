@@ -17,7 +17,7 @@
 
     <properties>
         <!-- Modul B verwendet eine neuere Version von Jackson -->
-        <jackson.version>2.14.0</jackson.version>
+        <jackson.version>2.22.0</jackson.version>
     </properties>
 
     <dependencies>
